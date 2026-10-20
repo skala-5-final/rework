@@ -15,6 +15,7 @@ import httpx2
 from mcp import Client
 from mcp.client.stdio import StdioServerParameters
 from mcp.client.streamable_http import streamable_http_client
+from mcp.shared.exceptions import MCPError
 from mcp.shared._httpx_utils import create_mcp_http_client
 
 from rework.agent.errors import ToolCallError, TransientError
@@ -42,6 +43,7 @@ class ToolHub:
         self.calls = 0
         self._stack = AsyncExitStack()
         self._schemas: dict[str, list] = {}
+        self._templates: dict[str, list] = {}
 
     async def _transport(self, name: str, module: str):
         cfg = get_settings()
@@ -63,11 +65,13 @@ class ToolHub:
                                 read_timeout_seconds=get_settings().mcp_timeout_seconds)
                 self.clients[name] = await self._stack.enter_async_context(client)
                 self._schemas[name] = (await self.clients[name].list_tools()).tools
+                self._templates[name] = (await self.clients[name].list_resource_templates()).resource_templates
         except Exception as e:
             await self._stack.aclose()
             raise TransientError(f"MCP 서버 연결 실패: {e}") from e
-        record_event(self.ctx.job_id, self.ctx.run_id, "status", "mcp",
-                     "MCP 서버 연결: " + ", ".join(f"{n}({len(t)}개 도구)" for n, t in self._schemas.items()))
+        record_event(self.ctx.job_id, self.ctx.run_id, "status", "mcp", "MCP 서버 연결: " + ", ".join(
+            f"{n}({len(self._schemas[n])}개 도구" + (f", 리소스 {len(self._templates[n])}종" if self._templates[n] else "") + ")"
+            for n in SERVERS))
         return self
 
     async def __aexit__(self, *exc):
@@ -79,11 +83,34 @@ class ToolHub:
                                                   "parameters": t.input_schema}}
                 for t in self._schemas[server] if t.name in names]
 
-    async def call(self, server: str, tool: str, args: dict, *, node: str) -> dict:
+    def _count(self) -> None:
         limit = get_settings().run_max_tool_calls
         if self.calls >= limit:
             raise ToolCallError(f"실행당 도구 호출 한도({limit}회)를 넘었습니다.")
         self.calls += 1
+
+    async def read_resource(self, server: str, uri: str, *, node: str) -> dict:
+        """앱이 고른 읽기 전용 자료(Resource)를 읽는다. 도구 호출과 같은 한도를 적용하고 같은 형식으로 기록한다."""
+        self._count()
+        started = time.monotonic()
+        error = None
+        try:
+            res = await self.clients[server].read_resource(uri)
+        except MCPError as e:  # 서버가 거절함 (없는 자료, 권한 없음)
+            error = str(e)
+        except Exception as e:  # 연결 문제
+            record_event(self.ctx.job_id, self.ctx.run_id, "error", node, f"{server} 리소스 읽기 실패: {e}")
+            raise TransientError(f"{server} 리소스 {uri} 읽기 실패: {e}") from e
+        record_event(self.ctx.job_id, self.ctx.run_id, "tool_call", node, f"{server}.read_resource",
+                     {"args": {"uri": uri}, "ok": error is None, "ms": int((time.monotonic() - started) * 1000),
+                      "error": error[:300] if error else None})
+        if error is not None:
+            raise ToolCallError(error)
+        text = "".join(getattr(c, "text", "") for c in res.contents)
+        return json.loads(text) if text else {}
+
+    async def call(self, server: str, tool: str, args: dict, *, node: str) -> dict:
+        self._count()
         if self.ctx.inject_failure and self.ctx.attempt == 1 and self.calls == 1:
             record_event(self.ctx.job_id, self.ctx.run_id, "error", node, f"[장애 시연] {server}.{tool} 일시적 연결 실패")
             raise TransientError(f"[장애 시연] {server}.{tool} 일시적 연결 실패")

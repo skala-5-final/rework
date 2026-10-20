@@ -3,7 +3,7 @@
 from typing import Annotated
 
 from mcp.server.mcpserver import Context, MCPServer
-from mcp.server.mcpserver.exceptions import ToolError
+from mcp.server.mcpserver.exceptions import ResourceError, ToolError
 from pydantic import Field
 
 from rework.auth.mcp_scope import ScopeError, resolve_scope
@@ -17,12 +17,39 @@ server = MCPServer(
 )
 
 
-def _tenant(ctx: Context) -> str:
+def _tenant(ctx: Context, error: type[Exception] = ToolError) -> str:
     """요청마다 회사를 정한다 (stdio: 환경 변수, HTTP: 서명된 실행 토큰)."""
     try:
         return resolve_scope(ctx.headers).tenant_id
     except ScopeError as e:
-        raise ToolError(str(e)) from e
+        raise error(str(e)) from e
+
+
+# ---------- Resource: 읽기 전용 자료. 모델이 고르는 도구와 달리 Agent(앱)가 골라 컨텍스트에 넣는다 ----------
+
+@server.resource("doc://{chunk_id}", name="문서 조각", mime_type="application/json",
+                 description="업무 문서 조각의 원문 전체, 문서 버전, 출처 위치. search_work_rules 결과의 chunk_id로 읽는다.")
+def doc_chunk(chunk_id: str, ctx: Context) -> dict:
+    tenant_id = _tenant(ctx, ResourceError)
+    try:
+        with session_scope() as s:
+            return index.excerpt(s, tenant_id=tenant_id, chunk_id=chunk_id)
+    except LookupError as e:
+        raise ResourceError(str(e)) from e
+
+
+@server.resource("knowledge://{kind}", name="업무 지식 목록", mime_type="application/json",
+                 description="회사에 등록된 업무 지식 목록 (kind: guideline | dictionary | confirmed). 제목마다 최신 버전만.")
+def knowledge_list(kind: str, ctx: Context) -> dict:
+    tenant_id = _tenant(ctx, ResourceError)
+    try:
+        with session_scope() as s:
+            return {"kind": kind, "documents": index.list_documents(s, tenant_id=tenant_id, kind=kind)}
+    except LookupError as e:
+        raise ResourceError(str(e)) from e
+
+
+# ---------- Tool ----------
 
 
 @server.tool()
