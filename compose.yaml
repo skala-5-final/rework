@@ -1,3 +1,27 @@
+# docker compose up -d --build
+# api(8000)만 밖에 연다. MCP 서버는 compose 내부 네트워크에서만 Worker가 연결한다.
+
+x-app: &app
+  build: .
+  image: rework-app
+  env_file:
+    - path: .env
+      required: false
+  environment: &app-env
+    DATABASE_URL: postgresql+psycopg://rework:rework@postgres:5432/rework
+    RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    MCP_TRANSPORT: http
+    BUSINESS_MCP_URL: http://business-mcp:8001/mcp
+    RAG_MCP_URL: http://rag-mcp:8002/mcp
+  volumes:
+    # 로컬 실행(uv run)과 같은 폴더를 쓴다. DB에는 이 폴더 기준 상대경로가 저장된다.
+    - ./var/storage:/app/var/storage
+  restart: unless-stopped
+
+x-mcp-health: &mcp-health
+  interval: 5s
+  retries: 20
+
 services:
   postgres:
     image: pgvector/pgvector:pg16
@@ -23,6 +47,48 @@ services:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 5s
       retries: 20
+
+  business-mcp:
+    <<: *app
+    command: python -m rework.business_mcp.server
+    depends_on:
+      postgres: { condition: service_healthy }
+    healthcheck:
+      <<: *mcp-health
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('localhost', 8001), 2)"]
+
+  rag-mcp:
+    <<: *app
+    command: python -m rework.rag_mcp.server
+    volumes: []   # 업로드 파일을 읽지 않는다 (DB만 사용)
+    depends_on:
+      postgres: { condition: service_healthy }
+    healthcheck:
+      <<: *mcp-health
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('localhost', 8002), 2)"]
+
+  api:
+    <<: *app
+    command: uvicorn rework.api.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/login', timeout=2)"]
+      interval: 5s
+      retries: 20
+
+  worker:
+    <<: *app
+    command: python -m rework.workers.worker
+    depends_on:
+      # api가 테이블을 만든 뒤에 시작한다 (init_db 동시 실행 방지).
+      api: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+      business-mcp: { condition: service_healthy }
+      rag-mcp: { condition: service_healthy }
 
 volumes:
   pgdata:

@@ -1,6 +1,6 @@
 {
   "_note": "정답 영역. Agent 실행 입력에 넣지 않는다. 테스트·평가 스크립트만 읽는다.",
-  "report": "reports/2026-06_ST001_월간판매실적보고서.pdf",
+  "report": "data/2026-06_ST001_월간판매실적보고서.pdf",
   "calc_rules": {
     "매출액": {"op": "sum", "column": "net_sales_amount_krw", "scale": 1000, "decimals": 0},
     "총매출액(할인 전)": {"op": "sum", "column": "gross_sales_amount_krw", "scale": 1000, "decimals": 0},

@@ -22,7 +22,7 @@ from rework.db.models import (Answer, Artifact, Document, Event, File as FileRow
 from rework.db.session import get_db, init_db
 from rework.queue.rabbit import outbox_relay
 from rework.rag_mcp.services import index as rag_index
-from rework.storage import save_bytes
+from rework.storage import resolve, save_bytes
 
 WEB = Path(__file__).resolve().parents[1] / "web"
 templates = Jinja2Templates(directory=WEB / "templates")
@@ -113,8 +113,8 @@ async def upload_file(kind: str = Form(...), file: UploadFile = File(...), db: S
     else:
         raise HTTPException(400, "kind는 source | report | document 중 하나입니다.")
     fid = new_id("file")
-    path, digest = save_bytes(user.tenant_id, fid, file.filename, data)
-    db.add(FileRow(id=fid, tenant_id=user.tenant_id, kind=kind, original_name=file.filename, path=str(path),
+    ref, digest = save_bytes(user.tenant_id, fid, file.filename, data)
+    db.add(FileRow(id=fid, tenant_id=user.tenant_id, kind=kind, original_name=file.filename, path=ref,
                    sha256=digest, size=len(data)))
     return {"file_id": fid, "sha256": digest, "size": len(data)}
 
@@ -250,13 +250,13 @@ def job_artifacts(job_id: str, db: Session = Depends(get_db), user: CurrentUser 
 @app.get("/artifacts/{artifact_id}/download")
 def download(artifact_id: str, db: Session = Depends(get_db), user: CurrentUser = Depends(current_user)):
     a = _owned(db, Artifact, artifact_id, user)
-    return FileResponse(a.path, filename=a.filename)
+    return FileResponse(resolve(a.path), filename=a.filename)
 
 
 @app.get("/artifacts/{artifact_id}/preview", response_class=HTMLResponse)
 def preview(artifact_id: str, db: Session = Depends(get_db), user: CurrentUser = Depends(current_user)):
     a = _owned(db, Artifact, artifact_id, user)
-    text = Path(a.path).read_text(encoding="utf-8")
+    text = resolve(a.path).read_text(encoding="utf-8")
     if a.filename.endswith(".md"):
         return markdown.markdown(text, extensions=["tables", "fenced_code"])
     return f"<pre>{text[:20000]}</pre>"

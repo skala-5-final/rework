@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -22,6 +23,16 @@ class Settings(BaseSettings):
     jwt_ttl_minutes: int = 60 * 12
 
     storage_dir: Path = ROOT / "var" / "storage"
+
+    # MCP 연결: stdio = Worker가 서버를 자식 프로세스로 띄움, http = 따로 떠 있는 서버에 Streamable HTTP로 연결
+    mcp_transport: Literal["stdio", "http"] = "stdio"
+    business_mcp_url: str = "http://localhost:8001/mcp"
+    rag_mcp_url: str = "http://localhost:8002/mcp"
+    business_mcp_port: int = 8001
+    rag_mcp_port: int = 8002
+    mcp_token_secret: str = "change-me-mcp-token-secret-32-bytes!"
+    mcp_token_ttl_seconds: int = 1800
+    mcp_timeout_seconds: int = 120
 
     # Agent 실행 한도 (업무 한도: 넘으면 미확인으로 정리하고 정상 종료)
     calc_max_iterations: int = 3

@@ -10,10 +10,23 @@
 
 준비: Docker Desktop 실행, 루트 `.env`에 OpenAI 키 (`OPENAI_API_KEY`, 또는 `OPEN_API_KEY`).
 
+### A. 전체를 컨테이너로 실행 (기본)
+
+api · worker · business-mcp · rag-mcp · PostgreSQL · RabbitMQ가 함께 뜬다. Worker는 두 MCP 서버에 **Streamable HTTP**로 연결하고, 요청마다 서명한 실행 토큰을 보낸다.
+
+```bash
+docker compose up -d --build
+docker compose exec api python scripts/seed_demo.py   # 처음 한 번: 데모 회사·사용자·업무 지식 등록
+```
+
+### B. 로컬 개발 (MCP를 stdio로 연결)
+
+같은 MCP 서버 코드를 Worker가 실행마다 자식 프로세스로 띄운다.
+
 ```bash
 uv sync                                   # 의존성 설치 (버전은 uv.lock에 고정)
-docker compose up -d                      # PostgreSQL(5433) + RabbitMQ(5672, 관리 화면 15672)
-uv run python scripts/seed_demo.py        # 데모 회사·사용자·업무 지식 등록
+docker compose up -d postgres rabbitmq    # PostgreSQL(5433) + RabbitMQ(5672, 관리 화면 15672)
+uv run python scripts/seed_demo.py
 
 # 터미널 1: API + 화면
 uv run uvicorn rework.api.main:app --port 8000
@@ -21,9 +34,11 @@ uv run uvicorn rework.api.main:app --port 8000
 uv run python -m rework.workers.worker
 ```
 
+A와 B를 동시에 실행하지 않는다 (두 Worker가 같은 큐를 나눠 가진다). 업로드 파일은 두 방식 모두 `var/storage`에 저장된다.
+
 브라우저에서 http://localhost:8000 → `demo` / `demo1234` 로그인
 
-1. 대시보드에서 원천 CSV(`data/agent_판매분석가_일별상세.csv`)와 보고서 PDF(`reports/2026-06_ST001_월간판매실적보고서.pdf`)를 올리고 **분석 시작**을 누른다. "장애 시연"을 켜면 첫 도구 호출이 실패하고 10초 뒤 큐 재시도로 이어서 진행된다.
+1. 대시보드에서 원천 CSV(`data/판매분석가_일별상세.csv`)와 보고서 PDF(`data/2026-06_ST001_월간판매실적보고서.pdf`)를 올리고 **분석 시작**을 누른다. "장애 시연"을 켜면 첫 도구 호출이 실패하고 10초 뒤 큐 재시도로 이어서 진행된다.
 2. 작업 화면에서 진행 이벤트를 본다. 약 1~2분 뒤 **담당자 확인 질문**이 뜨면 답한다.
 3. 완료되면 계산 규칙·판단 근거·매뉴얼 탭과 결과물을 확인한다.
 4. "결과물 · 다음 기간" 탭에서 같은 CSV와 `2026-07`을 넣으면 7월(부분월) 보고서 초안이 만들어진다.
@@ -43,7 +58,7 @@ uv run python scripts/eval_run.py <job_id>      # 정답표와 비교
 ```text
 src/rework/
 ├── api/            FastAPI (인증·파일·작업·질문·결과·화면)
-├── auth/           JWT·비밀번호
+├── auth/           JWT·비밀번호·MCP 실행 토큰
 ├── queue/          RabbitMQ 큐 구성·outbox 발행기
 ├── workers/        Worker (중복 방지·임대·재시도)
 ├── agent/          LangGraph 그래프·노드·프롬프트·MCP 클라이언트·실행 진입점
@@ -52,8 +67,7 @@ src/rework/
 ├── contracts/      규칙·판단 기준 스키마
 ├── db/             SQLAlchemy 모델·세션
 └── web/            템플릿·CSS·JS
-data/               원천 데이터
-reports/            완성 보고서 PDF (Agent 입력)
+data/               원천 데이터 CSV · 완성 보고서 PDF (Agent 입력)
 docs/knowledge/     시연용 업무 지침 (RAG)
 tests/fixtures/ground_truth/   정답표·보고서 원본 HTML (Agent 입력 아님)
 scripts/            시드·로컬 실행·평가

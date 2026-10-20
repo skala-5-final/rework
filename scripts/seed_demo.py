@@ -18,13 +18,20 @@ USERS = [("demo-store", "ST001 점포 운영팀", "demo", "demo1234", "점포 �
          ("other-co", "다른 회사", "other", "other1234", "다른 회사 사용자")]
 
 
-def data_dictionary() -> str:
-    """컬럼명세서에서 일별상세 열 설명만 뽑는다. 계산식(source_or_formula)은 넣지 않는다."""
+SOURCE_CSV = "판매분석가_일별상세.csv"
+COLUMN_SPEC = ROOT / "data" / "컬럼명세서.csv"
+
+
+def data_dictionary() -> str | None:
+    """컬럼명세서에서 일별상세 열 설명만 뽑는다. 계산식(source_or_formula)은 넣지 않는다. 명세서가 없으면 None."""
+    if not COLUMN_SPEC.exists():
+        return None
     lines = ["# 데이터 사전: 판매분석가 일별상세", "",
-             "원천 데이터 agent_판매분석가_일별상세.csv의 열 설명이다.", ""]
-    with open(ROOT / "data" / "컬럼명세서.csv", encoding="utf-8-sig") as f:
+             f"원천 데이터 {SOURCE_CSV}의 열 설명이다.", ""]
+    with open(COLUMN_SPEC, encoding="utf-8-sig") as f:
         for row in csv.DictReader(f):
-            if row["file_name"] != "agent_판매분석가_일별상세.csv":
+            # 예전 명세서는 파일 이름 앞에 agent_가 붙어 있다.
+            if row["file_name"].removeprefix("agent_") != SOURCE_CSV:
                 continue
             lines += [f"## {row['column_name']}",
                       f"- 타입: {row['data_type']} · 단위: {row['unit'] or '-'} · 설명: {row['description']}", ""]
@@ -40,8 +47,11 @@ def main() -> None:
                 s.flush()
             if s.scalar(select(User).where(User.username == username)) is None:
                 s.add(User(tenant_id=tid, username=username, password_hash=hash_password(pw), display_name=display))
-        docs = [("점포 월간 판매 실적 보고서 작성 지침", (ROOT / "docs/knowledge/점포_보고서_작성_지침.md").read_text(), "guideline"),
-                ("데이터 사전: 판매분석가 일별상세", data_dictionary(), "dictionary")]
+        docs = [("점포 월간 판매 실적 보고서 작성 지침", (ROOT / "docs/knowledge/점포_보고서_작성_지침.md").read_text(), "guideline")]
+        if (dictionary := data_dictionary()) is not None:
+            docs.append(("데이터 사전: 판매분석가 일별상세", dictionary, "dictionary"))
+        else:
+            print(f"데이터 사전 건너뜀: {COLUMN_SPEC.relative_to(ROOT)} 없음")
         for title, content, kind in docs:
             if s.scalar(select(Document).where(Document.tenant_id == "demo-store", Document.title == title)) is None:
                 print(title, index.register_document(s, tenant_id="demo-store", title=title, content=content, kind=kind))

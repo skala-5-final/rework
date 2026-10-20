@@ -185,7 +185,12 @@ async def verify_calc_rules(state, config):
     calc = await hub.call("business", "execute_aggregation",
                           {"dataset_id": state["dataset_id"], "report_id": state["report_id"], "rules": rules},
                           node="verify_calc_rules")
-    cmp = await hub.call("business", "compare_report", {"calculation_id": calc["calculation_id"]}, node="verify_calc_rules")
+    try:
+        cmp = await hub.call("business", "compare_report", {"calculation_id": calc["calculation_id"]},
+                             node="verify_calc_rules")
+    except ToolCallError as e:
+        # 계산 결과는 서버 메모리에만 있다. 그사이 서버가 재시작됐으면 이 노드를 처음부터 다시 실행한다.
+        raise TransientError(f"계산 결과를 다시 찾지 못했습니다: {e}") from e
     status, history = dict(state["calc_status"]), copy.deepcopy(state["calc_history"])
     for c in cmp["comparisons"]:
         status[c["slot_id"]] = c

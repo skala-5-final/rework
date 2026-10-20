@@ -12,7 +12,7 @@ from rework.business_mcp.services import analysis as A
 from rework.business_mcp.services.calc import execute, missing_groups
 from rework.contracts.rules import CalcRule, DecisionCriterion
 from rework.db.models import Answer, Artifact, Question, Rationale, RuleVersion, Run
-from rework.storage import artifact_dir
+from rework.storage import artifact_dir, to_ref
 
 CONFIRM_CHOICES = {"confirm": "confirmed", "reject": "rejected"}
 
@@ -90,9 +90,9 @@ def _put_artifact(s, *, tenant_id, run, kind, filename, content: str) -> str:
     path.write_text(content, encoding="utf-8")
     art = s.scalar(select(Artifact).where(Artifact.run_id == run.id, Artifact.kind == kind))
     if art:
-        art.filename, art.path = filename, str(path)
+        art.filename, art.path = filename, to_ref(path)
     else:
-        art = Artifact(tenant_id=tenant_id, job_id=run.job_id, run_id=run.id, kind=kind, filename=filename, path=str(path))
+        art = Artifact(tenant_id=tenant_id, job_id=run.job_id, run_id=run.id, kind=kind, filename=filename, path=to_ref(path))
         s.add(art)
     s.flush()
     return art.id

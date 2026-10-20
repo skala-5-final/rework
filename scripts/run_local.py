@@ -25,7 +25,7 @@ def register(tenant: str, kind: str, path: Path) -> str:
         s.add(f)
         s.flush()
         stored, digest = save_bytes(tenant, f.id, path.name, path.read_bytes())
-        f.path, f.sha256, f.size = str(stored), digest, path.stat().st_size
+        f.path, f.sha256, f.size = stored, digest, path.stat().st_size
         return f.id
 
 
@@ -75,7 +75,7 @@ async def main(args) -> None:
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--source", default="data/agent_판매분석가_일별상세.csv")
-    ap.add_argument("--report", default="reports/2026-06_ST001_월간판매실적보고서.pdf")
+    ap.add_argument("--source", default="data/판매분석가_일별상세.csv")
+    ap.add_argument("--report", default="data/2026-06_ST001_월간판매실적보고서.pdf")
     ap.add_argument("--auto-answer", action="store_true")
     asyncio.run(main(ap.parse_args()))
