@@ -1,0 +1,914 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>2026년 6월 판매 실적 보고서</title>
+<style>
+@page { size: A4; margin: 16mm 15mm 16mm 15mm; }
+* { box-sizing: border-box; }
+body { font-family: "Apple SD Gothic Neo", sans-serif; color: #1f2937; font-size: 9.6pt; line-height: 1.55; margin: 0; }
+.head { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1f2937; padding-bottom: 10px; }
+.head .meta { font-size: 8.5pt; color: #6b7280; }
+h1 { font-size: 19pt; margin: 4px 0 6px; letter-spacing: -0.5px; }
+.approval { border-collapse: collapse; font-size: 8pt; text-align: center; }
+.approval td { border: 1px solid #9ca3af; width: 58px; padding: 3px; }
+.approval tr:last-child td { height: 40px; }
+.approval .lbl { width: 22px; background: #f3f4f6; writing-mode: vertical-rl; }
+h2 { font-size: 11.5pt; margin: 18px 0 8px; padding-left: 8px; border-left: 4px solid #1d4ed8; }
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
+.kpi { border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 10px; }
+.kpi .l { font-size: 8pt; color: #6b7280; }
+.kpi .v { font-size: 15pt; font-weight: 700; }
+.kpi .s { font-size: 8pt; color: #6b7280; }
+ul { margin: 0; padding-left: 18px; } li { margin: 3px 0; }
+table.t { width: 100%; border-collapse: collapse; font-size: 8.8pt; }
+table.t th, table.t td { border-bottom: 1px solid #e5e7eb; padding: 4px 6px; }
+table.t thead th { background: #f3f4f6; font-weight: 600; text-align: center; border-top: 1px solid #9ca3af; }
+table.t tbody th { text-align: left; font-weight: 500; }
+table.t td { text-align: right; font-variant-numeric: tabular-nums; }
+table.t td.cat, table.t td.rank { text-align: center; color: #6b7280; }
+table.t td.unit { color: #9ca3af; text-align: center; }
+table.t tr.total th, table.t tr.total td { font-weight: 700; border-top: 1px solid #9ca3af; }
+.up { color: #b91c1c; } .down { color: #1d4ed8; }
+.note { font-size: 7.8pt; color: #6b7280; margin-top: 4px; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.chart svg { width: 100%; height: auto; }
+.page { break-after: page; }
+.foot { margin-top: 18px; border-top: 1px solid #e5e7eb; padding-top: 6px; font-size: 7.8pt; color: #9ca3af; }
+</style></head><body>
+
+<div class="page">
+<div class="head">
+  <div>
+    <div class="meta">점포 운영 보고 · ST001 점포 · 사내 한정</div>
+    <h1>2026년 6월 판매 실적 보고서</h1>
+    <div class="meta">집계 기간 2026.06.01 ~ 2026-06-30 · 비교 기준 2026년 5월 · 작성: 점포 운영 담당</div>
+  </div>
+  <table class="approval"><tr><td class="lbl" rowspan="2">결재</td><td>담당</td><td>점장</td></tr><tr><td></td><td></td></tr></table>
+</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="l">매출액</div><div class="v">18,199</div><div class="s">천원 · 전월 대비 -2.1%</div></div>
+  <div class="kpi"><div class="l">일평균 매출액</div><div class="v">607</div><div class="s">천원</div></div>
+  <div class="kpi"><div class="l">판매수량</div><div class="v">7,982</div><div class="s">개</div></div>
+  <div class="kpi"><div class="l">행사 판매 비중</div><div class="v">12.2%</div><div class="s">수량 기준</div></div>
+</div>
+
+<h2>1. 요약</h2>
+<ul><li>6월 매출은 <b>18,199천원</b>으로 전월 대비 <b>-2.1%</b> 감소했습니다. 영업일수가 31일에서 30일로 줄어 일평균 매출 기준으로는 +1.1%입니다.</li><li>카테고리별로는 <b>즉석식품</b>이 매출의 35.0%로 가장 컸고, 전월 대비 증가한 카테고리는 음료입니다.</li><li>행사는 15일간 12개 품목에서 진행되었으며 할인액은 199천원(총매출 대비 1.1%)입니다.</li><li>전월 대비 15% 이상 감소한 부진 품목은 6개이며, 카스텔라, 크림빵, 참치캔 순으로 감소 폭이 큽니다.</li></ul>
+
+<h2>2. 주요 지표</h2>
+<table class="t"><thead><tr><th>구분</th><th>5월</th><th>6월</th><th>증감률</th><th>단위</th></tr></thead>
+<tbody><tr><th>매출액</th><td>18,595</td><td>18,199</td><td class='down'>-2.1%</td><td class='unit'>천원</td></tr><tr><th>총매출액(할인 전)</th><td>18,600</td><td>18,398</td><td class='down'>-1.1%</td><td class='unit'>천원</td></tr><tr><th>할인액</th><td>6</td><td>199</td><td class='up'>+3315.3%</td><td class='unit'>천원</td></tr><tr><th>판매수량</th><td>8,044</td><td>7,982</td><td class='down'>-0.8%</td><td class='unit'>개</td></tr><tr><th>거래건수</th><td>6,017</td><td>5,935</td><td class='down'>-1.4%</td><td class='unit'>건</td></tr><tr><th>영업일수</th><td>31</td><td>30</td><td class='down'>-3.2%</td><td class='unit'>일</td></tr><tr><th>일평균 매출액</th><td>600</td><td>607</td><td class='up'>+1.1%</td><td class='unit'>천원</td></tr></tbody></table>
+<div class="note">※ 매출액은 할인 차감 후 금액입니다. 금액은 천원 단위에서 반올림했습니다.</div>
+
+<h2>3. 일별 매출 추이</h2>
+<div class="chart"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="488.7392pt" height="164.056pt" viewBox="0 0 488.7392 164.056" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-10-20T11:00:51.258677</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 164.056 
+L 488.7392 164.056 
+L 488.7392 0 
+L 0 0 
+L 0 164.056 
+z
+" style="fill: none"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 42.48 140.256 
+L 444.24 140.256 
+L 444.24 7.2 
+L 42.48 7.2 
+L 42.48 140.256 
+z
+" style="fill: none"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 109.44 140.256 
+L 122.832 140.256 
+L 122.832 7.2 
+L 109.44 7.2 
+z
+" clip-path="url(#pf3e9c74b0e)" style="fill: #f1f5f9; stroke: #f1f5f9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 122.832 140.256 
+L 136.224 140.256 
+L 136.224 7.2 
+L 122.832 7.2 
+z
+" clip-path="url(#pf3e9c74b0e)" style="fill: #f1f5f9; stroke: #f1f5f9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 203.184 140.256 
+L 216.576 140.256 
+L 216.576 7.2 
+L 203.184 7.2 
+z
+" clip-path="url(#pf3e9c74b0e)" style="fill: #f1f5f9; stroke: #f1f5f9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 216.576 140.256 
+L 229.968 140.256 
+L 229.968 7.2 
+L 216.576 7.2 
+z
+" clip-path="url(#pf3e9c74b0e)" style="fill: #f1f5f9; stroke: #f1f5f9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 296.928 140.256 
+L 310.32 140.256 
+L 310.32 7.2 
+L 296.928 7.2 
+z
+" clip-path="url(#pf3e9c74b0e)" style="fill: #f1f5f9; stroke: #f1f5f9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 310.32 140.256 
+L 323.712 140.256 
+L 323.712 7.2 
+L 310.32 7.2 
+z
+" clip-path="url(#pf3e9c74b0e)" style="fill: #f1f5f9; stroke: #f1f5f9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 390.672 140.256 
+L 404.064 140.256 
+L 404.064 7.2 
+L 390.672 7.2 
+z
+" clip-path="url(#pf3e9c74b0e)" style="fill: #f1f5f9; stroke: #f1f5f9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 404.064 140.256 
+L 417.456 140.256 
+L 417.456 7.2 
+L 404.064 7.2 
+z
+" clip-path="url(#pf3e9c74b0e)" style="fill: #f1f5f9; stroke: #f1f5f9; stroke-linejoin: miter"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <defs>
+       <path id="m05c3999a18" d="M 0 0 
+L 0 3.5 
+" style="stroke: #6b7280; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m05c3999a18" x="49.176" y="140.256" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="49.176" y="154.456" transform="rotate(-0 49.176 154.456)">1</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2">
+      <g>
+       <use xlink:href="#m05c3999a18" x="75.96" y="140.256" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="75.96" y="154.456" transform="rotate(-0 75.96 154.456)">3</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3">
+      <g>
+       <use xlink:href="#m05c3999a18" x="102.744" y="140.256" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="102.744" y="154.456" transform="rotate(-0 102.744 154.456)">5</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m05c3999a18" x="129.528" y="140.256" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="129.528" y="154.456" transform="rotate(-0 129.528 154.456)">7</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_5">
+      <g>
+       <use xlink:href="#m05c3999a18" x="156.312" y="140.256" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="156.312" y="154.456" transform="rotate(-0 156.312 154.456)">9</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#m05c3999a18" x="183.096" y="140.256" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="183.096" y="154.456" transform="rotate(-0 183.096 154.456)">11</text>
+     </g>
+    </g>
+    <g id="xtick_7">
+     <g id="line2d_7">
+      <g>
+       <use xlink:href="#m05c3999a18" x="209.88" y="140.256" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="209.88" y="154.456" transform="rotate(-0 209.88 154.456)">13</text>
+     </g>
+    </g>
+    <g id="xtick_8">
+     <g id="line2d_8">
+      <g>
+       <use xlink:href="#m05c3999a18" x="236.664" y="140.256" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_8">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="236.664" y="154.456" transform="rotate(-0 236.664 154.456)">15</text>
+     </g>
+    </g>
+    <g id="xtick_9">
+     <g id="line2d_9">
+      <g>
+       <use xlink:href="#m05c3999a18" x="263.448" y="140.256" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="263.448" y="154.456" transform="rotate(-0 263.448 154.456)">17</text>
+     </g>
+    </g>
+    <g id="xtick_10">
+     <g id="line2d_10">
+      <g>
+       <use xlink:href="#m05c3999a18" x="290.232" y="140.256" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_10">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="290.232" y="154.456" transform="rotate(-0 290.232 154.456)">19</text>
+     </g>
+    </g>
+    <g id="xtick_11">
+     <g id="line2d_11">
+      <g>
+       <use xlink:href="#m05c3999a18" x="317.016" y="140.256" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_11">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="317.016" y="154.456" transform="rotate(-0 317.016 154.456)">21</text>
+     </g>
+    </g>
+    <g id="xtick_12">
+     <g id="line2d_12">
+      <g>
+       <use xlink:href="#m05c3999a18" x="343.8" y="140.256" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_12">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="343.8" y="154.456" transform="rotate(-0 343.8 154.456)">23</text>
+     </g>
+    </g>
+    <g id="xtick_13">
+     <g id="line2d_13">
+      <g>
+       <use xlink:href="#m05c3999a18" x="370.584" y="140.256" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_13">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="370.584" y="154.456" transform="rotate(-0 370.584 154.456)">25</text>
+     </g>
+    </g>
+    <g id="xtick_14">
+     <g id="line2d_14">
+      <g>
+       <use xlink:href="#m05c3999a18" x="397.368" y="140.256" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_14">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="397.368" y="154.456" transform="rotate(-0 397.368 154.456)">27</text>
+     </g>
+    </g>
+    <g id="xtick_15">
+     <g id="line2d_15">
+      <g>
+       <use xlink:href="#m05c3999a18" x="424.152" y="140.256" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_15">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="424.152" y="154.456" transform="rotate(-0 424.152 154.456)">29</text>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_16">
+      <path d="M 42.48 126.666935 
+L 444.24 126.666935 
+" clip-path="url(#pf3e9c74b0e)" style="fill: none; stroke: #e5e7eb; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_17">
+      <defs>
+       <path id="m0dfaf6ba21" d="M 0 0 
+L -3.5 0 
+" style="stroke: #6b7280; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m0dfaf6ba21" x="42.48" y="126.666935" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_16">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: end; fill: #6b7280" x="35.48" y="130.266935" transform="rotate(-0 35.48 130.266935)">500</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_18">
+      <path d="M 42.48 93.73652 
+L 444.24 93.73652 
+" clip-path="url(#pf3e9c74b0e)" style="fill: none; stroke: #e5e7eb; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_19">
+      <g>
+       <use xlink:href="#m0dfaf6ba21" x="42.48" y="93.73652" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_17">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: end; fill: #6b7280" x="35.48" y="97.33652" transform="rotate(-0 35.48 97.33652)">600</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_20">
+      <path d="M 42.48 60.806105 
+L 444.24 60.806105 
+" clip-path="url(#pf3e9c74b0e)" style="fill: none; stroke: #e5e7eb; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_21">
+      <g>
+       <use xlink:href="#m0dfaf6ba21" x="42.48" y="60.806105" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_18">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: end; fill: #6b7280" x="35.48" y="64.406105" transform="rotate(-0 35.48 64.406105)">700</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_22">
+      <path d="M 42.48 27.87569 
+L 444.24 27.87569 
+" clip-path="url(#pf3e9c74b0e)" style="fill: none; stroke: #e5e7eb; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_23">
+      <g>
+       <use xlink:href="#m0dfaf6ba21" x="42.48" y="27.87569" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_19">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: end; fill: #6b7280" x="35.48" y="31.47569" transform="rotate(-0 35.48 31.47569)">800</text>
+     </g>
+    </g>
+    <g id="text_20">
+     <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="14.4" y="73.728" transform="rotate(-90 14.4 73.728)">천원</text>
+    </g>
+   </g>
+   <g id="line2d_24">
+    <path d="M 49.176 129.268438 
+L 62.568 124.69111 
+L 75.96 107.402642 
+L 89.352 104.307183 
+L 102.744 58.204602 
+L 116.136 64.296729 
+L 129.528 98.544361 
+L 142.92 134.208 
+L 156.312 130.289281 
+L 169.704 74.814704 
+L 183.096 96.858323 
+L 196.488 54.648118 
+L 209.88 13.248 
+L 223.272 89.057108 
+L 236.664 114.904191 
+L 250.056 101.132691 
+L 263.448 107.929529 
+L 276.84 77.985903 
+L 290.232 52.178336 
+L 303.624 72.812534 
+L 317.016 82.813501 
+L 330.408 133.770025 
+L 343.8 106.15458 
+L 357.192 108.653998 
+L 370.584 84.483074 
+L 383.976 64.757755 
+L 397.368 51.124563 
+L 410.76 92.979121 
+L 424.152 103.022897 
+L 437.544 112.0129 
+" clip-path="url(#pf3e9c74b0e)" style="fill: none; stroke: #1d4ed8; stroke-width: 2; stroke-linecap: square"/>
+    <defs>
+     <path id="m2547cee679" d="M 0 1.5 
+C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
+C 1.341951 0.77937 1.5 0.397805 1.5 0 
+C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
+C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
+C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
+C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
+C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
+C -0.77937 1.341951 -0.397805 1.5 0 1.5 
+z
+" style="stroke: #1d4ed8"/>
+    </defs>
+    <g clip-path="url(#pf3e9c74b0e)">
+     <use xlink:href="#m2547cee679" x="49.176" y="129.268438" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="62.568" y="124.69111" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="75.96" y="107.402642" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="89.352" y="104.307183" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="102.744" y="58.204602" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="116.136" y="64.296729" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="129.528" y="98.544361" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="142.92" y="134.208" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="156.312" y="130.289281" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="169.704" y="74.814704" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="183.096" y="96.858323" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="196.488" y="54.648118" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="209.88" y="13.248" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="223.272" y="89.057108" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="236.664" y="114.904191" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="250.056" y="101.132691" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="263.448" y="107.929529" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="276.84" y="77.985903" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="290.232" y="52.178336" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="303.624" y="72.812534" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="317.016" y="82.813501" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="330.408" y="133.770025" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="343.8" y="106.15458" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="357.192" y="108.653998" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="370.584" y="84.483074" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="383.976" y="64.757755" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="397.368" y="51.124563" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="410.76" y="92.979121" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="424.152" y="103.022897" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+     <use xlink:href="#m2547cee679" x="437.544" y="112.0129" style="fill: #1d4ed8; stroke: #1d4ed8"/>
+    </g>
+   </g>
+   <g id="line2d_25">
+    <path d="M 42.48 91.551807 
+L 444.24 91.551807 
+" clip-path="url(#pf3e9c74b0e)" style="fill: none; stroke-dasharray: 3.7,1.6; stroke-dashoffset: 0; stroke: #6b7280"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 42.48 140.256 
+L 42.48 7.2 
+" style="fill: none; stroke: #e5e7eb; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 42.48 140.256 
+L 444.24 140.256 
+" style="fill: none; stroke: #e5e7eb; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_21">
+    <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: start; fill: #6b7280" x="445.5792" y="93.951807" transform="rotate(-0 445.5792 93.951807)">일평균 607</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pf3e9c74b0e">
+   <rect x="42.48" y="7.2" width="401.76" height="133.056"/>
+  </clipPath>
+ </defs>
+</svg>
+</div>
+<div class="note">※ 음영 표시는 주말(토·일)입니다.</div>
+</div>
+
+<div class="page">
+<h2>4. 카테고리별 실적</h2>
+<div class="chart"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="457.62375pt" height="169.6pt" viewBox="0 0 457.62375 169.6" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-10-20T11:00:51.279382</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 169.6 
+L 457.62375 169.6 
+L 457.62375 0 
+L 0 0 
+L 0 169.6 
+z
+" style="fill: none"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 48.66375 145.8 
+L 450.42375 145.8 
+L 450.42375 7.2 
+L 48.66375 7.2 
+L 48.66375 145.8 
+z
+" style="fill: none"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <defs>
+       <path id="m7e0a995d90" d="M 0 0 
+L 0 3.5 
+" style="stroke: #6b7280; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m7e0a995d90" x="87.93474" y="145.8" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="87.93474" y="160" transform="rotate(-0 87.93474 160)">즉석식품</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2">
+      <g>
+       <use xlink:href="#m7e0a995d90" x="141.80441" y="145.8" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="141.80441" y="160" transform="rotate(-0 141.80441 160)">음료</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3">
+      <g>
+       <use xlink:href="#m7e0a995d90" x="195.67408" y="145.8" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="195.67408" y="160" transform="rotate(-0 195.67408 160)">유제품</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m7e0a995d90" x="249.54375" y="145.8" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="249.54375" y="160" transform="rotate(-0 249.54375 160)">베이커리</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_5">
+      <g>
+       <use xlink:href="#m7e0a995d90" x="303.41342" y="145.8" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="303.41342" y="160" transform="rotate(-0 303.41342 160)">스낵</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#m7e0a995d90" x="357.28309" y="145.8" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="357.28309" y="160" transform="rotate(-0 357.28309 160)">가공식품</text>
+     </g>
+    </g>
+    <g id="xtick_7">
+     <g id="line2d_7">
+      <g>
+       <use xlink:href="#m7e0a995d90" x="411.15276" y="145.8" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="411.15276" y="160" transform="rotate(-0 411.15276 160)">생활용품</text>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_8">
+      <path d="M 48.66375 145.8 
+L 450.42375 145.8 
+" clip-path="url(#pd3b31b5a39)" style="fill: none; stroke: #e5e7eb; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_9">
+      <defs>
+       <path id="mf9746a1c59" d="M 0 0 
+L -3.5 0 
+" style="stroke: #6b7280; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#mf9746a1c59" x="48.66375" y="145.8" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_8">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: end; fill: #6b7280" x="41.66375" y="149.4" transform="rotate(-0 41.66375 149.4)">0</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_10">
+      <path d="M 48.66375 125.331076 
+L 450.42375 125.331076 
+" clip-path="url(#pd3b31b5a39)" style="fill: none; stroke: #e5e7eb; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_11">
+      <g>
+       <use xlink:href="#mf9746a1c59" x="48.66375" y="125.331076" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: end; fill: #6b7280" x="41.66375" y="128.931076" transform="rotate(-0 41.66375 128.931076)">1,000</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_12">
+      <path d="M 48.66375 104.862151 
+L 450.42375 104.862151 
+" clip-path="url(#pd3b31b5a39)" style="fill: none; stroke: #e5e7eb; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_13">
+      <g>
+       <use xlink:href="#mf9746a1c59" x="48.66375" y="104.862151" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_10">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: end; fill: #6b7280" x="41.66375" y="108.462151" transform="rotate(-0 41.66375 108.462151)">2,000</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_14">
+      <path d="M 48.66375 84.393227 
+L 450.42375 84.393227 
+" clip-path="url(#pd3b31b5a39)" style="fill: none; stroke: #e5e7eb; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_15">
+      <g>
+       <use xlink:href="#mf9746a1c59" x="48.66375" y="84.393227" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_11">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: end; fill: #6b7280" x="41.66375" y="87.993227" transform="rotate(-0 41.66375 87.993227)">3,000</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_16">
+      <path d="M 48.66375 63.924302 
+L 450.42375 63.924302 
+" clip-path="url(#pd3b31b5a39)" style="fill: none; stroke: #e5e7eb; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_17">
+      <g>
+       <use xlink:href="#mf9746a1c59" x="48.66375" y="63.924302" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_12">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: end; fill: #6b7280" x="41.66375" y="67.524302" transform="rotate(-0 41.66375 67.524302)">4,000</text>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_18">
+      <path d="M 48.66375 43.455378 
+L 450.42375 43.455378 
+" clip-path="url(#pd3b31b5a39)" style="fill: none; stroke: #e5e7eb; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_19">
+      <g>
+       <use xlink:href="#mf9746a1c59" x="48.66375" y="43.455378" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_13">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: end; fill: #6b7280" x="41.66375" y="47.055378" transform="rotate(-0 41.66375 47.055378)">5,000</text>
+     </g>
+    </g>
+    <g id="ytick_7">
+     <g id="line2d_20">
+      <path d="M 48.66375 22.986453 
+L 450.42375 22.986453 
+" clip-path="url(#pd3b31b5a39)" style="fill: none; stroke: #e5e7eb; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_21">
+      <g>
+       <use xlink:href="#mf9746a1c59" x="48.66375" y="22.986453" style="fill: #6b7280; stroke: #6b7280; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_14">
+      <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: end; fill: #6b7280" x="41.66375" y="26.586453" transform="rotate(-0 41.66375 26.586453)">6,000</text>
+     </g>
+    </g>
+    <g id="text_15">
+     <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: middle; fill: #6b7280" x="14.4" y="76.5" transform="rotate(-90 14.4 76.5)">천원</text>
+    </g>
+   </g>
+   <g id="patch_3">
+    <path d="M 66.925568 145.8 
+L 87.396043 145.8 
+L 87.396043 13.8 
+L 66.925568 13.8 
+z
+" clip-path="url(#pd3b31b5a39)" style="fill: #cbd5e1"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 120.795238 145.8 
+L 141.265713 145.8 
+L 141.265713 28.786118 
+L 120.795238 28.786118 
+z
+" clip-path="url(#pd3b31b5a39)" style="fill: #cbd5e1"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 174.664908 145.8 
+L 195.135383 145.8 
+L 195.135383 112.783625 
+L 174.664908 112.783625 
+z
+" clip-path="url(#pd3b31b5a39)" style="fill: #cbd5e1"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 228.534579 145.8 
+L 249.005053 145.8 
+L 249.005053 110.83703 
+L 228.534579 110.83703 
+z
+" clip-path="url(#pd3b31b5a39)" style="fill: #cbd5e1"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 282.404249 145.8 
+L 302.874723 145.8 
+L 302.874723 116.834016 
+L 282.404249 116.834016 
+z
+" clip-path="url(#pd3b31b5a39)" style="fill: #cbd5e1"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 336.273919 145.8 
+L 356.744394 145.8 
+L 356.744394 116.750502 
+L 336.273919 116.750502 
+z
+" clip-path="url(#pd3b31b5a39)" style="fill: #cbd5e1"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 390.143589 145.8 
+L 410.614064 145.8 
+L 410.614064 140.197655 
+L 390.143589 140.197655 
+z
+" clip-path="url(#pd3b31b5a39)" style="fill: #cbd5e1"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 88.473436 145.8 
+L 108.943911 145.8 
+L 108.943911 15.26537 
+L 88.473436 15.26537 
+z
+" clip-path="url(#pd3b31b5a39)" style="fill: #1d4ed8"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 142.343106 145.8 
+L 162.813581 145.8 
+L 162.813581 24.578117 
+L 142.343106 24.578117 
+z
+" clip-path="url(#pd3b31b5a39)" style="fill: #1d4ed8"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 196.212777 145.8 
+L 216.683251 145.8 
+L 216.683251 114.500968 
+L 196.212777 114.500968 
+z
+" clip-path="url(#pd3b31b5a39)" style="fill: #1d4ed8"/>
+   </g>
+   <g id="patch_13">
+    <path d="M 250.082447 145.8 
+L 270.552921 145.8 
+L 270.552921 115.112988 
+L 250.082447 115.112988 
+z
+" clip-path="url(#pd3b31b5a39)" style="fill: #1d4ed8"/>
+   </g>
+   <g id="patch_14">
+    <path d="M 303.952117 145.8 
+L 324.422592 145.8 
+L 324.422592 118.090808 
+L 303.952117 118.090808 
+z
+" clip-path="url(#pd3b31b5a39)" style="fill: #1d4ed8"/>
+   </g>
+   <g id="patch_15">
+    <path d="M 357.821787 145.8 
+L 378.292262 145.8 
+L 378.292262 120.155303 
+L 357.821787 120.155303 
+z
+" clip-path="url(#pd3b31b5a39)" style="fill: #1d4ed8"/>
+   </g>
+   <g id="patch_16">
+    <path d="M 411.691457 145.8 
+L 432.161932 145.8 
+L 432.161932 140.381876 
+L 411.691457 140.381876 
+z
+" clip-path="url(#pd3b31b5a39)" style="fill: #1d4ed8"/>
+   </g>
+   <g id="patch_17">
+    <path d="M 48.66375 145.8 
+L 48.66375 7.2 
+" style="fill: none; stroke: #e5e7eb; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_18">
+    <path d="M 48.66375 145.8 
+L 450.42375 145.8 
+" style="fill: none; stroke: #e5e7eb; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="legend_1">
+    <g id="patch_19">
+     <path d="M 406.98375 21.6 
+L 422.98375 21.6 
+L 422.98375 16 
+L 406.98375 16 
+z
+" style="fill: #cbd5e1"/>
+    </g>
+    <g id="text_16">
+     <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: start" x="429.38375" y="21.6" transform="rotate(-0 429.38375 21.6)">전월</text>
+    </g>
+    <g id="patch_20">
+     <path d="M 406.98375 35.2 
+L 422.98375 35.2 
+L 422.98375 29.6 
+L 406.98375 29.6 
+z
+" style="fill: #1d4ed8"/>
+    </g>
+    <g id="text_17">
+     <text style="font-size: 8px; font-family: 'Apple SD Gothic Neo'; text-anchor: start" x="429.38375" y="35.2" transform="rotate(-0 429.38375 35.2)">당월</text>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pd3b31b5a39">
+   <rect x="48.66375" y="7.2" width="401.76" height="138.6"/>
+  </clipPath>
+ </defs>
+</svg>
+</div>
+<table class="t"><thead><tr><th>카테고리</th><th>판매수량</th><th>5월 매출</th><th>6월 매출</th><th>증감률</th><th>구성비</th></tr></thead>
+<tbody><tr><th>즉석식품</th><td>2,022</td><td>6,449</td><td>6,377</td><td class='down'>-1.1%</td><td>35.0%</td></tr><tr><th>음료</th><td>2,996</td><td>5,717</td><td>5,922</td><td class='up'>+3.6%</td><td>32.5%</td></tr><tr><th>유제품</th><td>813</td><td>1,613</td><td>1,529</td><td class='down'>-5.2%</td><td>8.4%</td></tr><tr><th>베이커리</th><td>696</td><td>1,708</td><td>1,499</td><td class='down'>-12.2%</td><td>8.2%</td></tr><tr><th>스낵</th><td>712</td><td>1,415</td><td>1,354</td><td class='down'>-4.3%</td><td>7.4%</td></tr><tr><th>가공식품</th><td>622</td><td>1,419</td><td>1,253</td><td class='down'>-11.7%</td><td>6.9%</td></tr><tr><th>생활용품</th><td>121</td><td>274</td><td>265</td><td class='down'>-3.3%</td><td>1.5%</td></tr><tr class='total'><th>합계</th><td>7,982</td><td>18,595</td><td>18,199</td><td>-2.1%</td><td>100.0%</td></tr></tbody></table>
+<div class="note">※ 단위: 개, 천원</div>
+
+<h2>5. 매출 상위 10개 품목</h2>
+<table class="t"><thead><tr><th>순위</th><th>품목</th><th>카테고리</th><th>판매수량</th><th>매출</th><th>전월 대비</th></tr></thead>
+<tbody><tr><td class='rank'>1</td><th>제육볶음 도시락</th><td class='cat'>즉석식품</td><td>303</td><td>1,543</td><td class='up'>+3.1%</td></tr><tr><td class='rank'>2</td><th>아이스 아메리카노 PET</th><td class='cat'>음료</td><td>451</td><td>1,096</td><td class='down'>-2.5%</td></tr><tr><td class='rank'>3</td><th>치킨마요 도시락</th><td class='cat'>즉석식품</td><td>220</td><td>1,056</td><td class='down'>-12.7%</td></tr><tr><td class='rank'>4</td><th>돈까스 도시락</th><td class='cat'>즉석식품</td><td>181</td><td>996</td><td class='up'>+15.3%</td></tr><tr><td class='rank'>5</td><th>콜라 500mL</th><td class='cat'>음료</td><td>453</td><td>969</td><td class='down'>-9.9%</td></tr><tr><td class='rank'>6</td><th>생수 500mL</th><td class='cat'>음료</td><td>710</td><td>831</td><td class='up'>+8.4%</td></tr><tr><td class='rank'>7</td><th>제로콜라 500mL</th><td class='cat'>음료</td><td>369</td><td>812</td><td class='up'>+1.9%</td></tr><tr><td class='rank'>8</td><th>햄에그 샌드위치</th><td class='cat'>즉석식품</td><td>218</td><td>698</td><td class='down'>-2.2%</td></tr><tr><td class='rank'>9</td><th>치킨 샌드위치</th><td class='cat'>즉석식품</td><td>174</td><td>661</td><td class='down'>-13.9%</td></tr><tr><td class='rank'>10</td><th>에너지드링크</th><td class='cat'>음료</td><td>248</td><td>620</td><td class='up'>+29.2%</td></tr></tbody></table>
+
+<h2>6. 부진 품목 (전월 대비 15% 이상 감소)</h2>
+<table class="t"><thead><tr><th>품목</th><th>카테고리</th><th>5월 매출</th><th>6월 매출</th><th>증감률</th></tr></thead>
+<tbody><tr><th>카스텔라</th><td class='cat'>베이커리</td><td>367</td><td>271</td><td class='down'>-26.1%</td></tr><tr><th>크림빵</th><td class='cat'>베이커리</td><td>361</td><td>274</td><td class='down'>-24.2%</td></tr><tr><th>참치캔</th><td class='cat'>가공식품</td><td>320</td><td>250</td><td class='down'>-22.0%</td></tr><tr><th>즉석밥</th><td class='cat'>가공식품</td><td>311</td><td>254</td><td class='down'>-18.2%</td></tr><tr><th>단팥빵</th><td class='cat'>베이커리</td><td>342</td><td>284</td><td class='down'>-17.1%</td></tr><tr><th>스트링 치즈</th><td class='cat'>유제품</td><td>281</td><td>234</td><td class='down'>-16.9%</td></tr></tbody></table>
+</div>
+
+<h2>7. 행사 실적</h2>
+<div class="note" style="margin-bottom:6px">행사 기간: 06/10 ~ 06/24 중 15일</div>
+<table class="t"><thead><tr><th>품목</th><th>월 판매수량</th><th>행사 판매수량</th><th>행사 비중</th><th>할인액(천원)</th></tr></thead>
+<tbody><tr><th>생수 500mL</th><td>710</td><td>172</td><td>24.2%</td><td>21</td></tr><tr><th>콜라 500mL</th><td>453</td><td>126</td><td>27.8%</td><td>28</td></tr><tr><th>아이스 아메리카노 PET</th><td>451</td><td>124</td><td>27.5%</td><td>31</td></tr><tr><th>참치마요 삼각김밥</th><td>403</td><td>107</td><td>26.6%</td><td>16</td></tr><tr><th>초코바</th><td>195</td><td>76</td><td>39.0%</td><td>14</td></tr><tr><th>감자칩</th><td>240</td><td>75</td><td>31.2%</td><td>15</td></tr><tr><th>컵라면 매운맛</th><td>252</td><td>68</td><td>27.0%</td><td>12</td></tr><tr><th>제육볶음 도시락</th><td>303</td><td>62</td><td>20.5%</td><td>32</td></tr><tr><th>복숭아 아이스티</th><td>251</td><td>60</td><td>23.9%</td><td>13</td></tr><tr><th>젤리</th><td>180</td><td>40</td><td>22.2%</td><td>7</td></tr><tr><th>초코우유</th><td>188</td><td>35</td><td>18.6%</td><td>6</td></tr><tr><th>단팥빵</th><td>160</td><td>25</td><td>15.6%</td><td>4</td></tr></tbody></table>
+
+<h2>8. 주중·주말 비교</h2>
+<table class="t"><thead><tr><th>구분</th><th>영업일수</th><th>매출(천원)</th><th>일평균 매출(천원)</th></tr></thead>
+<tbody><tr><th>주중</th><td>22</td><td>12,837</td><td>584</td></tr><tr><th>주말</th><td>8</td><td>5,362</td><td>670</td></tr></tbody></table>
+<div class="note">※ 주말 일평균 매출은 주중 대비 +14.9%입니다.</div>
+
+<h2>9. 다음 달 운영 계획</h2>
+<ul><li>베이커리(카스텔라, 크림빵, 단팥빵) 감소가 이어지고 있어 다음 달 발주량을 최근 2주 판매량 기준으로 재조정하고, 폐기 수량을 함께 확인합니다.</li><li>참치캔, 즉석밥, 스트링 치즈은(는) 진열 위치와 결품 여부를 먼저 점검한 뒤 행사 대상 포함 여부를 검토합니다.</li><li>상승 품목(에너지드링크, 돈까스 도시락, 오렌지주스)은 결품이 나지 않도록 안전재고 일수를 점검합니다.</li><li>요일별로는 토요일 매출이 가장 높고 월요일이 가장 낮습니다. 근무 배치와 신선식품 입고 시간을 이에 맞춥니다.</li></ul>
+
+<div class="foot">본 보고서는 POS 일별 판매 데이터를 기준으로 작성했습니다. 재고·폐기 수치는 포함하지 않았습니다.</div>
+</body></html>

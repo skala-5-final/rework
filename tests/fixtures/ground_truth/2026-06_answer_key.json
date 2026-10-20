@@ -1,0 +1,33 @@
+{
+  "_note": "정답 영역. Agent 실행 입력에 넣지 않는다. 테스트·평가 스크립트만 읽는다.",
+  "report": "reports/2026-06_ST001_월간판매실적보고서.pdf",
+  "calc_rules": {
+    "매출액": {"op": "sum", "column": "net_sales_amount_krw", "scale": 1000, "decimals": 0},
+    "총매출액(할인 전)": {"op": "sum", "column": "gross_sales_amount_krw", "scale": 1000, "decimals": 0},
+    "할인액": {"op": "sum", "column": "discount_amount_krw", "scale": 1000, "decimals": 0},
+    "판매수량": {"op": "sum", "column": "sales_quantity", "scale": 1, "decimals": 0},
+    "거래건수": {"op": "sum", "column": "transaction_count", "scale": 1, "decimals": 0},
+    "영업일수": {"op": "count_distinct", "column": "business_date", "scale": 1, "decimals": 0},
+    "일평균 매출액": {"op": "daily_mean", "column": "net_sales_amount_krw", "scale": 1000, "decimals": 0},
+    "카테고리별 실적 · 월별 금액(천원)": {"op": "sum", "column": "net_sales_amount_krw", "scale": 1000, "decimals": 0},
+    "매출(천원)": {"op": "sum", "column": "net_sales_amount_krw", "scale": 1000, "decimals": 0},
+    "부진 품목 (전월 대비 15% 이상 감소) · 월별 금액(천원)": {"op": "sum", "column": "net_sales_amount_krw", "scale": 1000, "decimals": 0},
+    "월 판매수량": {"op": "sum", "column": "sales_quantity", "scale": 1, "decimals": 0},
+    "행사 판매수량": {"op": "sum", "column": "promotion_sales_quantity", "scale": 1, "decimals": 0},
+    "행사 비중": {"op": "ratio", "column": "promotion_sales_quantity", "denominator_column": "sales_quantity", "scale": 1, "as_percent": true, "decimals": 1},
+    "할인액(천원)": {"op": "sum", "column": "discount_amount_krw", "scale": 1000, "decimals": 1},
+    "일평균 매출(천원)": {"op": "daily_mean", "column": "net_sales_amount_krw", "scale": 1000, "decimals": 0}
+  },
+  "proposals": [
+    {"title_contains": "여름 음료", "expected_types": ["trend"], "key_items": ["제로콜라 500mL", "에너지드링크"],
+     "hidden_basis": "2~6월 일평균 판매수량 연속 증가 (제로콜라 2→6월 매달 증가, 에너지드링크 6월 급증)"},
+    {"title_contains": "도시락", "expected_types": ["promo_lift", "dow"], "key_items": ["제육볶음 도시락"],
+     "hidden_basis": "제육볶음 도시락 행사 효과 +3%, 도시락 금요일 일평균 32.2개"},
+    {"title_contains": "행사 품목", "expected_types": ["promo_lift"], "key_items": ["초코바", "감자칩", "단팥빵", "초코우유"],
+     "hidden_basis": "행사일 vs 비행사일 일평균 수량: 초코바 +155%, 감자칩 +82%, 단팥빵 −26%, 초코우유 −8%"},
+    {"title_contains": "베이커리", "expected_types": ["trend", "baseline"], "key_items": ["단팥빵", "카스텔라", "크림빵"],
+     "hidden_basis": "단팥빵 3개월 연속 감소, 카스텔라·크림빵은 5월만 평소보다 높았음"},
+    {"title_contains": "가공식품", "expected_types": ["trend"], "key_items": ["참치캔"],
+     "hidden_basis": "참치캔 2개월 연속 감소 (3.9 → 3.2 → 2.6)"}
+  ]
+}

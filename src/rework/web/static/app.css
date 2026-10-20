@@ -1,0 +1,72 @@
+:root {
+  --bg: #f6f7f9; --card: #fff; --ink: #1f2937; --muted: #6b7280; --line: #e5e7eb;
+  --brand: #1d4ed8; --brand-soft: #eff4ff; --ok: #047857; --ok-soft: #ecfdf5;
+  --warn: #b45309; --warn-soft: #fffbeb; --bad: #b91c1c; --bad-soft: #fef2f2;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.6 "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif; }
+main { max-width: 1120px; margin: 0 auto; padding: 20px 16px 60px; }
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: var(--card); border-bottom: 1px solid var(--line); }
+.brand { font-weight: 800; font-size: 17px; color: var(--ink); text-decoration: none; }
+.brand span { font-weight: 400; color: var(--muted); font-size: 13px; margin-left: 6px; }
+.who { color: var(--muted); }
+h1 { font-size: 20px; margin: 4px 0; } h2 { font-size: 16px; margin: 0 0 12px; } h3 { font-size: 14px; margin: 18px 0 8px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+.card.narrow { max-width: 420px; margin: 40px auto; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 760px) { .grid-2 { grid-template-columns: 1fr; } }
+.stack { display: grid; gap: 10px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+label.check { display: flex; gap: 6px; align-items: center; }
+input, textarea, select { font: inherit; padding: 7px 9px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: #fff; }
+textarea { width: 100%; min-height: 54px; }
+button { font: inherit; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--line); background: #fff; cursor: pointer; }
+button.primary { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: 600; }
+button.link { border: 0; background: none; color: var(--brand); padding: 0 4px; }
+button:disabled { opacity: .5; cursor: wait; }
+.muted { color: var(--muted); } .small { font-size: 12px; } .error { color: var(--bad); min-height: 1em; margin: 0; }
+.hidden { display: none !important; }
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th, .table td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.table th { color: var(--muted); font-weight: 600; background: #fafafa; }
+.table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.badge { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 12px; font-weight: 600; background: #f3f4f6; color: var(--muted); white-space: nowrap; }
+.badge.COMPLETED, .badge.matched, .badge.confirmed, .badge.explained { background: var(--ok-soft); color: var(--ok); }
+.badge.RUNNING, .badge.QUEUED, .badge.user_explained { background: var(--brand-soft); color: var(--brand); }
+.badge.WAITING_FOR_INPUT, .badge.RETRY_SCHEDULED, .badge.ambiguous, .badge.unconfirmed { background: var(--warn-soft); color: var(--warn); }
+.badge.FAILED, .badge.mismatched, .badge.rejected, .badge.unexplained { background: var(--bad-soft); color: var(--bad); }
+.job-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.stepper { display: flex; list-style: none; padding: 0; margin: 14px 0 0; gap: 6px; flex-wrap: wrap; }
+.stepper li { flex: 1; min-width: 120px; padding: 8px 10px; border-radius: 6px; background: #f3f4f6; color: var(--muted); font-size: 13px; text-align: center; }
+.stepper li.done { background: var(--ok-soft); color: var(--ok); }
+.stepper li.active { background: var(--brand); color: #fff; font-weight: 600; }
+.stepper li.wait { background: var(--warn-soft); color: var(--warn); font-weight: 600; }
+.tabs { display: flex; gap: 4px; margin: 0 0 -1px; flex-wrap: wrap; }
+.tabs button { border-radius: 8px 8px 0 0; border-bottom: 0; background: #f3f4f6; }
+.tabs button.active { background: var(--card); font-weight: 600; }
+.timeline { list-style: none; padding: 0; margin: 8px 0 0; font-size: 13px; max-height: 560px; overflow: auto; }
+.timeline li { display: grid; grid-template-columns: 72px 130px 1fr; gap: 8px; padding: 5px 0; border-bottom: 1px dashed var(--line); }
+.timeline .t { color: var(--muted); font-variant-numeric: tabular-nums; }
+.timeline .k { font-size: 12px; color: var(--muted); }
+.timeline li.stage .m { font-weight: 700; }
+.timeline li.tool_call .m { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #374151; }
+.timeline li.retry .m, .timeline li.error .m { color: var(--bad); font-weight: 600; }
+.timeline li.llm .m { color: #7c3aed; }
+.q { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+.q .why { font-size: 12px; color: var(--muted); margin: 4px 0 8px; }
+.q details { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.q .opts { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+.q .opts label { display: flex; gap: 4px; align-items: center; color: var(--ink); }
+.claim { border-left: 3px solid var(--line); padding: 6px 0 6px 12px; margin: 10px 0; }
+.claim.explained, .claim.user_explained { border-color: var(--ok); }
+.claim.ambiguous { border-color: var(--warn); } .claim.unexplained { border-color: var(--bad); }
+.claim ul { margin: 6px 0; padding-left: 18px; }
+.proposal { border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; }
+.proposal blockquote { margin: 6px 0 4px; color: var(--muted); border-left: 3px solid var(--line); padding-left: 10px; }
+.crit { background: #f8fafc; border-radius: 6px; padding: 6px 10px; font-size: 13px; margin: 6px 0; }
+code { font-family: ui-monospace, Menlo, monospace; font-size: 12px; background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }
+.doc-list { padding-left: 18px; margin: 8px 0; }
+.markdown table { border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+.markdown th, .markdown td { border: 1px solid var(--line); padding: 4px 8px; }
+.markdown blockquote { color: var(--muted); border-left: 3px solid var(--line); margin: 6px 0; padding-left: 10px; }

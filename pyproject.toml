@@ -1,0 +1,45 @@
+[project]
+name = "rework"
+version = "0.1.0"
+description = "Re:Work — 완성 보고서와 원천 데이터로 작성 규칙과 판단 근거를 되찾는 인수인계 Agent"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "aio-pika>=10.1.1",
+    "bcrypt>=5.0.0",
+    "fastapi>=0.150.0",
+    "httpx>=0.28.1",
+    "jinja2>=3.1.6",
+    "langchain-core>=1.6.12",
+    "langchain-openai>=1.7.2",
+    "langgraph>=1.2.16",
+    "langgraph-checkpoint-postgres>=3.2.0",
+    "markdown>=3.11.2",
+    "mcp>=2.3.0",
+    "openai>=3.35.1",
+    "pandas>=3.0.6",
+    "pdfplumber>=0.11.10",
+    "pgvector>=0.5.1",
+    "psycopg[binary,pool]>=3.3.6",
+    "pydantic-settings>=2.16.0",
+    "pyjwt>=2.15.1",
+    "python-multipart>=0.0.32",
+    "sqlalchemy>=2.1.5",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rework"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+]

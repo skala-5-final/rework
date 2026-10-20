@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}로그인 · Re:Work{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>로그인</h1>
+  <p class="muted">완성 보고서와 원천 데이터를 넣으면, 담당자가 어떤 데이터를 보고 그 보고서를 썼는지 되찾아 인수인계 매뉴얼로 남깁니다.</p>
+  <form id="login-form" class="stack">
+    <label>아이디 <input name="username" autocomplete="username" required></label>
+    <label>비밀번호 <input name="password" type="password" autocomplete="current-password" required></label>
+    <button class="primary" type="submit">로그인</button>
+    <p class="error" id="login-error"></p>
+  </form>
+  <p class="muted small">데모 계정: demo / demo1234 (다른 회사: other / other1234)</p>
+</section>
+{% endblock %}
+{% block script %}<script>initLogin()</script>{% endblock %}

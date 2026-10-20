@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}작업 · Re:Work{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="job-head">
+    <div>
+      <a href="/" class="muted small">← 작업 목록</a>
+      <h1 id="job-name">불러오는 중…</h1>
+      <p class="muted small" id="job-meta"></p>
+    </div>
+    <span class="badge" id="job-status"></span>
+  </div>
+  <ol class="stepper" id="stepper">
+    <li data-step="A">입력 준비</li>
+    <li data-step="B">계산 규칙</li>
+    <li data-step="C">판단 근거</li>
+    <li data-step="D">담당자 확인</li>
+    <li data-step="E">결과물</li>
+  </ol>
+  <p class="error" id="job-error"></p>
+</section>
+
+<section class="card hidden" id="question-card">
+  <h2>담당자 확인이 필요합니다</h2>
+  <p class="muted small">데이터로 찾은 근거가 맞는지, 데이터로 설명되지 않는 결정은 어떤 기준이었는지 알려 주세요. 답하지 않은 질문은 매뉴얼에 '미확인'으로 남습니다.</p>
+  <form id="answer-form"><div id="questions"></div><button class="primary" type="submit">답변 제출하고 이어서 진행</button></form>
+</section>
+
+<div class="tabs" id="tabs">
+  <button data-tab="progress" class="active">진행 이벤트</button>
+  <button data-tab="rules">계산 규칙</button>
+  <button data-tab="rationale">판단 근거</button>
+  <button data-tab="manual">매뉴얼</button>
+  <button data-tab="files">결과물 · 다음 기간</button>
+</div>
+
+<section class="card tab" id="tab-progress">
+  <label class="check small"><input type="checkbox" id="show-tools" checked> 도구 호출 표시</label>
+  <ul class="timeline" id="timeline"></ul>
+</section>
+<section class="card tab hidden" id="tab-rules"><div id="rules"><p class="muted">분석이 끝나면 표시됩니다.</p></div></section>
+<section class="card tab hidden" id="tab-rationale"><div id="rationales"><p class="muted">분석이 끝나면 표시됩니다.</p></div></section>
+<section class="card tab hidden" id="tab-manual"><div id="manual" class="markdown"><p class="muted">분석이 끝나면 표시됩니다.</p></div></section>
+<section class="card tab hidden" id="tab-files">
+  <h3>결과물</h3>
+  <ul id="artifacts" class="doc-list"></ul>
+  <h3>다음 기간 보고서 초안 만들기</h3>
+  <p class="muted small">확인된 규칙 버전을 새 데이터에 적용합니다. 열 이름이나 요일 값이 달라졌으면 임의로 처리하지 않고 멈춥니다.</p>
+  <form id="rerun-form" class="row">
+    <input name="source" type="file" accept=".csv" required>
+    <input name="month" placeholder="YYYY-MM" value="2026-07" pattern="\d{4}-\d{2}" required>
+    <button type="submit">초안 생성</button>
+  </form>
+  <p class="error" id="rerun-error"></p>
+</section>
+{% endblock %}
+{% block script %}<script>initJob("{{ job_id }}")</script>{% endblock %}
