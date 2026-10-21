@@ -1,0 +1,48 @@
+{
+  "metric": "Q-05",
+  "measured_at": "2026-10-21T02:43:04+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "새 기간 3개 + 대조 1개: 값 2184/2184 일치, 모델 호출 0회, 2026-06 보고서 원본 95/95 일치",
+  "target": "100% 일치, 모델 호출 0회",
+  "base_job": "job_2704571df281",
+  "rule_version": 21,
+  "periods": [
+    {
+      "month": "2026-04",
+      "run_id": "run_ba9cebfb91d5",
+      "rows": 546,
+      "checked": 546,
+      "matched": 546,
+      "llm_calls": 0
+    },
+    {
+      "month": "2026-05",
+      "run_id": "run_cf0c1c3d58e8",
+      "rows": 546,
+      "checked": 546,
+      "matched": 546,
+      "llm_calls": 0
+    },
+    {
+      "month": "2026-07",
+      "run_id": "run_b106a8273bc3",
+      "rows": 546,
+      "checked": 546,
+      "matched": 546,
+      "llm_calls": 0
+    },
+    {
+      "month": "2026-06",
+      "run_id": "run_e27985646b31",
+      "rows": 546,
+      "checked": 546,
+      "matched": 546,
+      "llm_calls": 0,
+      "report_cells": 95,
+      "report_matched": 95
+    }
+  ],
+  "mismatches": [],
+  "note": "새 기간은 같은 원천 파일의 다른 월(4·5·7월, 7월은 부분월)이다. 기대값은 정답표 규칙으로 독립 계산했다."
+}

@@ -1,0 +1,15 @@
+{
+  "metric": "H-03-runs",
+  "measured_at": "2026-10-21T02:42:27+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "작업 30개에서 허용 목록·호출 한도·실행시간 한도 위반 0건",
+  "limits": {
+    "investigate_max_tool_calls": 8,
+    "run_max_tool_calls": 120,
+    "run_soft_seconds": 600,
+    "run_max_seconds": 1500
+  },
+  "violations": [],
+  "jobs": 30
+}

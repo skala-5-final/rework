@@ -1,0 +1,11 @@
+{
+  "metric": "Q-14",
+  "measured_at": "2026-10-21T02:42:49+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "MCP 계약 70건 중 통과 70건",
+  "target": "100% (60건 이상)",
+  "cases": 70,
+  "passed": 70,
+  "failed": []
+}

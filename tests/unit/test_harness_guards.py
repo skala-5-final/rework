@@ -95,7 +95,7 @@ async def test_hard_limit_returns_even_if_call_ignores_cancel():
     import asyncio
     import time
 
-    from rework.agent.nodes import _within
+    from rework.agent.limits import within as _within
 
     async def stubborn():  # 취소를 무시하고 계속 기다리는 HTTP 호출 흉내
         for _ in range(50):
@@ -110,3 +110,48 @@ async def test_hard_limit_returns_even_if_call_ignores_cancel():
         await _within(stubborn(), 0.2)
     assert time.monotonic() - started < 1
     assert await _within(asyncio.sleep(0, result="ok"), 1) == "ok"
+
+
+def test_name_before_title_with_particle():
+    assert mask("박서준 대리가 정리") == "[이름] 대리가 정리"
+    assert mask("김민수 팀장님께 보고") == "[이름] 팀장님께 보고"
+    assert mask("과장된 표현") == "과장된 표현"
+
+
+def test_numbers_followed_by_korean_particle():
+    # 품질 측정(Q-12)에서 찾은 결함: 조사가 붙으면 가려지지 않았다
+    assert mask("문의는 010-1000-2000로 주세요") == "문의는 [전화번호]로 주세요"
+    assert mask("카드 4111-1111-2222-3333으로 결제") == "카드 [카드번호]으로 결제"
+    assert mask("900101-1234567은 주민번호") == "[주민번호]은 주민번호"
+
+
+@pytest.mark.asyncio
+async def test_close_error_does_not_hide_transient_error():
+    # 품질 측정(Q-06)에서 찾은 결함: MCP 서버가 내려가면 연결 정리의 ExceptionGroup이 TransientError를 덮어써 재시도가 안 됐다
+    from rework.agent.errors import TransientError
+    from rework.agent.mcp_client import RunContext, ToolHub
+
+    hub = ToolHub(RunContext(job_id="j", run_id="r", tenant_id="t"))
+
+    async def broken_close():
+        raise ExceptionGroup("unhandled errors in a TaskGroup", [ConnectionError("Name or service not known")])
+    hub._stack.aclose = broken_close
+    original = TransientError("도구 호출 실패")
+    assert await hub.__aexit__(TransientError, original, None) is False  # 원래 오류가 그대로 올라간다
+    with pytest.raises(TransientError, match="연결 정리 실패"):
+        await hub.__aexit__(None, None, None)
+
+
+@pytest.mark.asyncio
+async def test_cancel_inside_call_becomes_transient():
+    # 품질 측정(Q-06)에서 찾은 결함: MCP 서버가 사라지면 라이브러리가 호출을 취소하고, CancelledError가 Worker를 종료시켰다
+    import asyncio
+
+    from rework.agent.errors import TransientError
+    from rework.agent.limits import within
+
+    async def cancelled_inside():
+        raise asyncio.CancelledError("Cancelled via cancel scope")
+
+    with pytest.raises(TransientError):
+        await within(cancelled_inside(), 5)

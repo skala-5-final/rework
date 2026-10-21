@@ -59,9 +59,13 @@ class Settings(BaseSettings):
     tool_result_max_chars: int = 12_000      # 도구 결과 하나를 대화에 넣는 최대 글자 수
     run_token_budget: int = 2_000_000        # 시도 한 번의 누적 토큰. 넘으면 남은 조사를 건너뛰고 판정·저장한다
 
+    # 실행시간 한도 (시도 하나). soft: 넘으면 남은 조사를 건너뛰고 판정·저장, max: 넘으면 중단하고 실패 처리
+    run_soft_seconds: int = 600
+    run_max_seconds: int = 1500
+
     # 큐 재시도
     retry_delays_seconds: tuple[int, ...] = (10, 30, 60)
-    run_lease_seconds: int = 600
+    run_lease_seconds: int = 60  # 처리 중에는 lease/3마다 연장한다. Worker가 죽으면 이 시간 뒤 다른 Worker가 이어받는다
 
     @property
     def checkpoint_url(self) -> str:

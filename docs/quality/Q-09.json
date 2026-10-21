@@ -1,0 +1,14 @@
+{
+  "metric": "Q-09",
+  "measured_at": "2026-10-21T02:43:38+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "POST /jobs 100회, P95 5ms (목표 ≤ 1,000ms)",
+  "target": "P95 ≤ 1초",
+  "n": 100,
+  "p95_ms": 5.0,
+  "p50_ms": 2.6,
+  "max_ms": 19.4,
+  "cleanup_jobs": 100,
+  "env": "로컬 Docker Desktop (같은 머신에서 호출)"
+}

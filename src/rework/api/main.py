@@ -5,13 +5,14 @@ import csv
 import io
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Literal
 
 import markdown
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -118,6 +119,7 @@ async def upload_file(kind: str = Form(...), file: UploadFile = File(...), db: S
     ref, digest = save_bytes(user.tenant_id, fid, file.filename, data)
     db.add(FileRow(id=fid, tenant_id=user.tenant_id, kind=kind, original_name=file.filename, path=ref,
                    sha256=digest, size=len(data)))
+    db.commit()  # 응답 전에 커밋한다: yield 의존성의 커밋은 응답 뒤라, 바로 이어지는 요청이 못 볼 수 있다
     return {"file_id": fid, "sha256": digest, "size": len(data)}
 
 
@@ -128,6 +130,8 @@ class JobBody(BaseModel):
     source_file_id: str
     report_file_id: str
     inject_failure: bool = False
+    # 품질 검증용 장애 주입: 시도 i에 faults[i-1]을 넣는다 (llm_429 | llm_503 | mcp_error). 화면에서는 쓰지 않는다.
+    faults: list[Literal["llm_429", "llm_503", "mcp_error"]] = Field(default_factory=list, max_length=3)
 
 
 @app.post("/jobs")
@@ -140,12 +144,14 @@ def create_job(body: JobBody, db: Session = Depends(get_db), user: CurrentUser =
               report_file_id=rep.id, inject_failure=body.inject_failure)
     db.add(job)
     db.flush()
-    run = Run(job_id=job.id, tenant_id=user.tenant_id, input_hashes={"source": src.sha256, "report": rep.sha256})
+    run = Run(job_id=job.id, tenant_id=user.tenant_id, input_hashes={"source": src.sha256, "report": rep.sha256},
+              params={"faults": body.faults} if body.faults else {})
     db.add(run)
     db.flush()
     job.current_run_id = run.id
     _enqueue(db, job, run, "start")
     db.add(Event(job_id=job.id, run_id=run.id, type="status", stage="queued", message="작업 등록 (대기 중)"))
+    db.commit()
     return {"job_id": job.id, "run_id": run.id, "status": job.status}
 
 
@@ -254,6 +260,7 @@ def submit_answers(job_id: str, body: AnswersBody, db: Session = Depends(get_db)
     db.add(Event(job_id=job.id, run_id=run.id, type="status", stage="answers",
                  message=f"{user.display_name}님이 답변 {len(body.answers)}개 제출 → "
                          + ("재개 대기" if action == "resume" else "매뉴얼 갱신 대기")))
+    db.commit()
     return {"ok": True, "run_version": run.version}
 
 
@@ -325,6 +332,7 @@ def rerun(job_id: str, body: RerunBody, db: Session = Depends(get_db), user: Cur
     _enqueue(db, job, run, "rerun")
     db.add(Event(job_id=job.id, run_id=run.id, type="status", stage="queued",
                  message=f"다음 기간 보고서 생성 등록: {body.month} (규칙 v{rv.version})"))
+    db.commit()
     return {"run_id": run.id}
 
 
@@ -334,7 +342,9 @@ async def upload_document(title: str = Form(...), file: UploadFile = File(...), 
     if not file.filename.lower().endswith((".md", ".txt")):
         raise HTTPException(400, "업무 규정 문서는 .md 또는 .txt 파일이어야 합니다.")
     content = (await file.read()).decode("utf-8")
-    return rag_index.register_document(db, tenant_id=user.tenant_id, title=title, content=content)
+    doc = rag_index.register_document(db, tenant_id=user.tenant_id, title=title, content=content)
+    db.commit()
+    return doc
 
 
 @app.get("/documents")

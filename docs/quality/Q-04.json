@@ -1,0 +1,13 @@
+{
+  "metric": "Q-04",
+  "measured_at": "2026-10-21T02:42:07+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "수치 주장 1457개 중 근거 없음 0개 (0.00%)",
+  "target": "0%",
+  "numeric_claims": 1457,
+  "ungrounded": 0,
+  "ungrounded_rate_pct": 0.0,
+  "examples": [],
+  "jobs": 30
+}

@@ -1,0 +1,7 @@
+{
+  "jobs": 9,
+  "llm_events": 172,
+  "with_tokens": 172,
+  "format_retry_unrecorded": 0,
+  "rate_pct": 100.0
+}

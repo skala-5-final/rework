@@ -1,0 +1,15 @@
+{
+  "metric": "H-05",
+  "measured_at": "2026-10-21T02:42:27+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "불확실한 결정 178개 중 질문·미해결 분류 178개 (100.0%), 답변 없이 확인됨 0건",
+  "target": "90% 이상",
+  "uncertain": 178,
+  "handled": 178,
+  "rate_pct": 100.0,
+  "confirmed_without_answer": [],
+  "misses": [],
+  "note": "전문가 정답 라벨(결정별 '확정 가능/불가')이 없어, 하네스가 불확실로 판정한 결정의 처리 여부와 무단 확정 0건을 측정했다.",
+  "jobs": 30
+}

@@ -55,7 +55,7 @@ def knowledge_list(kind: str, ctx: Context) -> dict:
 
 @server.tool()
 def search_work_rules(ctx: Context, query: Annotated[str, Field(description="찾을 내용 (예: 매출액 정의, 금액 표기 단위)")],
-                      top_k: Annotated[int, Field(ge=1, le=8)] = 4) -> dict:
+                      top_k: Annotated[int, Field(ge=1, le=8, description="돌려줄 검색 결과 수 (1~8)")] = 4) -> dict:
     """보고서 작성 지침·데이터 사전·확인된 질문 답변에서 관련 내용을 검색한다. 결과마다 document_id, document_version, chunk_id, title, excerpt, source_location을 준다. 관련 내용이 없으면 results가 빈 목록이다."""
     tenant_id = _tenant(ctx)
     try:

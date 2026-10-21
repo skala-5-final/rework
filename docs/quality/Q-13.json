@@ -1,0 +1,83 @@
+{
+  "metric": "Q-13",
+  "measured_at": "2026-10-21T04:43:16+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "핵심 모듈 14개 Line 87.5% · Branch 81.4% (목표 85% · 75%), 전체 참고 51.6%",
+  "target": "Line ≥ 85%, Branch ≥ 75%",
+  "line_pct": 87.5,
+  "branch_pct": 81.4,
+  "modules": [
+    {
+      "module": "contracts/rules.py",
+      "line_pct": 100.0,
+      "branch_pct": 100
+    },
+    {
+      "module": "contracts/explain.py",
+      "line_pct": 97.7,
+      "branch_pct": 83.3
+    },
+    {
+      "module": "auth/security.py",
+      "line_pct": 87.5,
+      "branch_pct": 66.7
+    },
+    {
+      "module": "auth/mcp_scope.py",
+      "line_pct": 100.0,
+      "branch_pct": 100.0
+    },
+    {
+      "module": "privacy.py",
+      "line_pct": 89.7,
+      "branch_pct": 81.2
+    },
+    {
+      "module": "observability.py",
+      "line_pct": 63.2,
+      "branch_pct": 62.5
+    },
+    {
+      "module": "storage.py",
+      "line_pct": 82.8,
+      "branch_pct": 83.3
+    },
+    {
+      "module": "agent/budget.py",
+      "line_pct": 84.9,
+      "branch_pct": 75.0
+    },
+    {
+      "module": "agent/policy.py",
+      "line_pct": 90.9,
+      "branch_pct": 100.0
+    },
+    {
+      "module": "agent/limits.py",
+      "line_pct": 80.0,
+      "branch_pct": 100.0
+    },
+    {
+      "module": "business_mcp/services/calc.py",
+      "line_pct": 91.7,
+      "branch_pct": 84.6
+    },
+    {
+      "module": "business_mcp/services/analysis.py",
+      "line_pct": 79.2,
+      "branch_pct": 61.5
+    },
+    {
+      "module": "business_mcp/services/report_parser.py",
+      "line_pct": 94.3,
+      "branch_pct": 91.1
+    },
+    {
+      "module": "business_mcp/services/dataset.py",
+      "line_pct": 85.3,
+      "branch_pct": 60.0
+    }
+  ],
+  "all_src_percent": 51.6
+}

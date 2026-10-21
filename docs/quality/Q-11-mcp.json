@@ -1,0 +1,44 @@
+{
+  "metric": "Q-11-mcp",
+  "measured_at": "2026-10-21T02:42:48+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "비인가 MCP 요청 49건 중 차단 49건, 정상 토큰 대조군 통과",
+  "target": "100%",
+  "requests": 49,
+  "blocked": 49,
+  "controls_ok": true,
+  "controls": [
+    {
+      "req": "business.inspect_dataset",
+      "ok": true,
+      "msg": ""
+    },
+    {
+      "req": "business.read_report",
+      "ok": true,
+      "msg": ""
+    },
+    {
+      "req": "business.check_schema",
+      "ok": true,
+      "msg": ""
+    },
+    {
+      "req": "rag.search_work_rules",
+      "ok": true,
+      "msg": ""
+    },
+    {
+      "req": "business.analyze_trend",
+      "ok": true,
+      "msg": ""
+    },
+    {
+      "req": "rag.get_source_excerpt",
+      "ok": true,
+      "msg": ""
+    }
+  ],
+  "not_blocked": []
+}

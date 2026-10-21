@@ -1,0 +1,171 @@
+{
+  "metric": "Q-10",
+  "measured_at": "2026-10-21T02:41:03+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "분석 30/30회, P95 103.7초 (목표 ≤ 300초)",
+  "target": "P95 ≤ 300초",
+  "n": 30,
+  "parallel_workers": 3,
+  "p95_seconds": 103.680329,
+  "min": 72.705697,
+  "max": 109.20478,
+  "mean": 81.9,
+  "failed_jobs": [],
+  "runs": [
+    {
+      "job_id": "job_2704571df281",
+      "analysis_seconds": 103.680329,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_d0498ebc337f",
+      "analysis_seconds": 101.305748,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_b244f517c638",
+      "analysis_seconds": 94.448546,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_9938a89845d4",
+      "analysis_seconds": 109.20478,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_f65d0a7dc897",
+      "analysis_seconds": 89.29589,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_3690d07d722c",
+      "analysis_seconds": 87.080556,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_3048b6fb7458",
+      "analysis_seconds": 74.799004,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_778a8799d261",
+      "analysis_seconds": 73.504654,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_371760385d84",
+      "analysis_seconds": 73.905565,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_da2324f8fe5f",
+      "analysis_seconds": 80.660123,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_31a792133e41",
+      "analysis_seconds": 79.305967,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_793bd852c140",
+      "analysis_seconds": 79.734728,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_70f83bb34f1c",
+      "analysis_seconds": 78.762,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_69ec9d946684",
+      "analysis_seconds": 78.455191,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_ac0b88671c49",
+      "analysis_seconds": 78.030887,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_8c23a307fa8f",
+      "analysis_seconds": 77.30931,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_86986eab4bb9",
+      "analysis_seconds": 74.379556,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_40f9f2170881",
+      "analysis_seconds": 75.261859,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_5ef7a54eb456",
+      "analysis_seconds": 83.998478,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_7a97b4a3cb1b",
+      "analysis_seconds": 86.618391,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_6c9825ba73e5",
+      "analysis_seconds": 82.535987,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_287ee7b5e879",
+      "analysis_seconds": 77.228113,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_098c85188498",
+      "analysis_seconds": 79.866793,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_b545a685020e",
+      "analysis_seconds": 78.3933,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_384c2a6e1546",
+      "analysis_seconds": 82.397111,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_d52d18c9474c",
+      "analysis_seconds": 73.465072,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_68b0cc3289fb",
+      "analysis_seconds": 72.705697,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_8071a27f9175",
+      "analysis_seconds": 75.995382,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_b14111de6ecc",
+      "analysis_seconds": 78.200322,
+      "final_status": "COMPLETED"
+    },
+    {
+      "job_id": "job_10e847a95e89",
+      "analysis_seconds": 75.209638,
+      "final_status": "COMPLETED"
+    }
+  ],
+  "inputs": {
+    "source_file_id": "file_87bf0c373298",
+    "report_file_id": "file_3a23a2651dfa"
+  }
+}

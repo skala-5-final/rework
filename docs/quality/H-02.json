@@ -1,0 +1,17 @@
+{
+  "metric": "H-02",
+  "measured_at": "2026-10-21T04:43:05+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "모델 호출 1002회 중 토큰·비용 기록 1002회 (100.0%)",
+  "target": "100%",
+  "llm_calls": 1002,
+  "observed": 1002,
+  "rate_pct": 100.0,
+  "input_tokens": 3067284,
+  "output_tokens": 415696,
+  "cost_usd": 0.7095,
+  "missing": [],
+  "pool": "all_runs.json",
+  "jobs": 52
+}
