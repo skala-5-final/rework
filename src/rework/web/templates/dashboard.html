@@ -1,33 +1,77 @@
 {% extends "base.html" %}
 {% block content %}
+<section class="hero">
+  <h1>보고서 인수인계</h1>
+  <p class="muted">완성 보고서와 원천 데이터를 올리면 계산 규칙, 판단 근거, 인수인계 매뉴얼을 만듭니다.</p>
+</section>
+
 <div class="grid-2">
   <section class="card">
     <h2>새 분석 작업</h2>
     <form id="job-form" class="stack">
       <label>작업 이름 <input name="name" value="ST001 6월 판매 실적 보고서 인수인계" required></label>
-      <label>원천 데이터 (CSV) <input name="source" type="file" accept=".csv" required></label>
-      <label>완성 보고서 (PDF) <input name="report" type="file" accept=".pdf" required></label>
-      <label class="check"><input name="inject_failure" type="checkbox"> 장애 시연: 첫 도구 호출을 일시적으로 실패시켜 큐 재시도를 확인</label>
-      <button class="primary" type="submit">분석 시작</button>
+      <div class="upload" data-upload>
+        <input type="file" class="upload-pick" accept=".csv,.pdf" multiple aria-label="원천 데이터 CSV와 완성 보고서 PDF 선택">
+        <div class="upload-head">
+          <span class="upload-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M6 10l6-6 6 6M4 20h16"/></svg></span>
+          <span><b>파일을 이곳에 드래그해서 넣어주세요</b><span class="upload-hint">또는 이 영역을 클릭해 파일 선택<br>원천 데이터 CSV · 완성 보고서 PDF</span></span>
+        </div>
+        <ul class="upload-slots">
+          <li class="upload-slot" data-slot>
+            <input type="file" name="source" accept=".csv" hidden>
+            <span class="slot-tag">CSV</span><span class="slot-label">원천 데이터</span>
+            <span class="slot-file">선택 안 됨</span><button type="button" class="slot-clear" title="선택 취소">×</button>
+          </li>
+          <li class="upload-slot" data-slot>
+            <input type="file" name="report" accept=".pdf" hidden>
+            <span class="slot-tag">PDF</span><span class="slot-label">완성 보고서</span>
+            <span class="slot-file">선택 안 됨</span><button type="button" class="slot-clear" title="선택 취소">×</button>
+          </li>
+        </ul>
+        <p class="upload-msg" role="status" aria-live="polite"></p>
+      </div>
+      <details class="options">
+        <summary>시연 옵션</summary>
+        <label class="check"><input name="inject_failure" type="checkbox"> 첫 도구 호출을 일부러 실패시켜 큐 재시도 보기</label>
+      </details>
+      <button class="primary block" type="submit">분석 시작</button>
       <p class="muted small" id="job-status-msg"></p>
       <p class="error" id="job-error"></p>
     </form>
   </section>
+
   <section class="card">
-    <h2>업무 지식 (RAG)</h2>
-    <p class="muted small">보고서 작성 지침·데이터 사전을 등록하면 Agent가 계산 규칙을 정할 때 근거로 검색합니다. 담당자가 확인한 답변도 여기에 쌓입니다.</p>
+    <h2>업무 지식</h2>
+    <p class="muted small">작성 지침과 데이터 사전을 올리면 Agent가 계산 규칙을 정할 때 근거로 찾아 봅니다. 담당자가 확인한 판단 기준도 여기에 쌓입니다.</p>
     <form id="doc-form" class="stack">
-      <label>문서 제목 <input name="title" required></label>
-      <label>파일 (.md / .txt) <input name="file" type="file" accept=".md,.txt" required></label>
-      <button type="submit">등록</button>
+      <div class="upload" data-upload>
+        <input type="file" class="upload-pick" accept=".md,.txt" aria-label="업무 문서 MD 또는 TXT 선택">
+        <div class="upload-head">
+          <span class="upload-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M6 10l6-6 6 6M4 20h16"/></svg></span>
+          <span><b>파일을 이곳에 드래그해서 넣어주세요</b><span class="upload-hint">또는 이 영역을 클릭해 파일 선택<br>업무 문서 MD · TXT</span></span>
+        </div>
+        <ul class="upload-slots">
+          <li class="upload-slot" data-slot>
+            <input type="file" name="file" accept=".md,.txt" hidden>
+            <span class="slot-tag">MD</span><span class="slot-label">업무 문서</span>
+            <span class="slot-file">선택 안 됨</span><button type="button" class="slot-clear" title="선택 취소">×</button>
+          </li>
+        </ul>
+        <p class="upload-msg" role="status" aria-live="polite"></p>
+      </div>
+      <div class="row nowrap">
+        <input name="title" placeholder="문서 제목 (비우면 파일 이름)" class="grow">
+        <button type="submit">등록</button>
+      </div>
       <p class="error" id="doc-error"></p>
     </form>
-    <ul id="doc-list" class="doc-list"></ul>
+    <div id="doc-list"></div>
   </section>
 </div>
+
 <section class="card">
-  <h2>작업 목록</h2>
-  <table class="table" id="job-table">
+  <div class="card-head"><h2>작업 목록</h2><span class="muted small" id="job-count"></span></div>
+  <table class="table hover" id="job-table">
     <thead><tr><th>작업</th><th>상태</th><th>입력</th><th>갱신</th></tr></thead>
     <tbody></tbody>
   </table>

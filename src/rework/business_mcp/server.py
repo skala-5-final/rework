@@ -5,6 +5,7 @@
 모델이 보내는 인자로는 권한을 정하지 않는다.
 """
 
+import logging
 import threading
 import time
 import uuid
@@ -302,6 +303,8 @@ def generate_report_draft(ctx: Context, rule_version_id: Annotated[str, Field(de
 
 
 if __name__ == "__main__":
+    # 로그는 stderr로 (stdio에서는 stdout이 MCP 프로토콜 통로). 요청마다 trace_id가 남는다.
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(message)s")
     cfg = get_settings()
     if cfg.mcp_transport == "http":
         server.run(transport="streamable-http", host="0.0.0.0", port=cfg.business_mcp_port)

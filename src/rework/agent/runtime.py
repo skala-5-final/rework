@@ -19,6 +19,13 @@ def _answers_for(run_id: str) -> dict:
         return {q.key: {"question_id": q.id, "answer_id": a.id, "choice": a.choice, "text": a.text} for q, a in rows}
 
 
+def _graph_config(ctx: RunContext, hub: ToolHub) -> dict:
+    """노드·모델 호출 기록(LangSmith)에 실행 정보를 붙인다. 최상위 trace는 Worker의 trace_run이 연다."""
+    return {"configurable": {"thread_id": ctx.run_id, "hub": hub}, "recursion_limit": get_settings().graph_recursion_limit,
+            "run_name": "agent_graph",
+            "metadata": {"job_id": ctx.job_id, "run_id": ctx.run_id, "tenant_id": ctx.tenant_id, "trace_id": ctx.trace_id}}
+
+
 async def run_analysis(ctx: RunContext, action: str) -> str:
     """그래프를 실행하고 최종 상태를 돌려준다: COMPLETED | WAITING_FOR_INPUT."""
     with session_scope() as s:
@@ -29,13 +36,13 @@ async def run_analysis(ctx: RunContext, action: str) -> str:
         await saver.setup()
         graph = build_graph(saver)
         async with ToolHub(ctx) as hub:
-            config = {"configurable": {"thread_id": ctx.run_id, "hub": hub}, "recursion_limit": cfg.graph_recursion_limit}
+            config = _graph_config(ctx, hub)
             snapshot = await graph.aget_state(config)
             pending_interrupt = any(t.interrupts for t in snapshot.tasks)
             if action == "resume" and pending_interrupt:
                 answers = _answers_for(ctx.run_id)
                 record_event(ctx.job_id, ctx.run_id, "status", "resume", f"답변 {len(answers)}개로 재개")
-                result = await graph.ainvoke(Command(resume=answers), config)
+                result = await graph.ainvoke(Command(resume={"answers": answers}), config)
             elif snapshot.next:
                 # 재시도: 마지막 체크포인트부터 이어서 실행
                 record_event(ctx.job_id, ctx.run_id, "status", "resume", f"체크포인트에서 이어서 실행: {list(snapshot.next)}")
@@ -47,6 +54,27 @@ async def run_analysis(ctx: RunContext, action: str) -> str:
     # 다음 노드가 남아 있으면 ask_user의 interrupt에서 멈춘 것
     if after.next or result.get("__interrupt__"):
         return "WAITING_FOR_INPUT"
+    return "COMPLETED"
+
+
+async def run_refresh(ctx: RunContext) -> str:
+    """완료 후 들어온 답변을 반영한다. 체크포인트의 질문 단계(ask_user) 뒤부터 모든 답변으로 다시 실행해
+    판단 근거·규칙 버전·매뉴얼을 같은 실행 안에서 덮어쓴다. 조사·계산은 다시 하지 않는다."""
+    cfg = get_settings()
+    async with AsyncPostgresSaver.from_conn_string(cfg.checkpoint_url) as saver:
+        await saver.setup()
+        graph = build_graph(saver)
+        async with ToolHub(ctx) as hub:
+            config = _graph_config(ctx, hub)
+            snapshot = await graph.aget_state(config)
+            if snapshot.next:
+                # 이전 갱신이 중간에 실패했으면 그 체크포인트부터 이어서 실행한다.
+                await graph.ainvoke(None, config)
+            else:
+                answers = _answers_for(ctx.run_id)
+                record_event(ctx.job_id, ctx.run_id, "status", "refresh", f"답변 {len(answers)}개로 매뉴얼 갱신")
+                await graph.aupdate_state(config, {"answers": answers}, as_node="ask_user")
+                await graph.ainvoke(None, config)
     return "COMPLETED"
 
 
