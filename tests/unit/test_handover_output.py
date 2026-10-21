@@ -76,3 +76,34 @@ def test_manual_puts_rule_first_and_folds_evidence():
     assert "- 참치캔 점검 이유는?" in md
     html = markdown.markdown(md, extensions=["tables", "fenced_code", "md_in_html"])
     assert "<details>" in html and "<li>데이터: 6.68→5.33</li>" in html
+
+
+def test_verified_reason_does_not_override_rejection_or_old_results():
+    assert X.claim_label({"status": "explained", "reason_verified": True}) == "evidence_confirmed"
+    assert X.claim_label({"status": "ambiguous", "reason_verified": True}) == "unknown"
+    assert X.claim_label({"status": "explained", "reason_verified": True,
+                          "confirmation": {"status": "rejected"}}) == "rejected"
+    assert X.claim_label({"status": "explained"}) == "estimated"
+
+
+def test_manual_separates_verified_reason_from_unresolved_amount():
+    rv = SimpleNamespace(version=1, spec={"report": {}, "calc_rules": [], "dataset_columns": [], "unresolved": []})
+    claim = {"statement": "단팥빵 발주 축소", "status": "explained", "reason_verified": True,
+             "unresolved_details": ["1단위 조정 기준"], "criterion": None,
+             "evidence": ["3개월 연속 감소"], "confirmation": {"status": "unconfirmed"}}
+    rat = SimpleNamespace(proposal_key="P4", data={"title": "베이커리", "claims": [claim]})
+    md = build_manual(rv, [rat], {}, [])
+    assert "✅ 근거 확인 **단팥빵 발주 축소**" in md
+    assert "추가 확인 사항: 1단위 조정 기준" in md
+    assert "다음 달에도 같은 조건이면 같은 결정을 합니다" not in md
+
+
+def test_options_repeating_the_decision_fall_back_to_defaults():
+    # 실제로 나온 사례: 모델이 결정 문장을 보기로 두 번 반복함
+    stmt = "입구 쪽 냉장 쇼케이스 1칸을 음료 전용으로 바꾸겠다."
+    c = {"claim_id": "P1-1", "statement": stmt, "status": "ambiguous", "evidence": [],
+         "hypotheses": [{"statement": stmt, "verdict": "supported"}],
+         "question": {"text": "기준은?", "reason": "", "options": [stmt, stmt]}}
+    q = _question_for({"key": "P1", "title": "음료"}, c)
+    labels = [o["label"] for o in q["options"]]
+    assert stmt not in labels and len(labels) == 4 and labels[-1].startswith("기타")

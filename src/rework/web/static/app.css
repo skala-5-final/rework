@@ -8,9 +8,10 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.6 "Appl
 main { max-width: 1120px; margin: 0 auto; padding: 20px 16px 60px; }
 .topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: var(--card); border-bottom: 1px solid var(--line); }
 .brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; color: var(--ink); text-decoration: none; }
-/* 원본 로고의 넓은 여백은 표시 영역에서만 잘라낸다. */
-.brand-logo { position: relative; display: block; width: 176px; height: 36px; overflow: hidden; }
-.brand-logo img { position: absolute; width: 320px; height: 200px; max-width: none; left: -76px; top: -83px; }
+.brand-logo { display: inline-flex; align-items: center; gap: 6px; color: #345bff; }
+.brand-symbol { display: block; width: 25px; height: 25px; flex: none; }
+.brand-wordmark { color: #111520; font: 700 24px/1 Arial, sans-serif; letter-spacing: -1px; }
+.brand-wordmark > span { color: #345bff; }
 .brand-description { font-weight: 400; color: var(--muted); font-size: 13px; }
 @media (max-width: 640px) {
   .topbar { padding: 12px 16px; gap: 12px; flex-wrap: wrap; }
@@ -49,7 +50,7 @@ button:disabled { opacity: .5; cursor: wait; }
 .table td.empty, .empty { color: var(--muted); text-align: center; padding: 22px 8px; }
 .table td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .badge { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 12px; font-weight: 600; background: #f3f4f6; color: var(--muted); white-space: nowrap; }
-.badge.COMPLETED, .badge.matched, .badge.confirmed, .badge.explained { background: var(--ok-soft); color: var(--ok); }
+.badge.evidence_confirmed, .badge.COMPLETED, .badge.matched, .badge.confirmed, .badge.explained { background: var(--ok-soft); color: var(--ok); }
 .badge.RUNNING, .badge.QUEUED, .badge.user_explained { background: var(--brand-soft); color: var(--brand); }
 .badge.WAITING_FOR_INPUT, .badge.RETRY_SCHEDULED, .badge.ambiguous, .badge.unconfirmed, .badge.estimated { background: var(--warn-soft); color: var(--warn); }
 .badge.FAILED, .badge.mismatched, .badge.rejected, .badge.unexplained, .badge.unknown { background: var(--bad-soft); color: var(--bad); }
@@ -78,7 +79,7 @@ button:disabled { opacity: .5; cursor: wait; }
 .claim { border-left: 3px solid var(--line); padding: 6px 0 6px 12px; margin: 10px 0; }
 .claim.explained, .claim.user_explained { border-color: var(--ok); }
 .claim.ambiguous { border-color: var(--warn); } .claim.unexplained { border-color: var(--bad); }
-.claim.confirmed { border-color: var(--ok); } .claim.estimated { border-color: var(--warn); }
+.claim.evidence_confirmed, .claim.confirmed { border-color: var(--ok); } .claim.estimated { border-color: var(--warn); }
 .claim.unknown, .claim.rejected { border-color: var(--bad); }
 .claim details, .proposal details { font-size: 12px; color: var(--muted); margin-top: 4px; }
 .q textarea { min-height: 0; }
@@ -133,6 +134,13 @@ details.options[open] summary { margin-bottom: 6px; }
 .upload-slot.filled .slot-clear { display: block; }
 .upload-msg { margin: 8px 0 0; font-size: 12px; color: var(--bad); }
 .upload-msg:empty { display: none; }
+/* 실행 관측: 토큰·비용·trace */
+.usage { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; font-size: 12px; color: var(--muted); }
+.usage > span { padding: 3px 10px; border: 1px dashed var(--line); border-radius: 99px; background: #fafbfc; }
+.usage b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.usage-trace { display: inline-flex; gap: 8px; align-items: center; }
+.usage-trace a { color: var(--brand); text-decoration: none; font-weight: 600; }
+
 /* 결과물: 파일 카드. 나오기 전에는 만들어질 파일을 점선 카드로 보여 준다 */
 .art-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .art-head h3 { margin: 0; }

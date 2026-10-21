@@ -73,6 +73,7 @@ def save_rationale(s, *, tenant_id: str, run: Run, proposal_key: str, rationale:
         if c.get("criterion"):
             c["criterion"] = DecisionCriterion.model_validate(c["criterion"]).model_dump()
         c["confirmation"] = confirmation_from_db(s, run.id, c.get("confirmation_ref"))
+        c["detail_confirmation"] = confirmation_from_db(s, run.id, c.get("detail_confirmation_ref"))
     statuses = {c["confirmation"]["status"] for c in claims}
     rationale["confirmation"] = {"status": "confirmed" if statuses == {"confirmed"} else
                                  "rejected" if statuses == {"rejected"} else "unconfirmed"}
@@ -101,7 +102,7 @@ def _put_artifact(s, *, tenant_id, run, kind, filename, content: str) -> str:
 
 RAT_KO = {"explained": "데이터로 설명됨", "ambiguous": "판단 보류", "unexplained": "데이터로 설명 안 됨",
           "user_explained": "담당자 설명으로 확정"}
-LABEL_MARK = {"confirmed": "✅ 확인됨", "estimated": "🟡 추정", "unknown": "❓ 모름", "rejected": "⛔ 반려"}
+LABEL_MARK = {"evidence_confirmed": "✅ 근거 확인", "confirmed": "✅ 확인됨", "estimated": "🟡 추정", "unknown": "❓ 모름", "rejected": "⛔ 반려"}
 
 
 def build_manual(rv: RuleVersion, rationales: list[Rationale], manual_spec: dict, open_questions: list[str]) -> str:
@@ -112,7 +113,7 @@ def build_manual(rv: RuleVersion, rationales: list[Rationale], manual_spec: dict
     L = [f"# 인수인계 매뉴얼: {rep.get('title', '월간 판매 실적 보고서')}", "",
          f"> 규칙 버전 v{rv.version} · {datetime.now(timezone.utc):%Y-%m-%d} 생성 · 당월 {rep.get('period', '-')}, "
          f"비교월 {rep.get('prev_period', '-')}", "",
-         "라벨: ✅ 확인됨(숫자 재현 또는 담당자 확인) · 🟡 추정(데이터 근거 있음) · ❓ 모름 · ⛔ 반려", ""]
+         "라벨: ✅ 근거 확인(보고서 이유를 데이터로 검증, 담당자 미확인) · ✅ 확인됨(숫자 재현 또는 담당자 확인) · 🟡 추정(데이터 근거 있음) · ❓ 모름 · ⛔ 반려", ""]
 
     L += ["## 1. 이 보고서는", manual_spec.get("purpose", "-"), ""]
     L += ["## 2. 매달 만드는 순서", f"- 준비: {manual_spec.get('preparation', '-')}"]
@@ -120,13 +121,18 @@ def build_manual(rv: RuleVersion, rationales: list[Rationale], manual_spec: dict
     L += [f"- 검증: {manual_spec.get('validation', '계산 규칙을 다시 실행해 보고서 수치와 비교합니다.')}"]
     L += [f"- 예외: {x}" for x in manual_spec.get("exceptions", [])] + [""]
 
-    L += ["## 3. 판단 규칙", "다음 달에도 같은 조건이면 같은 결정을 합니다.", ""]
+    L += ["## 3. 판단 규칙", "이번 보고서의 판단 근거입니다. 담당자 미확인 기준은 다음 달 적용 전에 확인하세요.", ""]
     for rat in sorted(rationales, key=lambda r: r.proposal_key):
         d = rat.data
         L.append(f"### {d.get('title', rat.proposal_key)}")
         for c in d.get("claims", []):
             rule = X.claim_rule(c)
             L.append(f"- {LABEL_MARK[X.claim_label(c)]} **{c['statement']}**" + (f" — {rule}" if rule else ""))
+            if c.get("unresolved_details"):
+                L.append("  - 추가 확인 사항: " + "; ".join(c["unresolved_details"]))
+                dc = c.get("detail_confirmation") or {}
+                if dc.get("answer_text"):
+                    L.append("  - 세부사항 담당자 답변: " + dc["answer_text"])
             detail = [f"보고서 표현: “{c.get('stated_reason', '')}”"] + [f"데이터: {e}" for e in c.get("evidence", [])]
             if c["confirmation"].get("answer_text"):
                 detail.append(f"담당자 답변: “{c['confirmation']['answer_text']}”")
@@ -286,7 +292,7 @@ def generate_report_draft(s, *, tenant_id: str, run: Run, rv: RuleVersion, df: p
     applied = 0
     for rat in s.scalars(select(Rationale).where(Rationale.run_id == rv.run_id)):
         for c in rat.data.get("claims", []):
-            if not c.get("criterion") or c["status"] not in ("explained", "user_explained") \
+            if c.get("unresolved_details") or not c.get("criterion") or c["status"] not in ("explained", "user_explained") \
                     or c["confirmation"]["status"] == "rejected":
                 continue
             try:

@@ -12,6 +12,7 @@ from contextlib import AsyncExitStack
 from dataclasses import dataclass
 
 import httpx2
+import langsmith as ls
 from mcp import Client
 from mcp.client.stdio import StdioServerParameters
 from mcp.client.streamable_http import streamable_http_client
@@ -22,6 +23,7 @@ from rework.agent.errors import ToolCallError, TransientError
 from rework.auth.mcp_scope import issue_token
 from rework.config import get_settings
 from rework.db.session import record_event
+from rework.observability import tracing_enabled
 
 SERVERS = {"business": "rework.business_mcp.server", "rag": "rework.rag_mcp.server"}
 
@@ -34,6 +36,7 @@ class RunContext:
     tenant_id: str
     attempt: int = 1
     inject_failure: bool = False
+    trace_id: str = ""  # Worker 시도 하나. 이벤트·MCP 로그·LangSmith를 잇는다
 
 
 class ToolHub:
@@ -49,13 +52,14 @@ class ToolHub:
         cfg = get_settings()
         if cfg.mcp_transport == "http":
             # 토큰은 연결(실행 시작·재개)마다 새로 발급한다. 답변 대기가 길어져도 만료된 토큰을 쓰지 않는다.
-            token = issue_token(self.ctx.tenant_id, self.ctx.run_id)
+            token = issue_token(self.ctx.tenant_id, self.ctx.run_id, self.ctx.trace_id)
             http = create_mcp_http_client(headers={"Authorization": f"Bearer {token}"},
                                           timeout=httpx2.Timeout(30.0, read=cfg.mcp_timeout_seconds))
             await self._stack.enter_async_context(http)  # 직접 만든 클라이언트는 전송 계층이 닫지 않는다
             url = {"business": cfg.business_mcp_url, "rag": cfg.rag_mcp_url}[name]
             return streamable_http_client(url, http_client=http)
-        env = {"REWORK_TENANT_ID": self.ctx.tenant_id, "REWORK_RUN_ID": self.ctx.run_id, "MCP_TRANSPORT": "stdio"}
+        env = {"REWORK_TENANT_ID": self.ctx.tenant_id, "REWORK_RUN_ID": self.ctx.run_id,
+               "REWORK_TRACE_ID": self.ctx.trace_id, "MCP_TRANSPORT": "stdio"}
         return StdioServerParameters(command=sys.executable, args=["-m", module], env=env)
 
     async def __aenter__(self):
@@ -110,6 +114,15 @@ class ToolHub:
         return json.loads(text) if text else {}
 
     async def call(self, server: str, tool: str, args: dict, *, node: str) -> dict:
+        """MCP 도구 호출. LangSmith가 켜져 있으면 지금 노드 아래에 도구 단계로 붙인다 (MCP는 LangChain 밖이라 직접 남긴다)."""
+        if not tracing_enabled():
+            return await self._call(server, tool, args, node=node)
+        with ls.trace(f"{server}.{tool}", "tool", inputs={"args": args}, metadata={"server": server, "node": node}) as rt:
+            out = await self._call(server, tool, args, node=node)
+            rt.end(outputs=out if isinstance(out, dict) else {"result": out})
+            return out
+
+    async def _call(self, server: str, tool: str, args: dict, *, node: str) -> dict:
         self._count()
         if self.ctx.inject_failure and self.ctx.attempt == 1 and self.calls == 1:
             record_event(self.ctx.job_id, self.ctx.run_id, "error", node, f"[장애 시연] {server}.{tool} 일시적 연결 실패")

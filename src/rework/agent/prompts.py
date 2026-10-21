@@ -30,7 +30,7 @@ CALC_USER = """[원천 데이터 열]
 
 DECOMPOSE_SYSTEM = """보고서의 '다음 달 제안'을 검증 가능한 결정(claim) 단위로 나누세요.
 - 한 제안에 결정이 여러 개면 나누세요 (예: '제육 도시락 행사 제외' + '금요일 도시락 입고 확대').
-- 같은 결정을 같은 이유로 받은 품목들은 하나의 claim으로 묶으세요 (예: '초코바·감자칩 행사 유지'는 claim 하나). 제안당 claim은 최대 4개.
+- 같은 결정을 같은 이유로 받은 품목들은 하나의 claim으로 묶으세요 (예: '초코바·감자칩 행사 유지'는 claim 하나). 모든 결정을 빠짐없이 포함하세요. 서로 다른 이유나 실행 조건은 별도 claim으로 남기세요.
 - targets/comparators의 values는 반드시 [사용 가능한 값] 목록에 있는 정확한 이름을 쓰세요.
 - comparators: 같은 범주에서 '다른 결정'을 받았거나 비교가 필요한 대상입니다.
   예: 베이커리 중 단팥빵만 줄이고 카스텔라·크림빵은 유지 → 단팥빵 claim의 comparators=카스텔라, 크림빵.
@@ -72,17 +72,24 @@ INVESTIGATE_USER = """[제안 {key}] {title}
 
 JUDGE_SYSTEM = """조사 결과를 보고 결정(claim)마다 근거를 판정하세요.
 - 가설마다 검증한 도구 결과 ID(result_ids)를 적고, 대상에 성립하는지·비교 대상에도 성립하는지 판정하세요.
-- status: explained(한 가설이 대상에만 성립해 결정을 설명함) / ambiguous(여러 가설이 똑같이 설명하거나 기준값이 불명확) / unexplained(데이터로 설명 안 됨, 예: 진열 위치 변경).
+- status는 실행 수량이 아닌 결정 방향의 근거를 판정합니다: explained(데이터가 근거를 뒷받침) / ambiguous(근거가 충돌하거나 결정 방향을 구분할 수 없음) / unexplained(데이터로 설명 안 됨).
+- 연속 감소와 평균 대비 감소처럼 서로 보완하는 가설은 함께 채택하세요. 여러 가설이 성립한다는 이유만으로 ambiguous로 내리지 마세요.
+- reason_quote에는 결정의 이유가 명시된 보고서 원문을 연속 인용하세요. reason_verified는 그 이유를 해당 대상·기간·지표의 도구 결과로 검증한 경우만 true입니다. 보고서에 없는 이유를 AI가 추론했다면 false입니다.
+- 판매 증가가 발주 확대를 설명해도 20% 증량까지 검증한 것은 아닙니다. 미확인 수량·위치·시기·선행조건은 unresolved_details에 분리하고 결정 방향의 근거 상태는 유지하세요.
+- 판매 감소는 점검 필요성을 설명할 수 있지만 결품이 실제 원인임을 증명하지 않습니다. '문제가 없으면 행사 후보'는 점검 결과 없이 조건 충족으로 보지 마세요.
+- 진열·행사 방식의 선택을 단순 판매 증가만으로 검증하지 마세요. 보고서가 설명하는 연결을 검증해야 합니다. 일부 품목만 검증했다면 전체 품목의 reason_verified를 true로 두지 마세요.
 - explained면 criterion으로 일반화하세요. condition.field는 해당 분석 결과 행에 실제로 있는 필드여야 합니다:
   trend: consecutive_up, consecutive_down, change_pct, last_mom_pct
   baseline: deviation_pct · promo_lift: lift_pct · dow: vs_overall_pct, daily_avg · rank: vs_compare_pct, daily_avg
-  threshold는 대상과 비교 대상을 가르는 값으로 정하세요 (예: 단팥빵 3, 카스텔라 1 → consecutive_down >= 3).
+  threshold는 문서나 담당자가 제시한 값이 있을 때만 사용하세요. 관측값을 임의의 업무 기준으로 만들지 마세요. 기준을 특정하지 못해도 근거 검증은 가능하며 criterion=null로 둡니다.
 - 같은 제안 안에서 반대 결정을 받은 대상이 comparators입니다. 기준(threshold)은 반드시 대상과 비교 대상을 가르는 값이어야 합니다.
 - evidence_summary는 숫자를 포함해 1~3줄로 쓰세요 (예: '단팥빵 일평균 6.68→6.5→6.13→5.33, 3개월 연속 감소 / 카스텔라는 1개월 감소').
 - cited_numbers에는 판정에 쓴 숫자를 도구 결과에 적힌 그대로 적으세요. 지어낸 숫자는 검증에서 걸러집니다.
 - ambiguous/unexplained면 담당자에게 물을 question을 쓰세요. 객관식으로 답할 수 있게 options에 이유 후보 2~3개를 짧게 쓰세요.
   ambiguous면 후보는 똑같이 성립한 가설들입니다. unexplained면 데이터 밖의 그럴듯한 이유(진열, 재고, 지시 등)입니다.
-  explained면 question을 비우세요 (묻지 않고 '추정'으로 남깁니다)."""
+  explained라도 unresolved_details가 있으면 그 부분만 묻는 question을 작성하세요. 확인된 추세를 다시 묻지 마세요.
+  question은 담당자가 실제로 사용한 기준을 묻습니다. 'AI 근거가 약한 이유'를 묻거나 결정 문장 자체를 선택지로 반복하지 마세요.
+  unresolved_details가 없고 explained면 question을 비우세요."""
 
 JUDGE_USER = """[제안 {key}] {title}
 {text}

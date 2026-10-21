@@ -3,7 +3,7 @@
 const STATUS_KO = {
   QUEUED: "대기 중", RUNNING: "실행 중", WAITING_FOR_INPUT: "담당자 확인 필요", RETRY_SCHEDULED: "재시도 예약",
   COMPLETED: "완료", FAILED: "실패", matched: "일치", mismatched: "불일치", untested: "미검증",
-  confirmed: "확인됨", rejected: "반려", unconfirmed: "미확인", estimated: "추정", unknown: "모름",
+  evidence_confirmed: "근거 확인", confirmed: "확인됨", rejected: "반려", unconfirmed: "미확인", estimated: "추정", unknown: "모름",
   explained: "데이터로 설명됨", ambiguous: "판단 보류", unexplained: "설명 안 됨", user_explained: "담당자 설명으로 확정",
 };
 const STEP_OF = {
@@ -204,6 +204,9 @@ function eventLine(e) {
     msg = `${d.ok ? "✓" : "✗"} ${esc(e.message)}(${esc(Object.keys(d.args || {}).filter((k) => k !== "dataset_id").map((k) => `${k}=${JSON.stringify(d.args[k])}`).join(", ").slice(0, 160))}) <span class="muted">${d.ms}ms</span>`;
     if (d.error) msg += `<div class="small" style="color:var(--bad)">${esc(d.error)}</div>`;
   }
+  if (e.type === "llm" && e.data && e.data.input_tokens != null) {
+    msg += ` <span class="muted">${(e.data.input_tokens + e.data.output_tokens).toLocaleString("ko-KR")} tok${e.data.cost_usd != null ? ` · $${e.data.cost_usd.toFixed(4)}` : ""}</span>`;
+  }
   return `<li class="${e.type}"><span class="t">${time}</span><span class="k">${esc(e.type)} · ${esc(e.stage)}</span><span class="m">${msg}</span></li>`;
 }
 
@@ -213,6 +216,7 @@ async function pollJob() {
     job.status = j.status; job.run = j.run;
     $("#job-name").textContent = j.name;
     $("#job-meta").textContent = `${j.source_file} · ${j.report_file} · 시도 ${j.attempts}회${j.inject_failure ? " · 장애 시연" : ""}`;
+    renderUsage(j.usage, j.trace);
     $("#job-status").outerHTML = `<span class="badge ${j.status}" id="job-status">${STATUS_KO[j.status] || j.status}</span>`;
     $("#job-error").textContent = j.error && j.status === "FAILED" ? j.error : "";
 
@@ -235,6 +239,21 @@ async function pollJob() {
     job.prevStatus = j.status;
     if (["COMPLETED", "WAITING_FOR_INPUT"].includes(j.status) || events.some((e) => e.stage === "save_results")) await loadResults();
   } catch (err) { $("#job-error").textContent = err.message; }
+}
+
+// 실행별 관측: 모델 호출 수·토큰·비용과 trace_id (LangSmith 링크가 있으면 연결)
+function renderUsage(u, t) {
+  const el = $("#job-usage");
+  if (!u || (!u.llm_calls && !(t && t.trace_id))) { el.classList.add("hidden"); return; }
+  const n = (x) => Number(x || 0).toLocaleString("ko-KR");
+  const cost = `$${Number(u.cost_usd || 0).toFixed(4)}${u.cost_complete ? "" : "+"}`;
+  const trace = t && t.trace_id
+    ? (t.url ? `<a href="${esc(t.url)}" target="_blank" rel="noopener">LangSmith에서 보기 ↗</a>` : "")
+      + `<code title="trace_id: 이벤트·MCP 로그·LangSmith 공통">${esc(t.trace_id.slice(0, 8))}</code>`
+    : "";
+  el.innerHTML = `<span><b>${n(u.llm_calls)}</b> 모델 호출</span><span>입력 <b>${n(u.input_tokens)}</b> · 출력 <b>${n(u.output_tokens)}</b> 토큰</span>
+    <span>예상 비용 <b>${cost}</b></span>${trace ? `<span class="usage-trace">${trace}</span>` : ""}`;
+  el.classList.remove("hidden");
 }
 
 function applyToolFilter() {
@@ -307,7 +326,7 @@ async function loadResults() {
       ${unresolved ? `<h3>미해결</h3><ul>${unresolved}</ul>` : ""}`;
   }
   if (res.rationales.length) {
-    $("#rationales").innerHTML = `<p class="muted small">✅ 확인됨 · 🟡 추정(데이터 근거 있음) · ❓ 모름 · ⛔ 반려</p>` + res.rationales.map((p) => `<div class="proposal">
+    $("#rationales").innerHTML = `<p class="muted small">✅ 근거 확인(보고서 이유 검증·담당자 미확인) · ✅ 확인됨(담당자 확인) · 🟡 추정(데이터 근거 있음) · ❓ 모름 · ⛔ 반려</p>` + res.rationales.map((p) => `<div class="proposal">
       <b>${esc(p.title)}</b>
       ${p.claims.map((c) => {
         const detail = [`보고서 표현: “${c.stated_reason || ""}”`, ...(c.evidence || []).map((x) => `데이터: ${x}`),
@@ -316,6 +335,8 @@ async function loadResults() {
           ...((c.check_notes || []).length ? [`검사 메모: ${c.check_notes.join("; ")}`] : [])];
         return `<div class="claim ${esc(c.label)}">
           <div>${badge(c.label)} <b>${esc(c.statement)}</b>${c.rule ? ` — ${esc(c.rule)}` : ""}</div>
+          ${(c.unresolved_details || []).length ? `<p class="small">❓ 추가 확인 사항: ${esc(c.unresolved_details.join("; "))}</p>` : ""}
+          ${c.detail_confirmation?.answer_text ? `<p class="small">세부사항 담당자 답변: ${esc(c.detail_confirmation.answer_text)}</p>` : ""}
           <details><summary>근거</summary><ul>${detail.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></details>
         </div>`;
       }).join("")}</div>`).join("");

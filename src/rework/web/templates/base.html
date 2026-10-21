@@ -10,7 +10,14 @@
 <body>
   <header class="topbar">
     <a class="brand" href="/" aria-label="Rework 홈">
-      <span class="brand-logo"><img src="/static/Rework.png" alt="Rework" width="1280" height="800"></span>
+      <span class="brand-logo" aria-hidden="true">
+        <svg class="brand-symbol" viewBox="0 0 40 40" fill="none">
+          <path d="M28 6.5A16 16 0 1 0 32 28" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"/>
+          <path d="M12 15h13M12 25h10" stroke="#111520" stroke-width="3.3" stroke-linecap="round"/>
+          <path d="M12 20h7M27 29l9-10 2 13" stroke="currentColor" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="brand-wordmark"><span>Re</span>work</span>
+      </span>
       <span class="brand-description">보고서 인수인계 Agent</span>
     </a>
     {% if user %}

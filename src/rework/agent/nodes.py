@@ -7,6 +7,7 @@ import json
 import re
 
 import openai
+from langchain_core.callbacks import get_usage_metadata_callback
 from langchain_core.exceptions import OutputParserException
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from pydantic import ValidationError
@@ -22,6 +23,7 @@ from rework.config import get_settings
 from rework.contracts.rules import ALLOWED_COLUMNS
 from rework.db.models import Question
 from rework.db.session import record_event, session_scope
+from rework.observability import usage_record
 
 ANALYSIS_TOOLS = ["analyze_trend", "analyze_baseline", "analyze_promo_lift", "analyze_dow", "rank_items"]
 CRITERION_FIELDS = {
@@ -71,13 +73,15 @@ async def _ainvoke(runnable, messages, config, node: str, what: str):
     # 라이브러리 timeout이 걸리지 않는 경우에 대비한 하드 제한 (재시도 포함)
     hard_limit = cfg.llm_timeout_seconds * (cfg.llm_max_retries + 1) + 10
     try:
-        out = await asyncio.wait_for(runnable.ainvoke(messages), timeout=hard_limit)
+        # 재시도까지 포함한 이 호출의 토큰을 모은다 (구조화 출력은 AIMessage가 아니라 응답에서 직접 못 읽는다).
+        with get_usage_metadata_callback() as usage:
+            out = await asyncio.wait_for(runnable.ainvoke(messages), timeout=hard_limit)
     except TimeoutError as e:
         record_event(ctx.job_id, ctx.run_id, "error", node, f"모델 응답 {hard_limit}초 초과")
         raise TransientError(f"모델 응답 시간 초과 ({hard_limit}초)") from e
     except TRANSIENT_OPENAI as e:
         raise TransientError(f"모델 API 일시 오류: {e}") from e
-    record_event(ctx.job_id, ctx.run_id, "llm", node, what)
+    record_event(ctx.job_id, ctx.run_id, "llm", node, what, usage_record(usage.usage_metadata))
     return out
 
 
@@ -274,7 +278,8 @@ def _merge_claims(claims: list[dict], key: str) -> list[dict]:
     for c in claims:
         t = c.get("targets")
         same = next((m for m in merged if t and m.get("targets") and c["decision"] != "기타"
-                     and m["decision"] == c["decision"] and m["targets"]["column"] == t["column"]), None)
+                     and m["decision"] == c["decision"] and m.get("stated_reason") == c.get("stated_reason")
+                     and m["targets"]["column"] == t["column"]), None)
         if same:
             same["statement"] += " / " + c["statement"]
             same["targets"]["values"] = list(dict.fromkeys(same["targets"]["values"] + t["values"]))
@@ -397,7 +402,7 @@ def _grounded(x: float, pool: list[float]) -> bool:
     return any(abs(abs(x) - abs(n)) <= max(0.06, abs(n) * 0.01) for n in pool)
 
 
-def check_claim(claim: dict, cj, results: dict) -> dict:
+def check_claim(claim: dict, cj, results: dict, report_text: str = "") -> dict:
     """🟦 모델 판정을 코드로 검사한다: 결과 ID 존재, 비교 대상 판별, 인용 숫자 근거, 기준 필드."""
     notes = []
     status = cj.status if cj else "unexplained"
@@ -406,7 +411,7 @@ def check_claim(claim: dict, cj, results: dict) -> dict:
         d = h.model_dump()
         d["result_ids"] = [r for r in d["result_ids"] if r in results]
         hyps.append(d)
-    supported = [h for h in hyps if h["verdict"] == "supported"]
+    supported = [h for h in hyps if h["verdict"] == "supported" and h["holds_for_targets"]]
     if status == "explained":
         problem = None
         if not supported:
@@ -429,7 +434,23 @@ def check_claim(claim: dict, cj, results: dict) -> dict:
     if crit and crit["condition"]["field"] not in CRITERION_FIELDS[crit["type"]]:
         notes.append(f"기준 필드 {crit['condition']['field']}는 {crit['type']} 결과에 없음")
         crit = None
+    quote = cj.reason_quote.strip() if cj else ""
+    normalize = lambda text: re.sub(r"\s+", "", text)
+    referenced = _j([results[r] for r in ref_ids if r in results])
+    targets = (claim.get("targets") or {}).get("values", [])
+    targets_present = bool(targets) and all(name in referenced for name in targets)
+    unresolved = list(cj.unresolved_details if cj else [])
+    for amount in re.findall(r"\d+(?:\.\d+)?\s*(?:%|단위|칸)", claim.get("statement", "")):
+        if not any(normalize(amount) in normalize(detail) for detail in unresolved):
+            unresolved.append(f"{amount} 조정·배치 기준")
+    # 기존 결과는 자동 승격하지 않는다. 원문 인용과 검증 근거가 있는 새 판정만 인정한다.
+    verified = bool(cj and cj.reason_verified and status == "explained" and quote
+                    and normalize(quote) in normalize(report_text)
+                    and cj.evidence_summary and cj.cited_numbers and not bad and targets_present
+                    and any(h["result_ids"] for h in supported))
     return {**claim, "status": status, "criterion": crit, "hypotheses": hyps,
+            "reason_verified": verified, "reason_quote": quote,
+            "unresolved_details": unresolved,
             "evidence": cj.evidence_summary if cj else [],
             "rejected_hypotheses": [h["statement"] for h in hyps if h["verdict"] == "refuted"],
             "check_notes": notes, "question": cj.question.model_dump() if cj and cj.question else None}
@@ -464,22 +485,38 @@ UNEXPLAINED_OPTIONS = ["현장 상황 (진열·재고·날씨 등)", "본사·�
 
 
 def _question_for(p: dict, c: dict) -> dict:
-    """데이터로 결정하지 못한 결정마다 객관식 질문 하나. 데이터로 설명된 결정은 묻지 않고 '추정'으로 남긴다."""
+    """미확인 근거나 실행 세부사항만 묻고, 이미 검증한 추세는 다시 묻지 않는다."""
     q = c.get("question") or {}
-    if c["status"] == "ambiguous":
+    if c["status"] == "explained" and c.get("unresolved_details"):
+        cands = _options(q.get("options"), c["statement"])
+        text = q.get("text") or f"{'; '.join(c['unresolved_details'])}은 무엇인가요?"
+    elif c["status"] == "ambiguous":
         # 여러 가설이 똑같이 설명하면, 그 가설들이 곧 선택지다.
-        cands = q.get("options") or [h["statement"] for h in c["hypotheses"] if h["verdict"] == "supported"]
+        cands = (_options(q.get("options"), c["statement"])
+                 or _options([h["statement"] for h in c["hypotheses"] if h["verdict"] == "supported"], c["statement"]))
         text = q.get("text") or f"'{c['statement']}'의 기준은 무엇이었나요?"
     else:
-        cands = q.get("options") or UNEXPLAINED_OPTIONS
+        cands = _options(q.get("options"), c["statement"]) or UNEXPLAINED_OPTIONS
         text = q.get("text") or f"'{c['statement']}'는 왜 결정하셨나요?"
     if len(cands) < 2:
         cands = UNEXPLAINED_OPTIONS
     return {"key": c["claim_id"], "kind": "choose", "text": text,
-            "reason": q.get("reason") or ("근거 후보가 여러 개입니다." if c["status"] == "ambiguous" else "데이터로 설명되지 않습니다."),
+            "reason": q.get("reason") or ("결정 근거 외에 미확인 세부사항이 있습니다." if c.get("unresolved_details") else "근거를 구분할 추가 확인이 필요합니다." if c["status"] == "ambiguous" else "데이터로 설명되지 않습니다."),
             "options": [{"value": o, "label": o} for o in cands[:3]] + [OTHER],
             "context": {"proposal_key": p["key"], "proposal_title": p["title"], "claim": c["statement"],
                         "status": c["status"], "evidence": c["evidence"][:3]}}
+
+
+def _options(cands: list[str] | None, statement: str) -> list[str]:
+    """모델이 낸 보기에서 결정 문장을 되풀이한 것과 중복을 뺀다 (프롬프트로 금지해도 나올 때가 있다).
+    2개가 안 남으면 빈 목록 → 호출한 쪽이 다른 후보나 기본 보기를 쓴다."""
+    norm = lambda x: re.sub(r"[\s'\"‘’“”.,·]", "", x)  # noqa: E731
+    key, out = norm(statement), []
+    for o in cands or []:
+        k = norm(o)
+        if k and k != key and not (k in key or key in k) and k not in map(norm, out):
+            out.append(o.strip())
+    return out if len(out) >= 2 else []
 
 
 def _rank(questions: list[dict]) -> list[dict]:
@@ -499,7 +536,7 @@ async def judge_rationale(state, config):
                     for rid, r in results.items()]) if results else "없음", notes=notes or "없음"))]
     j: Judgement = await _structured(Judgement, msgs, config, "judge_rationale")
     by_id = {c.claim_id: c for c in j.claims}
-    claims = [check_claim(c, by_id.get(c["claim_id"]), results) for c in p["claims"]]
+    claims = [check_claim(c, by_id.get(c["claim_id"]), results, p["text"]) for c in p["claims"]]
     for c in claims:
         await _self_consistency(c, state, config)
     order = {"unexplained": 0, "ambiguous": 1, "explained": 2}
@@ -515,7 +552,7 @@ async def judge_rationale(state, config):
 
 
 def _questions(p: dict, claims: list[dict]) -> list[dict]:
-    return [_question_for(p, c) for c in claims if c["status"] != "explained"]
+    return [_question_for(p, c) for c in claims if c["status"] != "explained" or c.get("unresolved_details")]
 
 
 def route_rationale(state) -> str:
@@ -561,6 +598,9 @@ async def apply_answers(state, config):
         for c in rat["claims"]:
             a = answers.get(c["claim_id"]) or (answers.get(f"{rat['key']}-confirm") if c["status"] == "explained" else None)
             if not a:
+                continue
+            if c["status"] == "explained" and c.get("unresolved_details"):
+                c["detail_confirmation_ref"] = a["question_id"]
                 continue
             c["confirmation_ref"] = a["question_id"]
             c["answer"] = {"choice": a["choice"], "text": a["text"]}
@@ -613,6 +653,8 @@ async def save_results(state, config):
         for c in rat["claims"]:
             a = answers.get(c["claim_id"]) or (answers.get(f"{rat['key']}-confirm") if c["status"] == "explained" else None)
             if not a or a["choice"] == "reject" or (a["choice"] in ("confirm", "other") and not a["text"].strip()):
+                continue
+            if c.get("unresolved_details"):
                 continue
             desc = c.get("criterion_user") or (c["criterion"] or {}).get("description") or ""
             body = (f"제안: {rat['title']} — {c['statement']}\n판단 기준: {desc}\n근거 데이터: {'; '.join(c['evidence'])}\n"

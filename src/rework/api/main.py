@@ -20,6 +20,7 @@ from rework.business_mcp.services.dataset import missing_columns
 from rework.db.models import (Answer, Artifact, Document, Event, File as FileRow, Job, Outbox, Question, Rationale,
                               RuleVersion, Run, User, new_id)
 from rework.db.session import get_db, init_db
+from rework.observability import summarize_usage
 from rework.queue.rabbit import outbox_relay
 from rework.rag_mcp.services import index as rag_index
 from rework.contracts import explain as X
@@ -165,7 +166,16 @@ def list_jobs(db: Session = Depends(get_db), user: CurrentUser = Depends(current
 
 @app.get("/jobs/{job_id}")
 def get_job(job_id: str, db: Session = Depends(get_db), user: CurrentUser = Depends(current_user)):
-    return _job_view(db, _owned(db, Job, job_id, user))
+    job = _owned(db, Job, job_id, user)
+    llm = db.scalars(select(Event.data).where(Event.job_id == job_id, Event.type == "llm"))
+    last = db.scalar(select(Event).where(Event.job_id == job_id, Event.trace_id.is_not(None))
+                     .order_by(Event.id.desc()).limit(1))
+    link = db.scalar(select(Event.data).where(Event.job_id == job_id, Event.type == "trace")
+                     .order_by(Event.id.desc()).limit(1))
+    # 토큰·비용은 작업의 모든 시도(분석·재개·갱신)를 합친다. trace는 가장 최근 시도.
+    return {**_job_view(db, job), "usage": summarize_usage(list(llm)),
+            "trace": {"trace_id": last.trace_id if last else None,
+                      "url": link.get("url") if link and last and link.get("trace_id") == last.trace_id else None}}
 
 
 @app.get("/jobs/{job_id}/events")
@@ -173,7 +183,7 @@ def job_events(job_id: str, after: int = 0, db: Session = Depends(get_db), user:
     _owned(db, Job, job_id, user)
     rows = db.scalars(select(Event).where(Event.job_id == job_id, Event.id > after).order_by(Event.id).limit(500))
     return [{"id": e.id, "ts": e.ts.isoformat(), "type": e.type, "stage": e.stage, "message": e.message,
-             "data": e.data, "run_id": e.run_id} for e in rows]
+             "data": e.data, "run_id": e.run_id, "trace_id": e.trace_id} for e in rows]
 
 
 @app.get("/jobs/{job_id}/questions")

@@ -17,6 +17,15 @@ class Settings(BaseSettings):
     embedding_model: str = "text-embedding-3-small"
     embedding_dim: int = 1536
 
+    # 관측: LangSmith는 키가 있을 때만 켠다. 가격표는 100만 토큰당 (입력, 출력) USD, 모델 이름 앞부분으로 찾는다.
+    langsmith_tracing: bool = False
+    langsmith_api_key: str = ""
+    langsmith_project: str = "rework"
+    llm_prices_per_mtok: dict[str, tuple[float, float]] = {
+        "gpt-4o-mini": (0.15, 0.60), "gpt-4o": (2.50, 10.00),
+        "gpt-4.1-mini": (0.40, 1.60), "gpt-4.1": (2.00, 8.00),
+    }
+
     database_url: str = "postgresql+psycopg://rework:rework@localhost:5433/rework"
     rabbitmq_url: str = "amqp://guest:guest@localhost:5672/"
     jwt_secret: str = "change-me"

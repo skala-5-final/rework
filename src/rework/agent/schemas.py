@@ -52,7 +52,10 @@ class ClaimJudgement(BaseModel):
     claim_id: str
     hypotheses: list[Hypothesis]
     status: Literal["explained", "ambiguous", "unexplained"]
-    criterion: DecisionCriterion | None = Field(None, description="채택한 가설을 다음 달에도 적용할 수 있게 일반화한 기준")
+    reason_quote: str = Field("", description="결정의 이유를 명시한 보고서 원문 연속 인용. 이유가 없으면 빈 문자열")
+    reason_verified: bool = Field(False, description="인용한 이유와 결정 방향을 해당 대상·기간·지표의 도구 결과로 검증했는지")
+    unresolved_details: list[str] = Field(default_factory=list, description="근거와 별개로 미확인인 실행 수량·위치·선행조건. 예: 발주 20% 조정 기준")
+    criterion: DecisionCriterion | None = Field(None, description="재사용 가능한 후보 기준. 근거 없는 임계값을 만들지 말고 불명확하면 null")
     cited_numbers: list[float] = Field(default_factory=list, description="판정에 인용한 숫자 (도구 결과에 실제로 있어야 함)")
     evidence_summary: list[str] = Field(default_factory=list, description="근거 데이터를 한 줄씩 (숫자 포함)")
     question: QuestionSpec | None = None

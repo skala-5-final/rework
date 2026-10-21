@@ -169,10 +169,11 @@ class Event(Base):
     job_id: Mapped[str] = mapped_column(ForeignKey("jobs.id"), index=True)
     run_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
     ts: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
-    type: Mapped[str] = mapped_column(String(30))  # stage | tool_call | llm | retry | status | error
+    type: Mapped[str] = mapped_column(String(30))  # stage | tool_call | llm | retry | status | error | trace
     stage: Mapped[str] = mapped_column(String(50), default="")
     message: Mapped[str] = mapped_column(Text, default="")
     data: Mapped[dict] = mapped_column(JSON, default=dict)
+    trace_id: Mapped[str | None] = mapped_column(String(36), nullable=True, index=True)  # Worker 시도 하나
 
 
 class Outbox(Base):

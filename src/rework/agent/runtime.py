@@ -19,6 +19,13 @@ def _answers_for(run_id: str) -> dict:
         return {q.key: {"question_id": q.id, "answer_id": a.id, "choice": a.choice, "text": a.text} for q, a in rows}
 
 
+def _graph_config(ctx: RunContext, hub: ToolHub) -> dict:
+    """노드·모델 호출 기록(LangSmith)에 실행 정보를 붙인다. 최상위 trace는 Worker의 trace_run이 연다."""
+    return {"configurable": {"thread_id": ctx.run_id, "hub": hub}, "recursion_limit": get_settings().graph_recursion_limit,
+            "run_name": "agent_graph",
+            "metadata": {"job_id": ctx.job_id, "run_id": ctx.run_id, "tenant_id": ctx.tenant_id, "trace_id": ctx.trace_id}}
+
+
 async def run_analysis(ctx: RunContext, action: str) -> str:
     """그래프를 실행하고 최종 상태를 돌려준다: COMPLETED | WAITING_FOR_INPUT."""
     with session_scope() as s:
@@ -29,7 +36,7 @@ async def run_analysis(ctx: RunContext, action: str) -> str:
         await saver.setup()
         graph = build_graph(saver)
         async with ToolHub(ctx) as hub:
-            config = {"configurable": {"thread_id": ctx.run_id, "hub": hub}, "recursion_limit": cfg.graph_recursion_limit}
+            config = _graph_config(ctx, hub)
             snapshot = await graph.aget_state(config)
             pending_interrupt = any(t.interrupts for t in snapshot.tasks)
             if action == "resume" and pending_interrupt:
@@ -58,7 +65,7 @@ async def run_refresh(ctx: RunContext) -> str:
         await saver.setup()
         graph = build_graph(saver)
         async with ToolHub(ctx) as hub:
-            config = {"configurable": {"thread_id": ctx.run_id, "hub": hub}, "recursion_limit": cfg.graph_recursion_limit}
+            config = _graph_config(ctx, hub)
             snapshot = await graph.aget_state(config)
             if snapshot.next:
                 # 이전 갱신이 중간에 실패했으면 그 체크포인트부터 이어서 실행한다.

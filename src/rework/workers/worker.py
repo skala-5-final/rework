@@ -21,6 +21,7 @@ from rework.agent.runtime import run_analysis, run_refresh, run_rerun
 from rework.config import get_settings
 from rework.db.models import Job, ProcessedMessage, Run, now
 from rework.db.session import init_db, record_event, session_scope
+from rework.observability import current_trace, new_trace_id, setup_langsmith, trace_run
 from rework.queue import rabbit
 
 log = logging.getLogger("rework.worker")
@@ -53,7 +54,7 @@ def _context(payload: dict) -> RunContext:
         job = s.get(Job, payload["job_id"])
         job.status, job.attempts = "RUNNING", payload["attempt"]
         return RunContext(job_id=job.id, run_id=payload["run_id"], tenant_id=job.tenant_id,
-                          attempt=payload["attempt"], inject_failure=job.inject_failure)
+                          attempt=payload["attempt"], inject_failure=job.inject_failure, trace_id=new_trace_id())
 
 
 async def handle(message: aio_pika.abc.AbstractIncomingMessage, ex) -> None:
@@ -71,14 +72,17 @@ async def handle(message: aio_pika.abc.AbstractIncomingMessage, ex) -> None:
         return
 
     ctx = _context(payload)
-    record_event(job_id, run_id, "status", "worker", f"작업 시작 (action={payload['action']}, 시도 {attempt}회차)")
+    trace = current_trace.set(ctx.trace_id)  # 이 시도에서 남기는 이벤트는 모두 같은 trace_id
+    record_event(job_id, run_id, "status", "worker", f"작업 시작 (action={payload['action']}, 시도 {attempt}회차)",
+                 {"trace_id": ctx.trace_id})
     try:
-        if payload["action"] == "rerun":
-            status = await run_rerun(ctx)
-        elif payload["action"] == "refresh":
-            status = await run_refresh(ctx)
-        else:
-            status = await run_analysis(ctx, payload["action"])
+        with trace_run(ctx, payload["action"]):
+            if payload["action"] == "rerun":
+                status = await run_rerun(ctx)
+            elif payload["action"] == "refresh":
+                status = await run_refresh(ctx)
+            else:
+                status = await run_analysis(ctx, payload["action"])
         _finish(payload, status=status)
         record_event(job_id, run_id, "status", "worker",
                      "담당자 답변 대기 (체크포인트 저장 후 큐 메시지 반납)" if status == "WAITING_FOR_INPUT" else "완료")
@@ -101,12 +105,15 @@ async def handle(message: aio_pika.abc.AbstractIncomingMessage, ex) -> None:
         await rabbit.publish(ex, "failed", {**payload, "error": repr(e)})
         _finish(payload, status="FAILED", error=f"{type(e).__name__}: {e}")
         record_event(job_id, run_id, "error", "worker", f"처리 실패: {type(e).__name__}: {e}")
+    finally:
+        current_trace.reset(trace)
     await message.ack()
 
 
 async def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(message)s")
     init_db()
+    setup_langsmith()
     conn = await rabbit.connect()
     async with conn:
         channel = await conn.channel(publisher_confirms=True)

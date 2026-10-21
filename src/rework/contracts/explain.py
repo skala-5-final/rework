@@ -11,7 +11,7 @@ GROUP_KO = {"item_name": "품목", "category_l1": "대분류", "category_l2": "�
 ROUNDING_KO = {"half_up": "반올림", "floor": "버림", "ceil": "올림", "half_even": "짝수 반올림"}
 
 # 판단 하나의 상태 라벨: 확인됨 / 추정(데이터 근거 있음) / 모름 / 반려
-LABEL_KO = {"confirmed": "확인됨", "estimated": "추정", "unknown": "모름", "rejected": "반려"}
+LABEL_KO = {"confirmed": "확인됨", "evidence_confirmed": "근거 확인", "estimated": "추정", "unknown": "모름", "rejected": "반려"}
 
 
 def ko(col: str | None) -> str:
@@ -72,6 +72,8 @@ def claim_label(claim: dict) -> str:
         return "rejected"
     if conf == "confirmed":
         return "confirmed"
+    if claim.get("status") == "explained" and claim.get("reason_verified"):
+        return "evidence_confirmed"
     return "estimated" if claim.get("status") == "explained" else "unknown"
 
 
