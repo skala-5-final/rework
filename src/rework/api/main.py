@@ -173,7 +173,16 @@ def get_job(job_id: str, db: Session = Depends(get_db), user: CurrentUser = Depe
     link = db.scalar(select(Event.data).where(Event.job_id == job_id, Event.type == "trace")
                      .order_by(Event.id.desc()).limit(1))
     # 토큰·비용은 작업의 모든 시도(분석·재개·갱신)를 합친다. trace는 가장 최근 시도.
+    guard = db.scalars(select(Event).where(Event.job_id == job_id, Event.type.in_(("budget", "approval", "privacy")))).all()
+    kinds = [e.data.get("kind") for e in guard if e.type == "budget"]
     return {**_job_view(db, job), "usage": summarize_usage(list(llm)),
+            # 하네스가 개입한 횟수. 화면에서 '예산으로 조사를 줄였다' 같은 사실을 숨기지 않고 보여 준다.
+            "guards": {"compact": kinds.count("compact"), "clip": kinds.count("clip"), "stop": kinds.count("stop"),
+                       "exceeded": kinds.count("exceeded"),
+                       "blocked": sum(e.type == "approval" and not e.data.get("ok") for e in guard),
+                       "approved": sum(e.type == "approval" and bool(e.data.get("ok")) for e in guard),
+                       "masked": sum(e.type == "privacy" for e in guard),
+                       "notes": [e.message for e in guard if e.type == "budget" and e.data.get("kind") in ("stop", "exceeded")][-3:]},
             "trace": {"trace_id": last.trace_id if last else None,
                       "url": link.get("url") if link and last and link.get("trace_id") == last.trace_id else None}}
 

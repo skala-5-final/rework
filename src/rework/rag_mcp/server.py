@@ -94,12 +94,21 @@ def register_confirmed_rule(ctx: Context, title: Annotated[str, Field(descriptio
     """담당자가 확인한 규칙을 다음 실행에서 검색할 수 있게 등록한다. 확인 답변 ID가 없으면 등록하지 않는다."""
     from rework.db.models import Answer, Question
 
-    tenant_id = _tenant(ctx)
+    try:
+        sc = resolve_scope(ctx.headers)
+    except ScopeError as e:
+        raise ToolError(str(e)) from e
     with session_scope() as s:
         a = s.get(Answer, answer_id)
         q = s.get(Question, a.question_id) if a else None
-        if a is None or q is None or q.tenant_id != tenant_id:
+        if a is None or q is None or q.tenant_id != sc.tenant_id:
             raise ToolError("확인 답변이 없어 등록하지 않았습니다. 확인되지 않은 추론은 업무 지식으로 등록할 수 없습니다.")
+        # 승인은 이 실행에서 받은, 반려가 아닌 답변만 인정한다.
+        if sc.run_id and q.run_id != sc.run_id:
+            raise ToolError("다른 실행의 답변으로는 등록할 수 없습니다.")
+        if a.choice == "reject":
+            raise ToolError("담당자가 반려한 내용은 업무 지식으로 등록하지 않습니다.")
+        tenant_id = sc.tenant_id
         return index.register_document(s, tenant_id=tenant_id, title=title,
                                        content=f"{content}\n\n(확인: 답변 {answer_id})", kind="confirmed")
 

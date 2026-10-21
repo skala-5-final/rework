@@ -19,6 +19,7 @@ from mcp.client.streamable_http import streamable_http_client
 from mcp.shared.exceptions import MCPError
 from mcp.shared._httpx_utils import create_mcp_http_client
 
+from rework.agent import policy
 from rework.agent.errors import ToolCallError, TransientError
 from rework.auth.mcp_scope import issue_token
 from rework.config import get_settings
@@ -44,6 +45,7 @@ class ToolHub:
         self.ctx = ctx
         self.clients: dict[str, Client] = {}
         self.calls = 0
+        self.tokens = 0  # 이 시도에서 쓴 모델 토큰 (컨텍스트 예산)
         self._stack = AsyncExitStack()
         self._schemas: dict[str, list] = {}
         self._templates: dict[str, list] = {}
@@ -123,6 +125,14 @@ class ToolHub:
             return out
 
     async def _call(self, server: str, tool: str, args: dict, *, node: str) -> dict:
+        denied = policy.check(server, tool, args, node)
+        if denied:
+            record_event(self.ctx.job_id, self.ctx.run_id, "approval", node, f"차단: {server}.{tool}",
+                         {"ok": False, "reason": denied})
+            raise ToolCallError(denied)
+        if (arg := policy.needs_approval(server, tool)):
+            record_event(self.ctx.job_id, self.ctx.run_id, "approval", node, f"승인 확인: {server}.{tool}",
+                         {"ok": True, "approval": {arg: args[arg]}})
         self._count()
         if self.ctx.inject_failure and self.ctx.attempt == 1 and self.calls == 1:
             record_event(self.ctx.job_id, self.ctx.run_id, "error", node, f"[장애 시연] {server}.{tool} 일시적 연결 실패")

@@ -54,6 +54,11 @@ class Settings(BaseSettings):
     # 담당자에게 한 번에 묻는 질문 수. 나머지는 '나중에 확인'으로 남긴다.
     max_questions: int = 3
 
+    # 컨텍스트 예산 (양 제한). 시연 데이터는 호출당 수천 토큰이라 넉넉한 안전망이다.
+    context_token_budget: int = 100_000      # 모델 호출 한 번에 넣는 토큰 (gpt-4o-mini 창 128k보다 작게)
+    tool_result_max_chars: int = 12_000      # 도구 결과 하나를 대화에 넣는 최대 글자 수
+    run_token_budget: int = 2_000_000        # 시도 한 번의 누적 토큰. 넘으면 남은 조사를 건너뛰고 판정·저장한다
+
     # 큐 재시도
     retry_delays_seconds: tuple[int, ...] = (10, 30, 60)
     run_lease_seconds: int = 600

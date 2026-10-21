@@ -217,6 +217,7 @@ async function pollJob() {
     $("#job-name").textContent = j.name;
     $("#job-meta").textContent = `${j.source_file} · ${j.report_file} · 시도 ${j.attempts}회${j.inject_failure ? " · 장애 시연" : ""}`;
     renderUsage(j.usage, j.trace);
+    renderGuards(j.guards);
     $("#job-status").outerHTML = `<span class="badge ${j.status}" id="job-status">${STATUS_KO[j.status] || j.status}</span>`;
     $("#job-error").textContent = j.error && j.status === "FAILED" ? j.error : "";
 
@@ -253,6 +254,25 @@ function renderUsage(u, t) {
     : "";
   el.innerHTML = `<span><b>${n(u.llm_calls)}</b> 모델 호출</span><span>입력 <b>${n(u.input_tokens)}</b> · 출력 <b>${n(u.output_tokens)}</b> 토큰</span>
     <span>예상 비용 <b>${cost}</b></span>${trace ? `<span class="usage-trace">${trace}</span>` : ""}`;
+  el.classList.remove("hidden");
+}
+
+// 하네스 개입: 컨텍스트 예산·승인 정책·개인정보 마스킹. 예산으로 조사를 줄였으면 결과를 볼 때 알 수 있게 경고로 띄운다.
+function renderGuards(g) {
+  const el = $("#job-guards");
+  if (!g) { el.classList.add("hidden"); return; }
+  const chips = [
+    g.masked && `개인정보 가림 ${g.masked}회`,
+    g.approved && `승인 확인 ${g.approved}건`,
+    g.blocked && `변경 차단 ${g.blocked}건`,
+    g.clip && `긴 도구 결과 줄임 ${g.clip}회`,
+    g.compact && `컨텍스트 정리 ${g.compact}회`,
+  ].filter(Boolean);
+  const stopped = g.stop + g.exceeded;
+  if (!chips.length && !stopped) { el.classList.add("hidden"); return; }
+  el.innerHTML = (stopped ? `<div class="guard-warn"><b>⚠ 컨텍스트 예산으로 조사 ${stopped}건을 줄였습니다.</b> 해당 결정은 지금까지의 결과로 판정했고, 계산 규칙 탭의 '미해결'에 남겼습니다.
+      ${(g.notes || []).map((n) => `<div class="small">${esc(n)}</div>`).join("")}</div>` : "")
+    + (chips.length ? `<div class="guard-chips">${chips.map((c) => `<span>${esc(c)}</span>`).join("")}</div>` : "");
   el.classList.remove("hidden");
 }
 

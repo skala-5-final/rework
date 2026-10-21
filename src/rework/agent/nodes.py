@@ -15,6 +15,7 @@ from langchain_openai import ChatOpenAI
 from langgraph.types import interrupt
 from sqlalchemy import select
 
+from rework.agent import budget as B
 from rework.agent import prompts as P
 from rework.agent.errors import InputError, ToolCallError, TransientError
 from rework.agent.mcp_client import RunContext, ToolHub
@@ -24,6 +25,7 @@ from rework.contracts.rules import ALLOWED_COLUMNS
 from rework.db.models import Question
 from rework.db.session import record_event, session_scope
 from rework.observability import usage_record
+from rework.privacy import mask_messages
 
 ANALYSIS_TOOLS = ["analyze_trend", "analyze_baseline", "analyze_promo_lift", "analyze_dow", "rank_items"]
 CRITERION_FIELDS = {
@@ -68,20 +70,45 @@ def _llm() -> ChatOpenAI:
                       timeout=s.llm_timeout_seconds, max_retries=s.llm_max_retries)
 
 
+async def _within(coro, seconds: float):
+    """시간 안에 끝나지 않으면 기다리지 않고 TimeoutError. asyncio.wait_for는 취소가 늦게 처리되는 작업이면
+    그만큼 같이 기다리므로, 남은 작업은 취소 요청만 하고 버린다."""
+    task = asyncio.ensure_future(coro)
+    done, _ = await asyncio.wait({task}, timeout=seconds)
+    if not done:
+        task.cancel()
+        task.add_done_callback(lambda t: t.cancelled() or t.exception())  # 버린 작업의 예외 경고를 막는다
+        raise TimeoutError
+    return task.result()
+
+
 async def _ainvoke(runnable, messages, config, node: str, what: str):
-    ctx, cfg = _ctx(config), get_settings()
+    ctx, cfg, hub = _ctx(config), get_settings(), _hub(config)
+    messages, n_masked = mask_messages(messages)
+    if n_masked:
+        record_event(ctx.job_id, ctx.run_id, "privacy", node, f"모델 입력의 개인정보를 가림 (메시지 {n_masked}개)")
+    messages, before, after = B.fit(messages, cfg.context_token_budget)
+    if after != before:
+        record_event(ctx.job_id, ctx.run_id, "budget", node, f"컨텍스트 정리: {before:,} → {after:,} 토큰 (오래된 도구 결과 생략)",
+                     {"kind": "compact", "before": before, "after": after, "budget": cfg.context_token_budget})
+    if after > cfg.context_token_budget:
+        record_event(ctx.job_id, ctx.run_id, "budget", node, f"컨텍스트 예산 초과: {after:,} > {cfg.context_token_budget:,} 토큰",
+                     {"kind": "exceeded", "tokens": after, "budget": cfg.context_token_budget})
+        raise B.ContextBudgetExceeded(f"{node}: 모델 입력이 컨텍스트 예산({cfg.context_token_budget:,} 토큰)을 넘었습니다.")
     # 라이브러리 timeout이 걸리지 않는 경우에 대비한 하드 제한 (재시도 포함)
     hard_limit = cfg.llm_timeout_seconds * (cfg.llm_max_retries + 1) + 10
     try:
         # 재시도까지 포함한 이 호출의 토큰을 모은다 (구조화 출력은 AIMessage가 아니라 응답에서 직접 못 읽는다).
         with get_usage_metadata_callback() as usage:
-            out = await asyncio.wait_for(runnable.ainvoke(messages), timeout=hard_limit)
+            out = await _within(runnable.ainvoke(messages), hard_limit)
     except TimeoutError as e:
         record_event(ctx.job_id, ctx.run_id, "error", node, f"모델 응답 {hard_limit}초 초과")
         raise TransientError(f"모델 응답 시간 초과 ({hard_limit}초)") from e
     except TRANSIENT_OPENAI as e:
         raise TransientError(f"모델 API 일시 오류: {e}") from e
-    record_event(ctx.job_id, ctx.run_id, "llm", node, what, usage_record(usage.usage_metadata))
+    u = usage_record(usage.usage_metadata)
+    hub.tokens += u["input_tokens"] + u["output_tokens"]
+    record_event(ctx.job_id, ctx.run_id, "llm", node, what, u)
     return out
 
 
@@ -338,8 +365,22 @@ async def investigate(state, config):
                                                        months=_j(state["profile"]["months"])))]
     model = _llm().bind_tools(hub.openai_tools("business", ANALYSIS_TOOLS))
     n_results = sum(isinstance(m, ToolMessage) for m in msgs)
-    ai = await _ainvoke(model, msgs, config, "investigate",
-                        f"{p['key']} 조사: " + (f"도구 결과 {n_results}개 검토" if n_results else "가설 수립·도구 선택"))
+    stop = None
+    if hub.tokens >= cfg.run_token_budget:
+        stop = f"시도당 토큰 예산({cfg.run_token_budget:,})을 다 써서 조사를 건너뜀 (사용 {hub.tokens:,})"
+    else:
+        try:
+            ai = await _ainvoke(model, msgs, config, "investigate",
+                                f"{p['key']} 조사: " + (f"도구 결과 {n_results}개 검토" if n_results else "가설 수립·도구 선택"))
+        except B.ContextBudgetExceeded as e:
+            stop = str(e)
+    if stop:
+        # 멈추지 않고, 지금까지 모은 결과로 판정·저장까지 간다. 결과물의 '미해결'에 남긴다.
+        ctx = _ctx(config)
+        record_event(ctx.job_id, ctx.run_id, "budget", "investigate", f"{p['key']} 조사 중단: {stop}", {"kind": "stop"})
+        return {"messages": msgs + [AIMessage(content="(컨텍스트 예산으로 조사를 마칩니다. 지금까지의 결과로 판정합니다.)")],
+                "unresolved": state["unresolved"] + [f"조사 중단(컨텍스트 예산): {p['key']} {p['title']} — 결과 {n_results}개로 판정"],
+                "stage": "investigate"}
     return {"messages": msgs + [ai], "stage": "investigate"}
 
 
@@ -366,7 +407,12 @@ async def call_tools(state, config):
                 content = {"result_id": rid, **out}
             except ToolCallError as e:
                 content = {"error": str(e)}
-        msgs.append(ToolMessage(content=_j(content), tool_call_id=tc["id"]))
+        text, clipped = B.clip(_j(content), cfg.tool_result_max_chars)
+        if clipped:
+            ctx = _ctx(config)
+            record_event(ctx.job_id, ctx.run_id, "budget", "call_tools",
+                         f"{tc['name']} 결과를 {cfg.tool_result_max_chars:,}자로 줄여 전달 (원본은 판정에 사용)", {"kind": "clip"})
+        msgs.append(ToolMessage(content=text, tool_call_id=tc["id"]))
     return {"messages": msgs, "tool_results": results, "proposal_tool_calls": count}
 
 
@@ -532,8 +578,9 @@ async def judge_rationale(state, config):
     notes = next((m.content for m in reversed(state["messages"]) if isinstance(m, AIMessage) and m.content), "")
     msgs = [SystemMessage(P.JUDGE_SYSTEM), HumanMessage(P.JUDGE_USER.format(
         key=p["key"], title=p["title"], text=p["text"], claims=_j(p["claims"]),
-        results=_j([{"result_id": rid, "tool": r["tool"], "args": r["args"], "result": r["result"]}
-                    for rid, r in results.items()]) if results else "없음", notes=notes or "없음"))]
+        results="[" + ",".join(B.clip(_j({"result_id": rid, "tool": r["tool"], "args": r["args"], "result": r["result"]}),
+                                      get_settings().tool_result_max_chars)[0]
+                               for rid, r in results.items()) + "]" if results else "없음", notes=notes or "없음"))]
     j: Judgement = await _structured(Judgement, msgs, config, "judge_rationale")
     by_id = {c.claim_id: c for c in j.claims}
     claims = [check_claim(c, by_id.get(c["claim_id"]), results, p["text"]) for c in p["claims"]]

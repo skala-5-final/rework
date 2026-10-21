@@ -31,6 +31,11 @@ def setup_langsmith() -> bool:
     if on:
         os.environ["LANGSMITH_API_KEY"] = cfg.langsmith_api_key
         os.environ["LANGSMITH_PROJECT"] = cfg.langsmith_project
+        # 모든 trace가 쓰는 공용 클라이언트를 먼저 만들어, 보내기 전에 입력·출력의 개인정보를 가린다.
+        from langsmith import run_trees
+
+        from rework.privacy import mask_obj
+        run_trees.get_cached_client(hide_inputs=mask_obj, hide_outputs=mask_obj)
     log.info("LangSmith 추적 %s", f"켜짐 (프로젝트 {cfg.langsmith_project})" if on else "꺼짐")
     return on
 

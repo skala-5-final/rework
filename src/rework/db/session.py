@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from rework.config import get_settings
 from rework.db.models import Base, Event
 from rework.observability import current_trace
+from rework.privacy import mask, mask_obj
 
 
 @lru_cache
@@ -50,5 +51,6 @@ def init_db() -> None:
 
 def record_event(job_id: str, run_id: str | None, type_: str, stage: str = "", message: str = "", data: dict | None = None) -> None:
     with session_scope() as s:
-        s.add(Event(job_id=job_id, run_id=run_id, type=type_, stage=stage, message=message, data=data or {},
+        # 로그도 밖으로 나가는 기록이라 개인정보를 가린다 (원본은 업무 테이블에만 있다).
+        s.add(Event(job_id=job_id, run_id=run_id, type=type_, stage=stage, message=mask(message), data=mask_obj(data or {}),
                     trace_id=current_trace.get()))
