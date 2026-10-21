@@ -42,9 +42,9 @@ def test_upload_validation():
 def test_other_tenant_cannot_use_files():
     demo, other = _client("demo", "demo1234"), _client("other", "other1234")
     src = demo.post("/files", data={"kind": "source"},
-                    files={"file": ("d.csv", (ROOT / "data/agent_판매분석가_일별상세.csv").read_bytes(), "text/csv")}).json()
+                    files={"file": ("d.csv", (ROOT / "data/판매분석가_일별상세.csv").read_bytes(), "text/csv")}).json()
     rep = demo.post("/files", data={"kind": "report"},
-                    files={"file": ("r.pdf", (ROOT / "reports/2026-06_ST001_월간판매실적보고서.pdf").read_bytes(), "application/pdf")}).json()
+                    files={"file": ("r.pdf", (ROOT / "data/2026-06_ST001_월간판매실적보고서.pdf").read_bytes(), "application/pdf")}).json()
     r = other.post("/jobs", json={"name": "x", "source_file_id": src["file_id"], "report_file_id": rep["file_id"]})
     assert r.status_code == 404
     demo_jobs = {j["job_id"] for j in demo.get("/jobs").json()}

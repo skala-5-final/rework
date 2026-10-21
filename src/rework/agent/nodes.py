@@ -144,6 +144,12 @@ async def retrieve_context(state, config):
             break
         for r in res["results"]:
             docs[r["chunk_id"]] = r
+    # 검색 결과는 앞부분만 준다. 프롬프트에 넣을 조각은 원문 전체를 Resource로 읽는다.
+    for cid, d in docs.items():
+        try:
+            d["content"] = (await hub.read_resource("rag", f"doc://{cid}", node="retrieve_context"))["excerpt"]
+        except ToolCallError:
+            d["content"] = d["excerpt"]
     record_event(ctx.job_id, ctx.run_id, "status", "retrieve_context",
                  f"관련 규정 {len(docs)}건" if docs else "관련 규정 없음 (검색 결과 없음)")
     return {"evidence_docs": list(docs.values()), "stage": "retrieve_context"}
@@ -165,7 +171,8 @@ async def propose_calc_rules(state, config):
     history = {s["slot_id"]: state["calc_history"].get(s["slot_id"], [])[-2:] for s in pending
                if state["calc_history"].get(s["slot_id"])}
     cols = [c for c in state["profile"]["columns"]]
-    docs = "\n".join(f"- ({d['source_location']}) {d['excerpt'][:300]}" for d in state["evidence_docs"]) or "없음"
+    docs = "\n".join(f"- ({d['source_location']}) {d.get('content', d['excerpt'])[:600]}"
+                     for d in state["evidence_docs"]) or "없음"
     msgs = [SystemMessage(P.CALC_SYSTEM.format(allowed=", ".join(ALLOWED_COLUMNS))),
             HumanMessage(P.CALC_USER.format(columns=_j(cols), notes="\n".join(state["report"]["notes"]) or "없음",
                                             docs=docs, slots=_j(view), history=_j(history) if history else "없음 (첫 시도)"))]
@@ -185,7 +192,12 @@ async def verify_calc_rules(state, config):
     calc = await hub.call("business", "execute_aggregation",
                           {"dataset_id": state["dataset_id"], "report_id": state["report_id"], "rules": rules},
                           node="verify_calc_rules")
-    cmp = await hub.call("business", "compare_report", {"calculation_id": calc["calculation_id"]}, node="verify_calc_rules")
+    try:
+        cmp = await hub.call("business", "compare_report", {"calculation_id": calc["calculation_id"]},
+                             node="verify_calc_rules")
+    except ToolCallError as e:
+        # 계산 결과는 서버 메모리에만 있다. 그사이 서버가 재시작됐으면 이 노드를 처음부터 다시 실행한다.
+        raise TransientError(f"계산 결과를 다시 찾지 못했습니다: {e}") from e
     status, history = dict(state["calc_status"]), copy.deepcopy(state["calc_history"])
     for c in cmp["comparisons"]:
         status[c["slot_id"]] = c

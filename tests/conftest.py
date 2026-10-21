@@ -11,12 +11,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture(scope="session")
 def df():
-    return load_dataset(ROOT / "data" / "agent_판매분석가_일별상세.csv")
+    return load_dataset(ROOT / "data" / "판매분석가_일별상세.csv")
 
 
 @pytest.fixture(scope="session")
 def report():
-    return parse_report(ROOT / "reports" / "2026-06_ST001_월간판매실적보고서.pdf")
+    return parse_report(ROOT / "data" / "2026-06_ST001_월간판매실적보고서.pdf")
 
 
 @pytest.fixture(scope="session")

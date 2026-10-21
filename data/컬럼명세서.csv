@@ -1,0 +1,337 @@
+﻿dataset_name,file_name,column_order,column_name,data_type,nullable_yn,unit,description,source_or_formula,primary_key_yn,deprecated_yn,canonical_column_name,agent_role,semantic_role,null_meaning,llm_editable_yn,required_for_agent_yn
+판매일별집계,01_판매일별집계.csv,1,store_id,STRING,FALSE,,매장 식별자,SOURCE/AGG,TRUE,FALSE,store_id,,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+판매일별집계,01_판매일별집계.csv,2,item_id,STRING,FALSE,,상품 식별자,SOURCE/AGG,TRUE,FALSE,item_id,,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+판매일별집계,01_판매일별집계.csv,3,business_date,DATE,FALSE,,영업일,SOURCE/AGG,TRUE,FALSE,business_date,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+판매일별집계,01_판매일별집계.csv,4,sales_quantity,DECIMAL(2),FALSE,EA,일별 총판매수량,SOURCE/AGG,FALSE,FALSE,sales_quantity,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매일별집계,01_판매일별집계.csv,5,gross_sales_amount_krw,INTEGER,FALSE,KRW,gross sales amount krw,SOURCE/AGG,FALSE,FALSE,gross_sales_amount_krw,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매일별집계,01_판매일별집계.csv,6,discount_amount_krw,INTEGER,FALSE,KRW,discount amount krw,SOURCE/AGG,FALSE,FALSE,discount_amount_krw,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매일별집계,01_판매일별집계.csv,7,net_sales_amount_krw,INTEGER,FALSE,KRW,net sales amount krw,SOURCE/AGG,FALSE,FALSE,net_sales_amount_krw,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매일별집계,01_판매일별집계.csv,8,transaction_count,INTEGER,FALSE,COUNT,중복 제거 거래 수,SOURCE/AGG,FALSE,FALSE,transaction_count,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매일별집계,01_판매일별집계.csv,9,sales_line_count,INTEGER,FALSE,COUNT,sales line count,SOURCE/AGG,FALSE,FALSE,sales_line_count,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매일별집계,01_판매일별집계.csv,10,promotion_sales_quantity,DECIMAL(2),FALSE,EA,promotion sales quantity,SOURCE/AGG,FALSE,FALSE,promotion_sales_quantity,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매일별집계,01_판매일별집계.csv,11,promotion_line_count,INTEGER,FALSE,COUNT,promotion line count,SOURCE/AGG,FALSE,FALSE,promotion_line_count,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,1,as_of_date,DATE,FALSE,,통계 기준 판매일,SOURCE/AGG,TRUE,FALSE,as_of_date,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,2,store_id,STRING,FALSE,,매장 식별자,SOURCE/AGG,TRUE,FALSE,store_id,,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,3,item_id,STRING,FALSE,,상품 식별자,SOURCE/AGG,TRUE,FALSE,item_id,,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,4,sales_short_window_days,INTEGER,FALSE,DAY,단기 판매통계 기간,SOURCE/AGG,FALSE,FALSE,sales_short_window_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,5,sales_long_window_days,INTEGER,FALSE,DAY,기준 판매통계 기간,SOURCE/AGG,FALSE,FALSE,sales_long_window_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,6,short_window_days,INTEGER,FALSE,DAY,sales_short_window_days의 deprecated 별칭,SOURCE/AGG,FALSE,TRUE,sales_short_window_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,7,long_window_days,INTEGER,FALSE,DAY,sales_long_window_days의 deprecated 별칭,SOURCE/AGG,FALSE,TRUE,sales_long_window_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,8,total_sales_quantity_short,DECIMAL(2),FALSE,,total sales quantity short,SOURCE/AGG,FALSE,FALSE,total_sales_quantity_short,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,9,avg_daily_quantity_short,DECIMAL(2),FALSE,,단기기간 일평균 판매수량,SOURCE/AGG,FALSE,FALSE,avg_daily_quantity_short,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,10,std_daily_quantity_short,DECIMAL(2),FALSE,,std daily quantity short,SOURCE/AGG,FALSE,FALSE,std_daily_quantity_short,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,11,min_daily_quantity_short,DECIMAL(2),FALSE,,min daily quantity short,SOURCE/AGG,FALSE,FALSE,min_daily_quantity_short,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,12,max_daily_quantity_short,DECIMAL(2),FALSE,,max daily quantity short,SOURCE/AGG,FALSE,FALSE,max_daily_quantity_short,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,13,sales_transaction_count_short,INTEGER,FALSE,,sales transaction count short,SOURCE/AGG,FALSE,FALSE,sales_transaction_count_short,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,14,net_sales_amount_krw_short,INTEGER,FALSE,,net sales amount krw short,SOURCE/AGG,FALSE,FALSE,net_sales_amount_krw_short,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,15,promotion_sales_quantity_short,DECIMAL(2),FALSE,,promotion sales quantity short,SOURCE/AGG,FALSE,FALSE,promotion_sales_quantity_short,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,16,observed_sales_days_short,INTEGER,FALSE,,observed sales days short,SOURCE/AGG,FALSE,FALSE,observed_sales_days_short,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,17,sales_trend_qty_per_day_short,DECIMAL(2),FALSE,,sales trend qty per day short,SOURCE/AGG,FALSE,FALSE,sales_trend_qty_per_day_short,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,18,total_sales_quantity_long,DECIMAL(2),FALSE,,total sales quantity long,SOURCE/AGG,FALSE,FALSE,total_sales_quantity_long,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,19,avg_daily_quantity_long,DECIMAL(2),FALSE,,기준기간 일평균 판매수량,SOURCE/AGG,FALSE,FALSE,avg_daily_quantity_long,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,20,std_daily_quantity_long,DECIMAL(2),FALSE,,기준기간 일판매수량 표준편차,SOURCE/AGG,FALSE,FALSE,std_daily_quantity_long,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,21,min_daily_quantity_long,DECIMAL(2),FALSE,,min daily quantity long,SOURCE/AGG,FALSE,FALSE,min_daily_quantity_long,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,22,max_daily_quantity_long,DECIMAL(2),FALSE,,max daily quantity long,SOURCE/AGG,FALSE,FALSE,max_daily_quantity_long,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,23,sales_transaction_count_long,INTEGER,FALSE,,sales transaction count long,SOURCE/AGG,FALSE,FALSE,sales_transaction_count_long,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,24,net_sales_amount_krw_long,INTEGER,FALSE,,net sales amount krw long,SOURCE/AGG,FALSE,FALSE,net_sales_amount_krw_long,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,25,promotion_sales_quantity_long,DECIMAL(2),FALSE,,장기 판매기간의 프로모션 적용 판매수량,SOURCE/AGG,FALSE,FALSE,promotion_sales_quantity_long,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,26,observed_sales_days_long,INTEGER,FALSE,,observed sales days long,SOURCE/AGG,FALSE,FALSE,observed_sales_days_long,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,27,sales_trend_qty_per_day_long,DECIMAL(2),FALSE,,기준기간 일별 판매수량 선형추세,SOURCE/AGG,FALSE,FALSE,sales_trend_qty_per_day_long,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,28,promotion_quantity_share_pct,DECIMAL(2),FALSE,PERCENT,장기 총판매수량 중 프로모션 판매수량 비중,SOURCE/AGG,FALSE,FALSE,promotion_quantity_share_pct,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+판매통계,02_판매통계.csv,29,avg_net_unit_price_krw,INTEGER,FALSE,KRW,avg net unit price krw,SOURCE/AGG,FALSE,FALSE,avg_net_unit_price_krw,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,1,snapshot_at,DATETIME+09:00,FALSE,,재고 또는 기한 데이터 스냅샷 일시,SOURCE/AGG,TRUE,FALSE,snapshot_at,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,2,snapshot_date,DATE,FALSE,,스냅샷 날짜,SOURCE/AGG,FALSE,FALSE,snapshot_date,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,3,store_id,STRING,FALSE,,매장 식별자,SOURCE/AGG,TRUE,FALSE,store_id,,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,4,item_id,STRING,FALSE,,상품 식별자,SOURCE/AGG,TRUE,FALSE,item_id,,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,5,stock_uom,STRING,FALSE,,stock uom,SOURCE/AGG,FALSE,FALSE,stock_uom,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,6,on_hand_qty,DECIMAL(2),FALSE,EA,on hand qty,SOURCE/AGG,FALSE,FALSE,on_hand_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,7,reserved_qty,DECIMAL(2),FALSE,EA,reserved qty,SOURCE/AGG,FALSE,FALSE,reserved_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,8,inbound_qty,DECIMAL(2),FALSE,EA,inbound qty,SOURCE/AGG,FALSE,FALSE,inbound_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,9,unavailable_qty,DECIMAL(2),FALSE,EA,unavailable qty,SOURCE/AGG,FALSE,FALSE,unavailable_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,10,pending_issue_qty,DECIMAL(2),FALSE,EA,pending issue qty,SOURCE/AGG,FALSE,FALSE,pending_issue_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,11,available_qty,DECIMAL(2),FALSE,EA,가용재고수량,SOURCE/AGG,FALSE,FALSE,available_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,12,inventory_position_qty,DECIMAL(2),FALSE,EA,가용재고와 입고예정수량의 합,available_qty + inbound_qty,FALSE,FALSE,inventory_position_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,13,reserved_ratio_pct,DECIMAL(2),FALSE,PERCENT,reserved ratio pct,SOURCE/AGG,FALSE,FALSE,reserved_ratio_pct,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,14,has_inbound_yn,BOOLEAN,FALSE,,has inbound yn,SOURCE/AGG,FALSE,FALSE,has_inbound_yn,,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,15,out_of_stock_yn,BOOLEAN,FALSE,,out of stock yn,SOURCE/AGG,FALSE,FALSE,out_of_stock_yn,,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,16,next_inbound_date,DATE,TRUE,,next inbound date,SOURCE/AGG,FALSE,FALSE,next_inbound_date,,REFERENCE_DATE,NO_DATE_OR_SCHEDULE,FALSE,FALSE
+재고통계,03_재고통계.csv,17,last_count_at,DATETIME+09:00,FALSE,,last count at,SOURCE/AGG,FALSE,FALSE,last_count_at,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+재고통계,03_재고통계.csv,18,source_updated_at,DATETIME+09:00,FALSE,,source updated at,SOURCE/AGG,FALSE,FALSE,source_updated_at,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,1,snapshot_at,DATETIME+09:00,FALSE,,재고 또는 기한 데이터 스냅샷 일시,SOURCE/AGG,TRUE,FALSE,snapshot_at,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,2,snapshot_date,DATE,FALSE,,스냅샷 날짜,SOURCE/AGG,FALSE,FALSE,snapshot_date,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,3,store_id,STRING,FALSE,,매장 식별자,SOURCE/AGG,TRUE,FALSE,store_id,,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,4,item_id,STRING,FALSE,,상품 식별자,SOURCE/AGG,TRUE,FALSE,item_id,,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,5,lot_no,STRING,FALSE,,lot no,SOURCE/AGG,TRUE,FALSE,lot_no,,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,6,received_date,DATE,FALSE,,received date,SOURCE/AGG,FALSE,FALSE,received_date,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,7,manufacture_date,DATE,FALSE,,manufacture date,SOURCE/AGG,FALSE,FALSE,manufacture_date,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,8,expiry_date_type,STRING,FALSE,,expiry date type,SOURCE/AGG,FALSE,FALSE,expiry_date_type,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,9,expiry_date,DATE,FALSE,,expiry date,SOURCE/AGG,FALSE,FALSE,expiry_date,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,10,removal_date,DATE,FALSE,,removal date,SOURCE/AGG,FALSE,FALSE,removal_date,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,11,alert_date,DATE,FALSE,,alert date,SOURCE/AGG,FALSE,FALSE,alert_date,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,12,lot_on_hand_qty,DECIMAL(2),FALSE,EA,lot on hand qty,SOURCE/AGG,FALSE,FALSE,lot_on_hand_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,13,lot_reserved_qty,DECIMAL(2),FALSE,EA,lot reserved qty,SOURCE/AGG,FALSE,FALSE,lot_reserved_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,14,lot_available_qty,DECIMAL(2),FALSE,EA,로트 현재고에서 로트 예약수량을 차감한 수량,SOURCE/AGG,FALSE,FALSE,lot_available_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,15,days_until_expiry,INTEGER,FALSE,DAY,days until expiry,SOURCE/AGG,FALSE,FALSE,days_until_expiry,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,16,days_until_removal,INTEGER,FALSE,DAY,days until removal,SOURCE/AGG,FALSE,FALSE,days_until_removal,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,17,days_until_alert,INTEGER,FALSE,DAY,days until alert,SOURCE/AGG,FALSE,FALSE,days_until_alert,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,18,expired_yn,BOOLEAN,FALSE,,expired yn,SOURCE/AGG,FALSE,FALSE,expired_yn,,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,19,alerted_yn,BOOLEAN,FALSE,,alerted yn,SOURCE/AGG,FALSE,FALSE,alerted_yn,,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,20,removal_due_yn,BOOLEAN,FALSE,,removal due yn,SOURCE/AGG,FALSE,FALSE,removal_due_yn,,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,21,short_horizon_days,INTEGER,FALSE,DAY,short horizon days,SOURCE/AGG,FALSE,FALSE,short_horizon_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,22,medium_horizon_days,INTEGER,FALSE,DAY,medium horizon days,SOURCE/AGG,FALSE,FALSE,medium_horizon_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,23,long_horizon_days,INTEGER,FALSE,DAY,long horizon days,SOURCE/AGG,FALSE,FALSE,long_horizon_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,24,removal_within_short_horizon_yn,BOOLEAN,FALSE,,removal within short horizon yn,SOURCE/AGG,FALSE,FALSE,removal_within_short_horizon_yn,,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,25,removal_within_medium_horizon_yn,BOOLEAN,FALSE,,removal within medium horizon yn,SOURCE/AGG,FALSE,FALSE,removal_within_medium_horizon_yn,,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,26,removal_within_long_horizon_yn,BOOLEAN,FALSE,,removal within long horizon yn,SOURCE/AGG,FALSE,FALSE,removal_within_long_horizon_yn,,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,27,expiry_within_short_horizon_yn,BOOLEAN,FALSE,,expiry within short horizon yn,SOURCE/AGG,FALSE,FALSE,expiry_within_short_horizon_yn,,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,28,expiry_within_medium_horizon_yn,BOOLEAN,FALSE,,expiry within medium horizon yn,SOURCE/AGG,FALSE,FALSE,expiry_within_medium_horizon_yn,,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,29,expiry_within_long_horizon_yn,BOOLEAN,FALSE,,expiry within long horizon yn,SOURCE/AGG,FALSE,FALSE,expiry_within_long_horizon_yn,,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,30,quality_status,STRING,FALSE,,quality status,SOURCE/AGG,FALSE,FALSE,quality_status,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,31,storage_location,STRING,FALSE,,storage location,SOURCE/AGG,FALSE,FALSE,storage_location,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+로트기한통계,04_로트기한통계.csv,32,source_updated_at,DATETIME+09:00,FALSE,,source updated at,SOURCE/AGG,FALSE,FALSE,source_updated_at,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,1,snapshot_at,DATETIME+09:00,FALSE,,재고 또는 기한 데이터 스냅샷 일시,SOURCE/AGG,TRUE,FALSE,snapshot_at,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,2,snapshot_date,DATE,FALSE,,스냅샷 날짜,SOURCE/AGG,FALSE,FALSE,snapshot_date,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,3,store_id,STRING,FALSE,,매장 식별자,SOURCE/AGG,TRUE,FALSE,store_id,,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,4,item_id,STRING,FALSE,,상품 식별자,SOURCE/AGG,TRUE,FALSE,item_id,,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,5,is_perishable,BOOLEAN,FALSE,,is perishable,SOURCE/AGG,FALSE,FALSE,is_perishable,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,6,lot_count,INTEGER,FALSE,COUNT,lot count,SOURCE/AGG,FALSE,FALSE,lot_count,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,7,lot_on_hand_qty,DECIMAL(2),FALSE,EA,lot on hand qty,SOURCE/AGG,FALSE,FALSE,lot_on_hand_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,8,lot_reserved_qty,DECIMAL(2),FALSE,EA,lot reserved qty,SOURCE/AGG,FALSE,FALSE,lot_reserved_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,9,lot_available_qty,DECIMAL(2),FALSE,EA,로트 현재고에서 로트 예약수량을 차감한 수량,SOURCE/AGG,FALSE,FALSE,lot_available_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,10,nearest_expiry_date,DATE,TRUE,,nearest expiry date,SOURCE/AGG,FALSE,FALSE,nearest_expiry_date,,REFERENCE_DATE,NO_DATE_OR_SCHEDULE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,11,nearest_removal_date,DATE,TRUE,,nearest removal date,SOURCE/AGG,FALSE,FALSE,nearest_removal_date,,REFERENCE_DATE,NO_DATE_OR_SCHEDULE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,12,minimum_days_until_expiry,INTEGER,TRUE,DAY,minimum days until expiry,SOURCE/AGG,FALSE,FALSE,minimum_days_until_expiry,,PYTHON_CALCULATED,NOT_APPLICABLE_OR_NOT_CALCULABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,13,minimum_days_until_removal,INTEGER,TRUE,DAY,minimum days until removal,SOURCE/AGG,FALSE,FALSE,minimum_days_until_removal,,PYTHON_CALCULATED,NOT_APPLICABLE_OR_NOT_CALCULABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,14,expired_qty,DECIMAL(2),FALSE,EA,expired qty,SOURCE/AGG,FALSE,FALSE,expired_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,15,alerted_qty,DECIMAL(2),FALSE,EA,alerted qty,SOURCE/AGG,FALSE,FALSE,alerted_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,16,removal_due_qty,DECIMAL(2),FALSE,EA,removal due qty,SOURCE/AGG,FALSE,FALSE,removal_due_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,17,removal_within_short_horizon_qty,DECIMAL(2),FALSE,EA,removal within short horizon qty,SOURCE/AGG,FALSE,FALSE,removal_within_short_horizon_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,18,removal_within_medium_horizon_qty,DECIMAL(2),FALSE,EA,removal within medium horizon qty,SOURCE/AGG,FALSE,FALSE,removal_within_medium_horizon_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,19,removal_within_long_horizon_qty,DECIMAL(2),FALSE,EA,removal within long horizon qty,SOURCE/AGG,FALSE,FALSE,removal_within_long_horizon_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,20,expiry_within_short_horizon_qty,DECIMAL(2),FALSE,EA,expiry within short horizon qty,SOURCE/AGG,FALSE,FALSE,expiry_within_short_horizon_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,21,expiry_within_medium_horizon_qty,DECIMAL(2),FALSE,EA,expiry within medium horizon qty,SOURCE/AGG,FALSE,FALSE,expiry_within_medium_horizon_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,22,expiry_within_long_horizon_qty,DECIMAL(2),FALSE,EA,expiry within long horizon qty,SOURCE/AGG,FALSE,FALSE,expiry_within_long_horizon_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,23,short_horizon_days,INTEGER,FALSE,DAY,short horizon days,SOURCE/AGG,FALSE,FALSE,short_horizon_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,24,medium_horizon_days,INTEGER,FALSE,DAY,medium horizon days,SOURCE/AGG,FALSE,FALSE,medium_horizon_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+상품기한통계,05_상품기한통계.csv,25,long_horizon_days,INTEGER,FALSE,DAY,long horizon days,SOURCE/AGG,FALSE,FALSE,long_horizon_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,1,snapshot_at,DATETIME+09:00,FALSE,,재고 또는 기한 데이터 스냅샷 일시,SOURCE/AGG,TRUE,FALSE,snapshot_at,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,2,snapshot_date,DATE,FALSE,,스냅샷 날짜,SOURCE/AGG,FALSE,FALSE,snapshot_date,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,3,as_of_date,DATE,FALSE,,통계 기준 판매일,SOURCE/AGG,FALSE,FALSE,as_of_date,,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,4,store_id,STRING,FALSE,,매장 식별자,SOURCE/AGG,TRUE,FALSE,store_id,,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,5,item_id,STRING,FALSE,,상품 식별자,SOURCE/AGG,TRUE,FALSE,item_id,,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,6,supplier_id,STRING,FALSE,,공급사 식별자,SOURCE/AGG,TRUE,FALSE,supplier_id,,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,7,gtin,STRING,FALSE,,gtin,SOURCE/AGG,FALSE,FALSE,gtin,,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,8,item_name,STRING,FALSE,,item name,SOURCE/AGG,FALSE,FALSE,item_name,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,9,category_l1,STRING,FALSE,,category l1,SOURCE/AGG,FALSE,FALSE,category_l1,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,10,category_l2,STRING,FALSE,,category l2,SOURCE/AGG,FALSE,FALSE,category_l2,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,11,is_perishable,BOOLEAN,FALSE,,is perishable,SOURCE/AGG,FALSE,FALSE,is_perishable,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,12,base_uom,STRING,FALSE,,상품 재고와 발주수량 계산의 기준 단위,SOURCE/AGG,FALSE,FALSE,base_uom,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,13,supplier_name,STRING,FALSE,,supplier name,SOURCE/AGG,FALSE,FALSE,supplier_name,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,14,unit_cost_krw,INTEGER,FALSE,KRW,unit cost krw,SOURCE/AGG,FALSE,FALSE,unit_cost_krw,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,15,currency,STRING,FALSE,,currency,SOURCE/AGG,FALSE,FALSE,currency,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,16,stock_uom,STRING,FALSE,,stock uom,SOURCE/AGG,FALSE,FALSE,stock_uom,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,17,order_uom,STRING,FALSE,,order uom,SOURCE/AGG,FALSE,FALSE,order_uom,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,18,units_per_order_uom,DECIMAL(2),FALSE,EA/ORDER_UOM,units per order uom,SOURCE/AGG,FALSE,FALSE,units_per_order_uom,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,19,min_order_qty,DECIMAL(2),FALSE,EA,min order qty,SOURCE/AGG,FALSE,FALSE,min_order_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,20,max_order_qty,DECIMAL(2),FALSE,EA,max order qty,SOURCE/AGG,FALSE,FALSE,max_order_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,21,order_multiple_qty,DECIMAL(2),FALSE,EA,order multiple qty,SOURCE/AGG,FALSE,FALSE,order_multiple_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,22,lead_time_days,DECIMAL(2),FALSE,DAY,lead time days,SOURCE/AGG,FALSE,FALSE,lead_time_days,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,23,review_period_days,DECIMAL(2),FALSE,DAY,review period days,SOURCE/AGG,FALSE,FALSE,review_period_days,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,24,safety_stock_days,DECIMAL(2),FALSE,DAY,safety stock days,SOURCE/AGG,FALSE,FALSE,safety_stock_days,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,25,service_level_target_pct,DECIMAL(2),FALSE,PERCENT,service level target pct,SOURCE/AGG,FALSE,FALSE,service_level_target_pct,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,26,min_remaining_shelf_life_days,DECIMAL(2),TRUE,DAY,min remaining shelf life days,SOURCE/AGG,FALSE,FALSE,min_remaining_shelf_life_days,,SOURCE_VALUE,NOT_APPLICABLE_OR_NOT_CALCULABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,27,sales_short_window_days,INTEGER,FALSE,DAY,단기 판매통계 기간,SOURCE/AGG,FALSE,FALSE,sales_short_window_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,28,sales_long_window_days,INTEGER,FALSE,DAY,기준 판매통계 기간,SOURCE/AGG,FALSE,FALSE,sales_long_window_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,29,short_window_days,INTEGER,FALSE,DAY,sales_short_window_days의 deprecated 별칭,SOURCE/AGG,FALSE,TRUE,sales_short_window_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,30,long_window_days,INTEGER,FALSE,DAY,sales_long_window_days의 deprecated 별칭,SOURCE/AGG,FALSE,TRUE,sales_long_window_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,31,avg_daily_quantity_short,DECIMAL(2),FALSE,,단기기간 일평균 판매수량,SOURCE/AGG,FALSE,FALSE,avg_daily_quantity_short,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,32,avg_daily_quantity_long,DECIMAL(2),FALSE,,기준기간 일평균 판매수량,SOURCE/AGG,FALSE,FALSE,avg_daily_quantity_long,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,33,std_daily_quantity_long,DECIMAL(2),FALSE,,기준기간 일판매수량 표준편차,SOURCE/AGG,FALSE,FALSE,std_daily_quantity_long,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,34,sales_trend_qty_per_day_long,DECIMAL(2),FALSE,,기준기간 일별 판매수량 선형추세,SOURCE/AGG,FALSE,FALSE,sales_trend_qty_per_day_long,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,35,promotion_quantity_share_pct,DECIMAL(2),FALSE,PERCENT,장기 총판매수량 중 프로모션 판매수량 비중,SOURCE/AGG,FALSE,FALSE,promotion_quantity_share_pct,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,36,on_hand_qty,DECIMAL(2),FALSE,EA,on hand qty,SOURCE/AGG,FALSE,FALSE,on_hand_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,37,reserved_qty,DECIMAL(2),FALSE,EA,reserved qty,SOURCE/AGG,FALSE,FALSE,reserved_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,38,inbound_qty,DECIMAL(2),FALSE,EA,inbound qty,SOURCE/AGG,FALSE,FALSE,inbound_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,39,available_qty,DECIMAL(2),FALSE,EA,가용재고수량,SOURCE/AGG,FALSE,FALSE,available_qty,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,40,inventory_position_qty,DECIMAL(2),FALSE,EA,가용재고와 입고예정수량의 합,available_qty + inbound_qty,FALSE,FALSE,inventory_position_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,41,next_inbound_date,DATE,TRUE,,next inbound date,SOURCE/AGG,FALSE,FALSE,next_inbound_date,,REFERENCE_DATE,NO_DATE_OR_SCHEDULE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,42,inventory_cover_days,DECIMAL(2),FALSE,DAY,재고포지션을 기준 일평균수요로 나눈 재고일수,inventory_position_qty / avg_daily_quantity_long,FALSE,FALSE,inventory_cover_days,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,43,lead_time_demand_qty,DECIMAL(2),FALSE,EA,리드타임 동안의 예상 수요수량,avg_daily_quantity_long × lead_time_days,FALSE,FALSE,lead_time_demand_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,44,stockout_gap_qty,DECIMAL(2),FALSE,EA,리드타임 수요 대비 부족한 재고포지션 수량,"MAX(lead_time_demand_qty - inventory_position_qty, 0)",FALSE,FALSE,stockout_gap_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,45,lot_count,INTEGER,FALSE,COUNT,lot count,SOURCE/AGG,FALSE,FALSE,lot_count,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,46,nearest_expiry_date,DATE,TRUE,,nearest expiry date,SOURCE/AGG,FALSE,FALSE,nearest_expiry_date,,REFERENCE_DATE,NO_DATE_OR_SCHEDULE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,47,nearest_removal_date,DATE,TRUE,,nearest removal date,SOURCE/AGG,FALSE,FALSE,nearest_removal_date,,REFERENCE_DATE,NO_DATE_OR_SCHEDULE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,48,removal_within_short_horizon_qty,DECIMAL(2),FALSE,EA,removal within short horizon qty,SOURCE/AGG,FALSE,FALSE,removal_within_short_horizon_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,49,removal_within_medium_horizon_qty,DECIMAL(2),FALSE,EA,removal within medium horizon qty,SOURCE/AGG,FALSE,FALSE,removal_within_medium_horizon_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,50,removal_within_long_horizon_qty,DECIMAL(2),FALSE,EA,removal within long horizon qty,SOURCE/AGG,FALSE,FALSE,removal_within_long_horizon_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,51,expiry_within_long_horizon_qty,DECIMAL(2),FALSE,EA,expiry within long horizon qty,SOURCE/AGG,FALSE,FALSE,expiry_within_long_horizon_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,52,expiry_short_horizon_days,INTEGER,FALSE,DAY,단기 유통기한 위험 집계 기준일수,SOURCE/AGG,FALSE,FALSE,expiry_short_horizon_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,53,expiry_medium_horizon_days,INTEGER,FALSE,DAY,중기 유통기한 위험 집계 기준일수,SOURCE/AGG,FALSE,FALSE,expiry_medium_horizon_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,54,expiry_long_horizon_days,INTEGER,FALSE,DAY,장기 유통기한 위험 집계 기준일수,SOURCE/AGG,FALSE,FALSE,expiry_long_horizon_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,55,waste_risk_qty,DECIMAL(2),FALSE,EA,단기 제거대상수량에서 예상소진수량을 차감한 양수 부분,"MAX(removal_within_short_horizon_qty - avg_daily_quantity_long × short_horizon_days, 0)",FALSE,FALSE,waste_risk_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,56,waste_risk_yn,BOOLEAN,FALSE,,waste risk yn,SOURCE/AGG,FALSE,FALSE,waste_risk_yn,,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,57,stockout_risk_yn,BOOLEAN,FALSE,,재고커버일이 리드타임보다 짧은지 여부,SOURCE/AGG,FALSE,FALSE,stockout_risk_yn,,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,58,stockout_warning_days,INTEGER,FALSE,DAY,재고커버 품절 경고 기준일,SOURCE/AGG,FALSE,FALSE,stockout_warning_days,,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,59,stockout_warning_yn,BOOLEAN,FALSE,,재고커버일이 품절 경고 기준일 이하인지 여부,SOURCE/AGG,FALSE,FALSE,stockout_warning_yn,,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,60,protection_period_days,DECIMAL(2),FALSE,DAY,protection period days,SOURCE/AGG,FALSE,FALSE,protection_period_days,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,61,target_stock_qty,DECIMAL(2),FALSE,EA,평균수요와 보호기간으로 계산한 목표재고,avg_daily_quantity_long × (lead_time_days + review_period_days + safety_stock_days),FALSE,FALSE,target_stock_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,62,net_required_qty,DECIMAL(2),FALSE,EA,목표재고에서 가용·입고재고를 차감한 필요수량,"MAX(target_stock_qty - inventory_position_qty, 0)",FALSE,FALSE,net_required_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,63,recommended_order_qty_before_budget,DECIMAL(2),FALSE,,recommended_order_qty_before_budget_ea의 deprecated 별칭,recommended_order_qty_before_budget_ea,FALSE,TRUE,recommended_order_qty_before_budget_ea,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,64,recommended_order_qty_before_budget_ea,DECIMAL(2),FALSE,,MOQ·발주배수·최대량을 적용한 예산 전 발주수량(EA),MOQ·발주배수·최대량을 적용한 net_required_qty,FALSE,FALSE,recommended_order_qty_before_budget_ea,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,65,recommended_order_qty_before_budget_order_uom,DECIMAL(2),FALSE,ORDER_UOM,예산 전 EA 발주수량을 발주단위로 환산한 수량,recommended_order_qty_before_budget_ea / units_per_order_uom,FALSE,FALSE,recommended_order_qty_before_budget_order_uom,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,66,order_cap_applied_yn,BOOLEAN,FALSE,,order cap applied yn,SOURCE/AGG,FALSE,FALSE,order_cap_applied_yn,,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,67,order_needed_yn,BOOLEAN,FALSE,,order needed yn,SOURCE/AGG,FALSE,FALSE,order_needed_yn,,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,68,estimated_order_cost_krw,INTEGER,FALSE,KRW,예산 전 발주수량과 매입단가의 곱,recommended_order_qty_before_budget_ea × unit_cost_krw,FALSE,FALSE,estimated_order_cost_krw,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+통합발주분석,06_통합발주분석.csv,69,expected_inventory_after_order_qty,DECIMAL(2),FALSE,EA,expected inventory after order qty,SOURCE/AGG,FALSE,FALSE,expected_inventory_after_order_qty,,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가,agent_판매분석가.csv,1,as_of_date,DATE,FALSE,,통계 기준 판매일,SOURCE/AGG,TRUE,FALSE,as_of_date,SALES_AGENT,REFERENCE_DATE,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,2,store_id,STRING,FALSE,,매장 식별자,SOURCE/AGG,TRUE,FALSE,store_id,SALES_AGENT,IDENTIFIER,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,3,item_id,STRING,FALSE,,상품 식별자,SOURCE/AGG,TRUE,FALSE,item_id,SALES_AGENT,IDENTIFIER,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,4,gtin,STRING,FALSE,,gtin,SOURCE/AGG,FALSE,FALSE,gtin,SALES_AGENT,IDENTIFIER,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,5,item_name,STRING,FALSE,,item name,SOURCE/AGG,FALSE,FALSE,item_name,SALES_AGENT,LLM_CONTEXT,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,6,category_l1,STRING,FALSE,,category l1,SOURCE/AGG,FALSE,FALSE,category_l1,SALES_AGENT,LLM_CONTEXT,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,7,category_l2,STRING,FALSE,,category l2,SOURCE/AGG,FALSE,FALSE,category_l2,SALES_AGENT,LLM_CONTEXT,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,8,is_perishable,BOOLEAN,FALSE,,is perishable,SOURCE/AGG,FALSE,FALSE,is_perishable,SALES_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,9,sales_short_window_days,INTEGER,FALSE,DAY,단기 판매통계 기간,SOURCE/AGG,FALSE,FALSE,sales_short_window_days,SALES_AGENT,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,10,sales_long_window_days,INTEGER,FALSE,DAY,기준 판매통계 기간,SOURCE/AGG,FALSE,FALSE,sales_long_window_days,SALES_AGENT,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,11,sales_quantity_short,DECIMAL(2),FALSE,,단기 판매통계 기간의 총판매수량,SOURCE/AGG,FALSE,FALSE,sales_quantity_short,SALES_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,12,sales_quantity_long,DECIMAL(2),FALSE,,장기 판매통계 기간의 총판매수량,SOURCE/AGG,FALSE,FALSE,sales_quantity_long,SALES_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,13,avg_daily_quantity_short,DECIMAL(2),FALSE,,단기기간 일평균 판매수량,SOURCE/AGG,FALSE,FALSE,avg_daily_quantity_short,SALES_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,14,avg_daily_quantity_long,DECIMAL(2),FALSE,,기준기간 일평균 판매수량,SOURCE/AGG,FALSE,FALSE,avg_daily_quantity_long,SALES_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,15,std_daily_quantity_long,DECIMAL(2),FALSE,,기준기간 일판매수량 표준편차,SOURCE/AGG,FALSE,FALSE,std_daily_quantity_long,SALES_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,16,cv_daily_quantity_long,DECIMAL(2),FALSE,,장기 일판매수량의 변동계수,std_daily_quantity_long / avg_daily_quantity_long,FALSE,FALSE,cv_daily_quantity_long,SALES_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,17,recent_to_long_ratio,DECIMAL(2),FALSE,,단기 일평균 판매수량과 장기 일평균 판매수량의 비율,avg_daily_quantity_short / avg_daily_quantity_long,FALSE,FALSE,recent_to_long_ratio,SALES_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,18,sales_trend_qty_per_day_long,DECIMAL(2),FALSE,,기준기간 일별 판매수량 선형추세,SOURCE/AGG,FALSE,FALSE,sales_trend_qty_per_day_long,SALES_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,19,weekday_avg_quantity,DECIMAL(2),FALSE,EA,장기 판매기간 중 평일의 일평균 판매수량,SOURCE/AGG,FALSE,FALSE,weekday_avg_quantity,SALES_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,20,weekend_avg_quantity,DECIMAL(2),FALSE,EA,장기 판매기간 중 주말의 일평균 판매수량,SOURCE/AGG,FALSE,FALSE,weekend_avg_quantity,SALES_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,21,weekend_uplift_pct,DECIMAL(2),FALSE,PERCENT,평일 대비 주말 일평균 판매수량 증감률,(weekend_avg_quantity / weekday_avg_quantity - 1) × 100,FALSE,FALSE,weekend_uplift_pct,SALES_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,22,top_sales_weekday,STRING,FALSE,,장기 판매기간 중 평균 판매수량이 가장 높은 요일,SOURCE/AGG,FALSE,FALSE,top_sales_weekday,SALES_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,23,top_sales_weekday_avg_quantity,DECIMAL(2),FALSE,EA,최고 판매요일의 평균 판매수량,SOURCE/AGG,FALSE,FALSE,top_sales_weekday_avg_quantity,SALES_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,24,promotion_sales_quantity_long,DECIMAL(2),FALSE,,장기 판매기간의 프로모션 적용 판매수량,SOURCE/AGG,FALSE,FALSE,promotion_sales_quantity_long,SALES_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,25,promotion_quantity_share_pct,DECIMAL(2),FALSE,PERCENT,장기 총판매수량 중 프로모션 판매수량 비중,SOURCE/AGG,FALSE,FALSE,promotion_quantity_share_pct,SALES_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가,agent_판매분석가.csv,26,zero_sales_days_long,INTEGER,FALSE,,장기 판매기간 중 판매수량이 0인 일수,sales_long_window_days - observed_sales_days_long,FALSE,FALSE,zero_sales_days_long,SALES_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,1,business_date,DATE,FALSE,,영업일,SOURCE/AGG,TRUE,FALSE,business_date,DATA_ANALYST_ONLY,REFERENCE_DATE,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,2,store_id,STRING,FALSE,,매장 식별자,SOURCE/AGG,TRUE,FALSE,store_id,DATA_ANALYST_ONLY,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,3,item_id,STRING,FALSE,,상품 식별자,SOURCE/AGG,TRUE,FALSE,item_id,DATA_ANALYST_ONLY,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,4,gtin,STRING,FALSE,,gtin,SOURCE/AGG,FALSE,FALSE,gtin,DATA_ANALYST_ONLY,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,5,item_name,STRING,FALSE,,item name,SOURCE/AGG,FALSE,FALSE,item_name,DATA_ANALYST_ONLY,LLM_CONTEXT,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,6,category_l1,STRING,FALSE,,category l1,SOURCE/AGG,FALSE,FALSE,category_l1,DATA_ANALYST_ONLY,LLM_CONTEXT,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,7,category_l2,STRING,FALSE,,category l2,SOURCE/AGG,FALSE,FALSE,category_l2,DATA_ANALYST_ONLY,LLM_CONTEXT,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,8,is_perishable,BOOLEAN,FALSE,,is perishable,SOURCE/AGG,FALSE,FALSE,is_perishable,DATA_ANALYST_ONLY,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,9,day_of_week,STRING,FALSE,,day of week,SOURCE/AGG,FALSE,FALSE,day_of_week,DATA_ANALYST_ONLY,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,10,weekend_yn,BOOLEAN,FALSE,,weekend yn,SOURCE/AGG,FALSE,FALSE,weekend_yn,DATA_ANALYST_ONLY,PYTHON_FLAG,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,11,sales_quantity,DECIMAL(2),FALSE,EA,일별 총판매수량,SOURCE/AGG,FALSE,FALSE,sales_quantity,DATA_ANALYST_ONLY,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,12,gross_sales_amount_krw,INTEGER,FALSE,KRW,gross sales amount krw,SOURCE/AGG,FALSE,FALSE,gross_sales_amount_krw,DATA_ANALYST_ONLY,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,13,discount_amount_krw,INTEGER,FALSE,KRW,discount amount krw,SOURCE/AGG,FALSE,FALSE,discount_amount_krw,DATA_ANALYST_ONLY,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,14,net_sales_amount_krw,INTEGER,FALSE,KRW,net sales amount krw,SOURCE/AGG,FALSE,FALSE,net_sales_amount_krw,DATA_ANALYST_ONLY,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,15,transaction_count,INTEGER,FALSE,COUNT,중복 제거 거래 수,SOURCE/AGG,FALSE,FALSE,transaction_count,DATA_ANALYST_ONLY,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,16,sales_line_count,INTEGER,FALSE,COUNT,sales line count,SOURCE/AGG,FALSE,FALSE,sales_line_count,DATA_ANALYST_ONLY,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,17,promotion_sales_quantity,DECIMAL(2),FALSE,EA,promotion sales quantity,SOURCE/AGG,FALSE,FALSE,promotion_sales_quantity,DATA_ANALYST_ONLY,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+agent_판매분석가_일별상세,agent_판매분석가_일별상세.csv,18,promotion_line_count,INTEGER,FALSE,COUNT,promotion line count,SOURCE/AGG,FALSE,FALSE,promotion_line_count,DATA_ANALYST_ONLY,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,FALSE
+agent_재고관리자,agent_재고관리자.csv,1,snapshot_at,DATETIME+09:00,FALSE,,재고 또는 기한 데이터 스냅샷 일시,SOURCE/AGG,TRUE,FALSE,snapshot_at,INVENTORY_AGENT,REFERENCE_DATE,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,2,snapshot_date,DATE,FALSE,,스냅샷 날짜,SOURCE/AGG,FALSE,FALSE,snapshot_date,INVENTORY_AGENT,REFERENCE_DATE,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,3,store_id,STRING,FALSE,,매장 식별자,SOURCE/AGG,TRUE,FALSE,store_id,INVENTORY_AGENT,IDENTIFIER,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,4,item_id,STRING,FALSE,,상품 식별자,SOURCE/AGG,TRUE,FALSE,item_id,INVENTORY_AGENT,IDENTIFIER,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,5,item_name,STRING,FALSE,,item name,SOURCE/AGG,FALSE,FALSE,item_name,INVENTORY_AGENT,LLM_CONTEXT,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,6,category_l1,STRING,FALSE,,category l1,SOURCE/AGG,FALSE,FALSE,category_l1,INVENTORY_AGENT,LLM_CONTEXT,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,7,is_perishable,BOOLEAN,FALSE,,is perishable,SOURCE/AGG,FALSE,FALSE,is_perishable,INVENTORY_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,8,sales_long_window_days,INTEGER,FALSE,DAY,기준 판매통계 기간,SOURCE/AGG,FALSE,FALSE,sales_long_window_days,INVENTORY_AGENT,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,9,avg_daily_quantity_long,DECIMAL(2),FALSE,,기준기간 일평균 판매수량,SOURCE/AGG,FALSE,FALSE,avg_daily_quantity_long,INVENTORY_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,10,lead_time_days,DECIMAL(2),FALSE,DAY,lead time days,SOURCE/AGG,FALSE,FALSE,lead_time_days,INVENTORY_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,11,lead_time_demand_qty,DECIMAL(2),FALSE,EA,리드타임 동안의 예상 수요수량,avg_daily_quantity_long × lead_time_days,FALSE,FALSE,lead_time_demand_qty,INVENTORY_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,12,stockout_gap_qty,DECIMAL(2),FALSE,EA,리드타임 수요 대비 부족한 재고포지션 수량,"MAX(lead_time_demand_qty - inventory_position_qty, 0)",FALSE,FALSE,stockout_gap_qty,INVENTORY_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,13,on_hand_qty,DECIMAL(2),FALSE,EA,on hand qty,SOURCE/AGG,FALSE,FALSE,on_hand_qty,INVENTORY_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,14,reserved_qty,DECIMAL(2),FALSE,EA,reserved qty,SOURCE/AGG,FALSE,FALSE,reserved_qty,INVENTORY_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,15,inbound_qty,DECIMAL(2),FALSE,EA,inbound qty,SOURCE/AGG,FALSE,FALSE,inbound_qty,INVENTORY_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,16,available_qty,DECIMAL(2),FALSE,EA,가용재고수량,SOURCE/AGG,FALSE,FALSE,available_qty,INVENTORY_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,17,inventory_position_qty,DECIMAL(2),FALSE,EA,가용재고와 입고예정수량의 합,available_qty + inbound_qty,FALSE,FALSE,inventory_position_qty,INVENTORY_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,18,next_inbound_date,DATE,TRUE,,next inbound date,SOURCE/AGG,FALSE,FALSE,next_inbound_date,INVENTORY_AGENT,REFERENCE_DATE,NO_DATE_OR_SCHEDULE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,19,inventory_cover_days,DECIMAL(2),FALSE,DAY,재고포지션을 기준 일평균수요로 나눈 재고일수,inventory_position_qty / avg_daily_quantity_long,FALSE,FALSE,inventory_cover_days,INVENTORY_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,20,lot_count,INTEGER,FALSE,COUNT,lot count,SOURCE/AGG,FALSE,FALSE,lot_count,INVENTORY_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,21,nearest_expiry_date,DATE,TRUE,,nearest expiry date,SOURCE/AGG,FALSE,FALSE,nearest_expiry_date,INVENTORY_AGENT,REFERENCE_DATE,NO_DATE_OR_SCHEDULE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,22,nearest_removal_date,DATE,TRUE,,nearest removal date,SOURCE/AGG,FALSE,FALSE,nearest_removal_date,INVENTORY_AGENT,REFERENCE_DATE,NO_DATE_OR_SCHEDULE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,23,removal_within_short_horizon_qty,DECIMAL(2),FALSE,EA,removal within short horizon qty,SOURCE/AGG,FALSE,FALSE,removal_within_short_horizon_qty,INVENTORY_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,24,removal_within_medium_horizon_qty,DECIMAL(2),FALSE,EA,removal within medium horizon qty,SOURCE/AGG,FALSE,FALSE,removal_within_medium_horizon_qty,INVENTORY_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,25,removal_within_long_horizon_qty,DECIMAL(2),FALSE,EA,removal within long horizon qty,SOURCE/AGG,FALSE,FALSE,removal_within_long_horizon_qty,INVENTORY_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,26,expiry_short_horizon_days,INTEGER,FALSE,DAY,단기 유통기한 위험 집계 기준일수,SOURCE/AGG,FALSE,FALSE,expiry_short_horizon_days,INVENTORY_AGENT,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,27,expiry_medium_horizon_days,INTEGER,FALSE,DAY,중기 유통기한 위험 집계 기준일수,SOURCE/AGG,FALSE,FALSE,expiry_medium_horizon_days,INVENTORY_AGENT,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,28,expiry_long_horizon_days,INTEGER,FALSE,DAY,장기 유통기한 위험 집계 기준일수,SOURCE/AGG,FALSE,FALSE,expiry_long_horizon_days,INVENTORY_AGENT,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,29,waste_risk_qty,DECIMAL(2),FALSE,EA,단기 제거대상수량에서 예상소진수량을 차감한 양수 부분,"MAX(removal_within_short_horizon_qty - avg_daily_quantity_long × short_horizon_days, 0)",FALSE,FALSE,waste_risk_qty,INVENTORY_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,30,waste_risk_yn,BOOLEAN,FALSE,,waste risk yn,SOURCE/AGG,FALSE,FALSE,waste_risk_yn,INVENTORY_AGENT,PYTHON_FLAG,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,31,stockout_risk_yn,BOOLEAN,FALSE,,재고커버일이 리드타임보다 짧은지 여부,SOURCE/AGG,FALSE,FALSE,stockout_risk_yn,INVENTORY_AGENT,PYTHON_FLAG,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,32,stockout_warning_days,INTEGER,FALSE,DAY,재고커버 품절 경고 기준일,SOURCE/AGG,FALSE,FALSE,stockout_warning_days,INVENTORY_AGENT,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,TRUE
+agent_재고관리자,agent_재고관리자.csv,33,stockout_warning_yn,BOOLEAN,FALSE,,재고커버일이 품절 경고 기준일 이하인지 여부,SOURCE/AGG,FALSE,FALSE,stockout_warning_yn,INVENTORY_AGENT,PYTHON_FLAG,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,1,snapshot_at,DATETIME+09:00,FALSE,,재고 또는 기한 데이터 스냅샷 일시,SOURCE/AGG,TRUE,FALSE,snapshot_at,ORDER_AGENT,REFERENCE_DATE,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,2,store_id,STRING,FALSE,,매장 식별자,SOURCE/AGG,TRUE,FALSE,store_id,ORDER_AGENT,IDENTIFIER,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,3,item_id,STRING,FALSE,,상품 식별자,SOURCE/AGG,TRUE,FALSE,item_id,ORDER_AGENT,IDENTIFIER,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,4,supplier_id,STRING,FALSE,,공급사 식별자,SOURCE/AGG,TRUE,FALSE,supplier_id,ORDER_AGENT,IDENTIFIER,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,5,item_name,STRING,FALSE,,item name,SOURCE/AGG,FALSE,FALSE,item_name,ORDER_AGENT,LLM_CONTEXT,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,6,category_l1,STRING,FALSE,,category l1,SOURCE/AGG,FALSE,FALSE,category_l1,ORDER_AGENT,LLM_CONTEXT,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,7,supplier_name,STRING,FALSE,,supplier name,SOURCE/AGG,FALSE,FALSE,supplier_name,ORDER_AGENT,LLM_CONTEXT,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,8,base_uom,STRING,FALSE,,상품 재고와 발주수량 계산의 기준 단위,SOURCE/AGG,FALSE,FALSE,base_uom,ORDER_AGENT,LLM_CONTEXT,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,9,unit_cost_krw,INTEGER,FALSE,KRW,unit cost krw,SOURCE/AGG,FALSE,FALSE,unit_cost_krw,ORDER_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,10,currency,STRING,FALSE,,currency,SOURCE/AGG,FALSE,FALSE,currency,ORDER_AGENT,LLM_CONTEXT,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,11,order_uom,STRING,FALSE,,order uom,SOURCE/AGG,FALSE,FALSE,order_uom,ORDER_AGENT,LLM_CONTEXT,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,12,units_per_order_uom,DECIMAL(2),FALSE,EA/ORDER_UOM,units per order uom,SOURCE/AGG,FALSE,FALSE,units_per_order_uom,ORDER_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,13,min_order_qty,DECIMAL(2),FALSE,EA,min order qty,SOURCE/AGG,FALSE,FALSE,min_order_qty,ORDER_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,14,max_order_qty,DECIMAL(2),FALSE,EA,max order qty,SOURCE/AGG,FALSE,FALSE,max_order_qty,ORDER_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,15,order_multiple_qty,DECIMAL(2),FALSE,EA,order multiple qty,SOURCE/AGG,FALSE,FALSE,order_multiple_qty,ORDER_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,16,lead_time_days,DECIMAL(2),FALSE,DAY,lead time days,SOURCE/AGG,FALSE,FALSE,lead_time_days,ORDER_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,17,review_period_days,DECIMAL(2),FALSE,DAY,review period days,SOURCE/AGG,FALSE,FALSE,review_period_days,ORDER_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,18,safety_stock_days,DECIMAL(2),FALSE,DAY,safety stock days,SOURCE/AGG,FALSE,FALSE,safety_stock_days,ORDER_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,19,avg_daily_quantity_long,DECIMAL(2),FALSE,,기준기간 일평균 판매수량,SOURCE/AGG,FALSE,FALSE,avg_daily_quantity_long,ORDER_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,20,std_daily_quantity_long,DECIMAL(2),FALSE,,기준기간 일판매수량 표준편차,SOURCE/AGG,FALSE,FALSE,std_daily_quantity_long,ORDER_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,21,available_qty,DECIMAL(2),FALSE,EA,가용재고수량,SOURCE/AGG,FALSE,FALSE,available_qty,ORDER_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,22,inbound_qty,DECIMAL(2),FALSE,EA,inbound qty,SOURCE/AGG,FALSE,FALSE,inbound_qty,ORDER_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,23,inventory_position_qty,DECIMAL(2),FALSE,EA,가용재고와 입고예정수량의 합,available_qty + inbound_qty,FALSE,FALSE,inventory_position_qty,ORDER_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,24,inventory_cover_days,DECIMAL(2),FALSE,DAY,재고포지션을 기준 일평균수요로 나눈 재고일수,inventory_position_qty / avg_daily_quantity_long,FALSE,FALSE,inventory_cover_days,ORDER_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,25,lead_time_demand_qty,DECIMAL(2),FALSE,EA,리드타임 동안의 예상 수요수량,avg_daily_quantity_long × lead_time_days,FALSE,FALSE,lead_time_demand_qty,ORDER_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,26,stockout_gap_qty,DECIMAL(2),FALSE,EA,리드타임 수요 대비 부족한 재고포지션 수량,"MAX(lead_time_demand_qty - inventory_position_qty, 0)",FALSE,FALSE,stockout_gap_qty,ORDER_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,27,waste_risk_qty,DECIMAL(2),FALSE,EA,단기 제거대상수량에서 예상소진수량을 차감한 양수 부분,"MAX(removal_within_short_horizon_qty - avg_daily_quantity_long × short_horizon_days, 0)",FALSE,FALSE,waste_risk_qty,ORDER_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,28,waste_risk_yn,BOOLEAN,FALSE,,waste risk yn,SOURCE/AGG,FALSE,FALSE,waste_risk_yn,ORDER_AGENT,PYTHON_FLAG,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,29,stockout_risk_yn,BOOLEAN,FALSE,,재고커버일이 리드타임보다 짧은지 여부,SOURCE/AGG,FALSE,FALSE,stockout_risk_yn,ORDER_AGENT,PYTHON_FLAG,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,30,stockout_warning_days,INTEGER,FALSE,DAY,재고커버 품절 경고 기준일,SOURCE/AGG,FALSE,FALSE,stockout_warning_days,ORDER_AGENT,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,31,stockout_warning_yn,BOOLEAN,FALSE,,재고커버일이 품절 경고 기준일 이하인지 여부,SOURCE/AGG,FALSE,FALSE,stockout_warning_yn,ORDER_AGENT,PYTHON_FLAG,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,32,target_stock_qty,DECIMAL(2),FALSE,EA,평균수요와 보호기간으로 계산한 목표재고,avg_daily_quantity_long × (lead_time_days + review_period_days + safety_stock_days),FALSE,FALSE,target_stock_qty,ORDER_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,33,net_required_qty,DECIMAL(2),FALSE,EA,목표재고에서 가용·입고재고를 차감한 필요수량,"MAX(target_stock_qty - inventory_position_qty, 0)",FALSE,FALSE,net_required_qty,ORDER_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,34,recommended_order_qty_before_budget,DECIMAL(2),FALSE,,recommended_order_qty_before_budget_ea의 deprecated 별칭,recommended_order_qty_before_budget_ea,FALSE,TRUE,recommended_order_qty_before_budget_ea,ORDER_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,35,recommended_order_qty_before_budget_ea,DECIMAL(2),FALSE,,MOQ·발주배수·최대량을 적용한 예산 전 발주수량(EA),MOQ·발주배수·최대량을 적용한 net_required_qty,FALSE,FALSE,recommended_order_qty_before_budget_ea,ORDER_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,36,recommended_order_qty_before_budget_order_uom,DECIMAL(2),FALSE,ORDER_UOM,예산 전 EA 발주수량을 발주단위로 환산한 수량,recommended_order_qty_before_budget_ea / units_per_order_uom,FALSE,FALSE,recommended_order_qty_before_budget_order_uom,ORDER_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,37,order_cap_applied_yn,BOOLEAN,FALSE,,order cap applied yn,SOURCE/AGG,FALSE,FALSE,order_cap_applied_yn,ORDER_AGENT,PYTHON_FLAG,NOT_NULLABLE,FALSE,TRUE
+agent_발주담당자,agent_발주담당자.csv,38,estimated_order_cost_krw,INTEGER,FALSE,KRW,예산 전 발주수량과 매입단가의 곱,recommended_order_qty_before_budget_ea × unit_cost_krw,FALSE,FALSE,estimated_order_cost_krw,ORDER_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,1,snapshot_at,DATETIME+09:00,FALSE,,재고 또는 기한 데이터 스냅샷 일시,SOURCE/AGG,TRUE,FALSE,snapshot_at,BUDGET_AGENT,REFERENCE_DATE,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,2,store_id,STRING,FALSE,,매장 식별자,SOURCE/AGG,TRUE,FALSE,store_id,BUDGET_AGENT,IDENTIFIER,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,3,item_id,STRING,FALSE,,상품 식별자,SOURCE/AGG,TRUE,FALSE,item_id,BUDGET_AGENT,IDENTIFIER,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,4,supplier_id,STRING,FALSE,,공급사 식별자,SOURCE/AGG,TRUE,FALSE,supplier_id,BUDGET_AGENT,IDENTIFIER,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,5,item_name,STRING,FALSE,,item name,SOURCE/AGG,FALSE,FALSE,item_name,BUDGET_AGENT,LLM_CONTEXT,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,6,category_l1,STRING,FALSE,,category l1,SOURCE/AGG,FALSE,FALSE,category_l1,BUDGET_AGENT,LLM_CONTEXT,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,7,base_uom,STRING,FALSE,,상품 재고와 발주수량 계산의 기준 단위,SOURCE/AGG,FALSE,FALSE,base_uom,BUDGET_AGENT,LLM_CONTEXT,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,8,order_uom,STRING,FALSE,,order uom,SOURCE/AGG,FALSE,FALSE,order_uom,BUDGET_AGENT,LLM_CONTEXT,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,9,units_per_order_uom,DECIMAL(2),FALSE,EA/ORDER_UOM,units per order uom,SOURCE/AGG,FALSE,FALSE,units_per_order_uom,BUDGET_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,10,min_order_qty,DECIMAL(2),FALSE,EA,min order qty,SOURCE/AGG,FALSE,FALSE,min_order_qty,BUDGET_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,11,max_order_qty,DECIMAL(2),FALSE,EA,max order qty,SOURCE/AGG,FALSE,FALSE,max_order_qty,BUDGET_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,12,order_multiple_qty,DECIMAL(2),FALSE,EA,order multiple qty,SOURCE/AGG,FALSE,FALSE,order_multiple_qty,BUDGET_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,13,lead_time_days,DECIMAL(2),FALSE,DAY,lead time days,SOURCE/AGG,FALSE,FALSE,lead_time_days,BUDGET_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,14,lead_time_demand_qty,DECIMAL(2),FALSE,EA,리드타임 동안의 예상 수요수량,avg_daily_quantity_long × lead_time_days,FALSE,FALSE,lead_time_demand_qty,BUDGET_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,15,stockout_gap_qty,DECIMAL(2),FALSE,EA,리드타임 수요 대비 부족한 재고포지션 수량,"MAX(lead_time_demand_qty - inventory_position_qty, 0)",FALSE,FALSE,stockout_gap_qty,BUDGET_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,16,stockout_risk_yn,BOOLEAN,FALSE,,재고커버일이 리드타임보다 짧은지 여부,SOURCE/AGG,FALSE,FALSE,stockout_risk_yn,BUDGET_AGENT,PYTHON_FLAG,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,17,stockout_warning_yn,BOOLEAN,FALSE,,재고커버일이 품절 경고 기준일 이하인지 여부,SOURCE/AGG,FALSE,FALSE,stockout_warning_yn,BUDGET_AGENT,PYTHON_FLAG,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,18,waste_risk_yn,BOOLEAN,FALSE,,waste risk yn,SOURCE/AGG,FALSE,FALSE,waste_risk_yn,BUDGET_AGENT,PYTHON_FLAG,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,19,inventory_cover_days,DECIMAL(2),FALSE,DAY,재고포지션을 기준 일평균수요로 나눈 재고일수,inventory_position_qty / avg_daily_quantity_long,FALSE,FALSE,inventory_cover_days,BUDGET_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,20,waste_risk_qty,DECIMAL(2),FALSE,EA,단기 제거대상수량에서 예상소진수량을 차감한 양수 부분,"MAX(removal_within_short_horizon_qty - avg_daily_quantity_long × short_horizon_days, 0)",FALSE,FALSE,waste_risk_qty,BUDGET_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,21,service_level_target_pct,DECIMAL(2),FALSE,PERCENT,service level target pct,SOURCE/AGG,FALSE,FALSE,service_level_target_pct,BUDGET_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,22,recommended_order_qty_before_budget,DECIMAL(2),FALSE,,recommended_order_qty_before_budget_ea의 deprecated 별칭,recommended_order_qty_before_budget_ea,FALSE,TRUE,recommended_order_qty_before_budget_ea,BUDGET_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,23,unit_cost_krw,INTEGER,FALSE,KRW,unit cost krw,SOURCE/AGG,FALSE,FALSE,unit_cost_krw,BUDGET_AGENT,SOURCE_VALUE,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,24,estimated_order_cost_krw,INTEGER,FALSE,KRW,예산 전 발주수량과 매입단가의 곱,recommended_order_qty_before_budget_ea × unit_cost_krw,FALSE,FALSE,estimated_order_cost_krw,BUDGET_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,25,total_candidate_cost_krw,INTEGER,FALSE,KRW,모든 발주 후보의 예상 발주비용 합계,SUM(estimated_order_cost_krw),FALSE,FALSE,total_candidate_cost_krw,BUDGET_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,26,budget_limit_krw,INTEGER,FALSE,KRW,실행 파라미터로 지정한 전체 발주 예산 한도,SOURCE/AGG,FALSE,FALSE,budget_limit_krw,BUDGET_AGENT,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,27,available_budget_krw,INTEGER,FALSE,KRW,budget_limit_krw의 deprecated 별칭,budget_limit_krw,FALSE,TRUE,budget_limit_krw,BUDGET_AGENT,EXECUTION_PARAMETER,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,28,candidate_cost_share_pct,DECIMAL(2),FALSE,PERCENT,candidate cost share pct,SOURCE/AGG,FALSE,FALSE,candidate_cost_share_pct,BUDGET_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,29,budget_shortfall_krw,INTEGER,FALSE,KRW,후보 발주비용이 예산 한도를 초과하는 금액,"MAX(total_candidate_cost_krw - available_budget_krw, 0)",FALSE,FALSE,budget_shortfall_krw,BUDGET_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,30,budget_remaining_krw,INTEGER,FALSE,KRW,후보 발주비용 차감 후 남은 예산,"MAX(available_budget_krw - total_candidate_cost_krw, 0)",FALSE,FALSE,budget_remaining_krw,BUDGET_AGENT,PYTHON_CALCULATED,NOT_NULLABLE,FALSE,TRUE
+agent_예산관리자,agent_예산관리자.csv,31,budget_exceeded_yn,BOOLEAN,FALSE,,전체 후보 발주비용의 예산 한도 초과 여부,total_candidate_cost_krw > available_budget_krw,FALSE,FALSE,budget_exceeded_yn,BUDGET_AGENT,PYTHON_FLAG,NOT_NULLABLE,FALSE,TRUE
+데이터검증결과,데이터검증결과.csv,1,검증ID,STRING,FALSE,,검증ID,SOURCE/AGG,TRUE,FALSE,검증ID,,IDENTIFIER,NOT_NULLABLE,FALSE,FALSE
+데이터검증결과,데이터검증결과.csv,2,원본파일,STRING,FALSE,,원본파일,SOURCE/AGG,FALSE,FALSE,원본파일,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+데이터검증결과,데이터검증결과.csv,3,결과,STRING,FALSE,,"검증 결과 PASS, WARN 또는 FAIL",SOURCE/AGG,FALSE,FALSE,결과,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+데이터검증결과,데이터검증결과.csv,4,검사행수,INTEGER,FALSE,COUNT,검사행수,SOURCE/AGG,FALSE,FALSE,검사행수,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+데이터검증결과,데이터검증결과.csv,5,오류행수,INTEGER,FALSE,COUNT,규칙을 위반한 행 또는 키의 수,SOURCE/AGG,FALSE,FALSE,오류행수,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE
+데이터검증결과,데이터검증결과.csv,6,상세,STRING,FALSE,,상세,SOURCE/AGG,FALSE,FALSE,상세,,SOURCE_VALUE,NOT_NULLABLE,FALSE,FALSE

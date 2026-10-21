@@ -88,3 +88,18 @@ def excerpt(s, *, tenant_id: str, chunk_id: str) -> dict:
     doc = s.get(Document, chunk.document_id)
     return {"document_id": doc.id, "document_version": doc.version, "chunk_id": chunk.id, "title": doc.title,
             "excerpt": chunk.content, "source_location": chunk.source_location}
+
+
+KINDS = ("guideline", "dictionary", "confirmed")
+
+
+def list_documents(s, *, tenant_id: str, kind: str) -> list[dict]:
+    """종류별 문서 목록. 제목마다 최신 버전만 돌려준다."""
+    if kind not in KINDS:
+        raise LookupError(f"문서 종류는 {' | '.join(KINDS)} 중 하나입니다.")
+    latest = (select(Document.title, func.max(Document.version).label("v"))
+              .where(Document.tenant_id == tenant_id, Document.kind == kind).group_by(Document.title).subquery())
+    rows = s.scalars(select(Document).join(latest, (Document.title == latest.c.title) & (Document.version == latest.c.v))
+                     .where(Document.tenant_id == tenant_id, Document.kind == kind).order_by(Document.created_at))
+    return [{"document_id": d.id, "title": d.title, "version": d.version,
+             "created_at": d.created_at.isoformat()} for d in rows]
