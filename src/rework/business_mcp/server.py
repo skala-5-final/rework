@@ -218,7 +218,7 @@ def rank_items(ctx: Context, dataset_id: Annotated[str, Field(description="원�
                group_by: Annotated[str, Field(description="item_name | category_l1 | category_l2")] = "item_name",
                scope_column: ScopeColumn = "category_l1", scope_values: ScopeValues = [],  # noqa: B006
                compare_month: Annotated[str | None, Field(description="비교월 (YYYY-MM), 없으면 생략")] = None,
-               top_n: int = 15) -> dict:
+               top_n: Annotated[int, Field(ge=1, le=50, description="돌려줄 상위 항목 수")] = 15) -> dict:
     """월 합계 순위와 비교월 대비 일평균 증감률(vs_compare_pct)을 계산한다."""
     sc = _scope(ctx)
     return _wrap(A.rank, _df(sc, dataset_id), month, metric, group_by, scope_column, scope_values, compare_month, top_n)

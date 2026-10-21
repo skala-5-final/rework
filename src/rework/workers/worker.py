@@ -16,6 +16,7 @@ import aio_pika
 from sqlalchemy import or_, update
 
 from rework.agent.errors import InputError, TransientError
+from rework.agent.limits import within
 from rework.agent.mcp_client import RunContext
 from rework.agent.runtime import run_analysis, run_refresh, run_rerun
 from rework.config import get_settings
@@ -49,15 +50,41 @@ def _finish(payload: dict, *, status: str, error: str | None = None) -> None:
             s.add(ProcessedMessage(message_id=payload["message_id"]))
 
 
-def _context(payload: dict) -> RunContext:
+def _renew_lease(run_id: str) -> None:
+    with session_scope() as s:
+        s.execute(update(Run).where(Run.id == run_id)
+                  .values(lease_until=now() + timedelta(seconds=get_settings().run_lease_seconds)))
+
+
+async def _keep_lease(run_id: str) -> None:
+    """처리하는 동안 lease를 연장한다. Worker가 죽으면 연장이 멈춰 lease 시간 뒤 다른 Worker가 이어받는다."""
+    while True:
+        await asyncio.sleep(get_settings().run_lease_seconds / 3)
+        await asyncio.to_thread(_renew_lease, run_id)
+
+
+def _context(payload: dict, trace_id: str) -> RunContext:
     with session_scope() as s:
         job = s.get(Job, payload["job_id"])
         job.status, job.attempts = "RUNNING", payload["attempt"]
+        faults = (s.get(Run, payload["run_id"]).params or {}).get("faults", [])
+        attempt = payload["attempt"]
         return RunContext(job_id=job.id, run_id=payload["run_id"], tenant_id=job.tenant_id,
-                          attempt=payload["attempt"], inject_failure=job.inject_failure, trace_id=new_trace_id())
+                          attempt=attempt, inject_failure=job.inject_failure, trace_id=trace_id,
+                          fault=faults[attempt - 1] if attempt <= len(faults) and payload["action"] == "start" else "")
 
 
 async def handle(message: aio_pika.abc.AbstractIncomingMessage, ex) -> None:
+    # 메시지를 받자마자 trace를 정한다. 중복 무시·lease 대기처럼 실행 전에 남기는 이벤트도 같은 trace_id로 묶인다.
+    trace_id = new_trace_id()
+    trace = current_trace.set(trace_id)
+    try:
+        await _handle(message, ex, trace_id)
+    finally:
+        current_trace.reset(trace)
+
+
+async def _handle(message: aio_pika.abc.AbstractIncomingMessage, ex, trace_id: str) -> None:
     payload = json.loads(message.body)
     job_id, run_id, attempt = payload["job_id"], payload["run_id"], payload["attempt"]
     delays = get_settings().retry_delays_seconds
@@ -67,22 +94,32 @@ async def handle(message: aio_pika.abc.AbstractIncomingMessage, ex) -> None:
         await message.ack()
         return
     if not _acquire_lease(run_id):
-        record_event(job_id, run_id, "status", "worker", "다른 Worker가 같은 실행을 처리 중이라 건너뜀")
+        # 다른 Worker가 처리 중이거나, 처리하던 Worker가 죽어 lease가 아직 남은 경우. 버리면 실행이 멈춘 채 남으므로
+        # 잠시 뒤 다시 받도록 지연 큐로 돌려보낸다. message_id를 그대로 두므로, 정말 처리 중이었다면
+        # 그 처리가 끝난 뒤에는 처리 완료 기록(중복 무시)에 걸려 다시 실행되지 않는다.
+        delay = delays[0]
+        await rabbit.publish(ex, rabbit.retry_key(delay), payload)
+        record_event(job_id, run_id, "status", "worker", f"다른 Worker가 같은 실행을 잡고 있어 {delay}초 뒤 다시 확인")
         await message.ack()
         return
 
-    ctx = _context(payload)
-    trace = current_trace.set(ctx.trace_id)  # 이 시도에서 남기는 이벤트는 모두 같은 trace_id
+    ctx = _context(payload, trace_id)
     record_event(job_id, run_id, "status", "worker", f"작업 시작 (action={payload['action']}, 시도 {attempt}회차)",
                  {"trace_id": ctx.trace_id})
+    lease = asyncio.create_task(_keep_lease(run_id))
     try:
         with trace_run(ctx, payload["action"]):
             if payload["action"] == "rerun":
-                status = await run_rerun(ctx)
+                job = run_rerun(ctx)
             elif payload["action"] == "refresh":
-                status = await run_refresh(ctx)
+                job = run_refresh(ctx)
             else:
-                status = await run_analysis(ctx, payload["action"])
+                job = run_analysis(ctx, payload["action"])
+            limit = get_settings().run_max_seconds
+            try:
+                status = await within(job, limit)
+            except TimeoutError as e:
+                raise InputError(f"시도 실행시간 한도({limit}초)를 넘어 중단했습니다. 체크포인트는 남아 있습니다.") from e
         _finish(payload, status=status)
         record_event(job_id, run_id, "status", "worker",
                      "담당자 답변 대기 (체크포인트 저장 후 큐 메시지 반납)" if status == "WAITING_FOR_INPUT" else "완료")
@@ -106,7 +143,7 @@ async def handle(message: aio_pika.abc.AbstractIncomingMessage, ex) -> None:
         _finish(payload, status="FAILED", error=f"{type(e).__name__}: {e}")
         record_event(job_id, run_id, "error", "worker", f"처리 실패: {type(e).__name__}: {e}")
     finally:
-        current_trace.reset(trace)
+        lease.cancel()
     await message.ack()
 
 

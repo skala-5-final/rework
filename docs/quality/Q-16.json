@@ -1,0 +1,44 @@
+{
+  "metric": "Q-16",
+  "measured_at": "2026-10-21T04:42:51+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "빈 환경 배포 3회 중 3회 성공 (설치·시드·로그인·업로드·분석까지)",
+  "target": "100% (3회 이상)",
+  "cycles": [
+    {
+      "cycle": 1,
+      "pass": true,
+      "seconds": 109,
+      "up": true,
+      "seed": true,
+      "login": true,
+      "upload": true,
+      "analysis": true,
+      "job": "job_d7d1589ed676"
+    },
+    {
+      "cycle": 2,
+      "pass": true,
+      "seconds": 107,
+      "up": true,
+      "seed": true,
+      "login": true,
+      "upload": true,
+      "analysis": true,
+      "job": "job_97885fc315e3"
+    },
+    {
+      "cycle": 3,
+      "pass": true,
+      "seconds": 119,
+      "up": true,
+      "seed": true,
+      "login": true,
+      "upload": true,
+      "analysis": true,
+      "job": "job_d8be896dc26f"
+    }
+  ],
+  "procedure": "docker compose -p rwq16 up -d --build --wait → seed_demo.py → API 로그인·업로드·분석 → down -v"
+}

@@ -1,0 +1,77 @@
+{
+  "metric": "H-04",
+  "measured_at": "2026-10-21T04:36:44+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "예산 시나리오 2/2 통과, 표준 분석 모델 호출 574회 중 예산 초과 0회 (최대 5,091 / 100,000토큰)",
+  "target": "100% 준수",
+  "scenarios": [
+    {
+      "id": "run-budget",
+      "what": "H-04 시도당 토큰 3만 + 도구 결과 1,500자 → 결과를 줄이고 조사를 건너뛰며 완료",
+      "env": {
+        "RUN_TOKEN_BUDGET": "30000",
+        "TOOL_RESULT_MAX_CHARS": "1500"
+      },
+      "job_id": "job_a9fdd3f6dafb",
+      "status": "COMPLETED",
+      "expected": "COMPLETED",
+      "evidence": [
+        "P3 조사 중단: 시도당 토큰 예산(30,000)을 다 써서 조사를 건너뜀 (사용 31,000)",
+        "P4 조사 중단: 시도당 토큰 예산(30,000)을 다 써서 조사를 건너뜀 (사용 35,130)",
+        "P5 조사 중단: 시도당 토큰 예산(30,000)을 다 써서 조사를 건너뜀 (사용 38,662)"
+      ],
+      "llm_calls": 13,
+      "over_budget_calls": 0,
+      "unresolved_notes": [
+        "조사 중단(컨텍스트 예산): P3 행사 품목 재구성 — 결과 0개로 판정",
+        "조사 중단(컨텍스트 예산): P4 베이커리: 단팥빵만 축소 — 결과 0개로 판정",
+        "조사 중단(컨텍스트 예산): P5 가공식품 점검 — 결과 0개로 판정"
+      ],
+      "error": null,
+      "wall_seconds": 69,
+      "first_attempt": [
+        "2026-10-21T04:35:19.922150+00:00",
+        "2026-10-21T04:36:22.438603+00:00"
+      ],
+      "pass": true
+    },
+    {
+      "id": "call-budget",
+      "what": "H-04 호출당 4,200토큰 → 넘는 호출은 보내지 않고 중단",
+      "env": {
+        "CONTEXT_TOKEN_BUDGET": "4200"
+      },
+      "job_id": "job_addd522eaaf8",
+      "status": "FAILED",
+      "expected": "FAILED",
+      "evidence": [
+        "컨텍스트 예산 초과: 4,329 > 4,200 토큰",
+        "입력 수정 필요: propose_calc_rules: 모델 입력이 컨텍스트 예산(4,200 토큰)을 넘었습니다.",
+        "propose_calc_rules: 모델 입력이 컨텍스트 예산(4,200 토큰)을 넘었습니다."
+      ],
+      "llm_calls": 0,
+      "over_budget_calls": 0,
+      "unresolved_notes": [],
+      "error": "propose_calc_rules: 모델 입력이 컨텍스트 예산(4,200 토큰)을 넘었습니다.",
+      "wall_seconds": 9,
+      "first_attempt": [
+        "2026-10-21T04:36:34.419155+00:00",
+        "2026-10-21T04:36:39.843509+00:00"
+      ],
+      "pass": true
+    }
+  ],
+  "standard_runs": {
+    "calls": 574,
+    "budget": 100000,
+    "max_actual": 5091,
+    "over_budget": 0,
+    "estimate_vs_actual": {
+      "n": 574,
+      "median": 0.817,
+      "min": 0.743,
+      "max": 1.211
+    }
+  }
+}

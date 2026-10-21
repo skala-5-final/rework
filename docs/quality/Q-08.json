@@ -1,0 +1,31 @@
+{
+  "metric": "Q-08",
+  "measured_at": "2026-10-21T02:43:16+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "중복 메시지 50건 중 무시 50건, 규칙·결과물 변화 0종",
+  "target": "부작용 0건",
+  "job_id": "job_2704571df281",
+  "sent": 50,
+  "message_kinds": [
+    "rerun",
+    "resume",
+    "start"
+  ],
+  "ignored": 50,
+  "before": {
+    "rule_versions": 1,
+    "rationales": 5,
+    "artifacts": 11,
+    "questions": 6,
+    "confirmed_docs": 78
+  },
+  "after": {
+    "rule_versions": 1,
+    "rationales": 5,
+    "artifacts": 11,
+    "questions": 6,
+    "confirmed_docs": 78
+  },
+  "side_effects": {}
+}

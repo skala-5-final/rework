@@ -1,0 +1,50 @@
+{
+  "metric": "Q-11-api",
+  "measured_at": "2026-10-21T02:43:39+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "비인가 API 요청 76건 중 차단 76건 (100.0%), 정상 요청 9/9 통과",
+  "target": "100%",
+  "requests": 76,
+  "blocked": 76,
+  "rate_pct": 100.0,
+  "controls": [
+    {
+      "req": "GET /jobs/job_2704571df281",
+      "status": 200
+    },
+    {
+      "req": "GET /jobs/job_2704571df281/events",
+      "status": 200
+    },
+    {
+      "req": "GET /jobs/job_2704571df281/questions",
+      "status": 200
+    },
+    {
+      "req": "GET /jobs/job_2704571df281/result",
+      "status": 200
+    },
+    {
+      "req": "GET /jobs/job_2704571df281/artifacts",
+      "status": 200
+    },
+    {
+      "req": "GET /artifacts/art_de97f7f1871f/download",
+      "status": 200
+    },
+    {
+      "req": "GET /artifacts/art_de97f7f1871f/preview",
+      "status": 200
+    },
+    {
+      "req": "GET /jobs",
+      "status": 200
+    },
+    {
+      "req": "GET /documents",
+      "status": 200
+    }
+  ],
+  "not_blocked": []
+}

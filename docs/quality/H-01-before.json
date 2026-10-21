@@ -1,0 +1,57 @@
+{
+  "metric": "H-01",
+  "measured_at": "2026-10-21T03:57:03+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "FAIL",
+  "summary": "시도 68개 중 세 곳 연결 68개 (100.0%), trace_id 없는 Worker 이벤트 10개",
+  "target": "100%",
+  "attempts": 68,
+  "connected": 68,
+  "rate_pct": 100.0,
+  "untraced_worker_events": 10,
+  "failures": [
+    {
+      "job_id": "job_71124ba9dbf4",
+      "event_without_trace": "status:중복 메시지 무시: msg_f82acfba5ce5"
+    },
+    {
+      "job_id": "job_45e00966661e",
+      "event_without_trace": "status:중복 메시지 무시: msg_5ad8f85e2b71"
+    },
+    {
+      "job_id": "job_e4158915687b",
+      "event_without_trace": "status:다른 Worker가 같은 실행을 잡고 있어 10초 뒤 다시 확인"
+    },
+    {
+      "job_id": "job_e4158915687b",
+      "event_without_trace": "status:다른 Worker가 같은 실행을 잡고 있어 10초 뒤 다시 확인"
+    },
+    {
+      "job_id": "job_e4158915687b",
+      "event_without_trace": "status:다른 Worker가 같은 실행을 잡고 있어 10초 뒤 다시 확인"
+    },
+    {
+      "job_id": "job_e4158915687b",
+      "event_without_trace": "status:중복 메시지 무시: msg_021d2860a836"
+    },
+    {
+      "job_id": "job_6c80a3ae0a1b",
+      "event_without_trace": "status:중복 메시지 무시: msg_2ea33be5d455"
+    },
+    {
+      "job_id": "job_20fed6eb07ec",
+      "event_without_trace": "status:중복 메시지 무시: msg_b7befbf3cde5"
+    },
+    {
+      "job_id": "job_cc7cd9e02d97",
+      "event_without_trace": "status:다른 Worker가 같은 실행을 잡고 있어 10초 뒤 다시 확인"
+    },
+    {
+      "job_id": "job_cc7cd9e02d97",
+      "event_without_trace": "status:중복 메시지 무시: msg_35150343a3ef"
+    }
+  ],
+  "langsmith_checked": true,
+  "pool": "fault_runs.json",
+  "jobs": 22
+}

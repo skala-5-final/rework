@@ -1,0 +1,81 @@
+{
+  "metric": "H-03",
+  "measured_at": "2026-10-21T04:36:44+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "한도 시나리오 2/2 통과, 표준 분석 작업 30개에서 허용 목록·호출 한도·실행시간 한도 위반 0건",
+  "target": "100% 준수",
+  "scenarios": [
+    {
+      "id": "soft-time",
+      "what": "H-03 조사 시간 한도 25초 → 남은 조사를 건너뛰고 끝까지 완료",
+      "env": {
+        "RUN_SOFT_SECONDS": "25"
+      },
+      "job_id": "job_1c6786663ce2",
+      "status": "COMPLETED",
+      "expected": "COMPLETED",
+      "evidence": [
+        "P1 조사 중단: 시도당 조사 시간 한도(25초)를 넘겨 조사를 건너뜀 (경과 26초)",
+        "P2 조사 중단: 시도당 조사 시간 한도(25초)를 넘겨 조사를 건너뜀 (경과 31초)",
+        "P3 조사 중단: 시도당 조사 시간 한도(25초)를 넘겨 조사를 건너뜀 (경과 33초)",
+        "P4 조사 중단: 시도당 조사 시간 한도(25초)를 넘겨 조사를 건너뜀 (경과 37초)"
+      ],
+      "llm_calls": 8,
+      "over_budget_calls": 0,
+      "unresolved_notes": [
+        "조사 중단(실행시간 한도): P1 7월 메인: 여름 음료 — 결과 0개로 판정",
+        "조사 중단(실행시간 한도): P2 도시락: 정가 판매 + 금요일 확 대 — 결과 0개로 판정",
+        "조사 중단(실행시간 한도): P3 행사 품목 재구성 — 결과 0개로 판정",
+        "조사 중단(실행시간 한도): P4 베이커리: 단팥빵만 축소 — 결과 0개로 판정",
+        "조사 중단(실행시간 한도): P5 가공식품 점검 — 결과 0개로 판정"
+      ],
+      "error": null,
+      "wall_seconds": 51,
+      "first_attempt": [
+        "2026-10-21T04:33:45.268301+00:00",
+        "2026-10-21T04:34:30.759384+00:00"
+      ],
+      "pass": true
+    },
+    {
+      "id": "hard-time",
+      "what": "H-03 시도 실행시간 한도 30초 → 중단하고 실패로 표시",
+      "env": {
+        "RUN_MAX_SECONDS": "30"
+      },
+      "job_id": "job_b791e717220a",
+      "status": "FAILED",
+      "expected": "FAILED",
+      "evidence": [
+        "입력 수정 필요: 시도 실행시간 한도(30초)를 넘어 중단했습니다. 체크포인트는 남아 있습니다.",
+        "시도 실행시간 한도(30초)를 넘어 중단했습니다. 체크포인트는 남아 있습니다."
+      ],
+      "llm_calls": 4,
+      "over_budget_calls": 0,
+      "unresolved_notes": [],
+      "error": "시도 실행시간 한도(30초)를 넘어 중단했습니다. 체크포인트는 남아 있습니다.",
+      "wall_seconds": 33,
+      "first_attempt": [
+        "2026-10-21T04:34:41.632868+00:00",
+        "2026-10-21T04:35:12.171247+00:00"
+      ],
+      "pass": true
+    }
+  ],
+  "standard_runs": {
+    "metric": "H-03-runs",
+    "measured_at": "2026-10-21T02:42:27+00:00",
+    "code_version": "4e818fb+미커밋변경",
+    "verdict": "PASS",
+    "summary": "작업 30개에서 허용 목록·호출 한도·실행시간 한도 위반 0건",
+    "limits": {
+      "investigate_max_tool_calls": 8,
+      "run_max_tool_calls": 120,
+      "run_soft_seconds": 600,
+      "run_max_seconds": 1500
+    },
+    "violations": [],
+    "jobs": 30
+  }
+}

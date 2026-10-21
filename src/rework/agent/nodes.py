@@ -5,6 +5,7 @@ import copy
 import functools
 import json
 import re
+import time
 
 import openai
 from langchain_core.callbacks import get_usage_metadata_callback
@@ -18,6 +19,7 @@ from sqlalchemy import select
 from rework.agent import budget as B
 from rework.agent import prompts as P
 from rework.agent.errors import InputError, ToolCallError, TransientError
+from rework.agent.limits import llm_fault, within
 from rework.agent.mcp_client import RunContext, ToolHub
 from rework.agent.schemas import AnswerInterpretation, CalcRuleSet, Judgement, ManualSpec, ProposalSet
 from rework.config import get_settings
@@ -70,58 +72,68 @@ def _llm() -> ChatOpenAI:
                       timeout=s.llm_timeout_seconds, max_retries=s.llm_max_retries)
 
 
-async def _within(coro, seconds: float):
-    """시간 안에 끝나지 않으면 기다리지 않고 TimeoutError. asyncio.wait_for는 취소가 늦게 처리되는 작업이면
-    그만큼 같이 기다리므로, 남은 작업은 취소 요청만 하고 버린다."""
-    task = asyncio.ensure_future(coro)
-    done, _ = await asyncio.wait({task}, timeout=seconds)
-    if not done:
-        task.cancel()
-        task.add_done_callback(lambda t: t.cancelled() or t.exception())  # 버린 작업의 예외 경고를 막는다
-        raise TimeoutError
-    return task.result()
-
-
-async def _ainvoke(runnable, messages, config, node: str, what: str):
+async def _ainvoke(runnable, messages, config, node: str, what: str, overhead: int = 0):
+    """overhead: 메시지 밖에서 입력에 붙는 토큰 (도구 정의, 구조화 출력 스키마). 예산 계산에 포함한다."""
     ctx, cfg, hub = _ctx(config), get_settings(), _hub(config)
     messages, n_masked = mask_messages(messages)
     if n_masked:
         record_event(ctx.job_id, ctx.run_id, "privacy", node, f"모델 입력의 개인정보를 가림 (메시지 {n_masked}개)")
-    messages, before, after = B.fit(messages, cfg.context_token_budget)
+    budget = cfg.context_token_budget - overhead
+    messages, before, after = B.fit(messages, budget)
+    before, after = before + overhead, after + overhead
     if after != before:
         record_event(ctx.job_id, ctx.run_id, "budget", node, f"컨텍스트 정리: {before:,} → {after:,} 토큰 (오래된 도구 결과 생략)",
                      {"kind": "compact", "before": before, "after": after, "budget": cfg.context_token_budget})
-    if after > cfg.context_token_budget:
+    if after > cfg.context_token_budget:  # 정리해도 넘으면 보내지 않는다
         record_event(ctx.job_id, ctx.run_id, "budget", node, f"컨텍스트 예산 초과: {after:,} > {cfg.context_token_budget:,} 토큰",
                      {"kind": "exceeded", "tokens": after, "budget": cfg.context_token_budget})
         raise B.ContextBudgetExceeded(f"{node}: 모델 입력이 컨텍스트 예산({cfg.context_token_budget:,} 토큰)을 넘었습니다.")
     # 라이브러리 timeout이 걸리지 않는 경우에 대비한 하드 제한 (재시도 포함)
     hard_limit = cfg.llm_timeout_seconds * (cfg.llm_max_retries + 1) + 10
+    usage, failed, called = None, None, False
     try:
         # 재시도까지 포함한 이 호출의 토큰을 모은다 (구조화 출력은 AIMessage가 아니라 응답에서 직접 못 읽는다).
         with get_usage_metadata_callback() as usage:
-            out = await _within(runnable.ainvoke(messages), hard_limit)
+            hub.llm_calls += 1
+            if ctx.fault in ("llm_429", "llm_503") and hub.llm_calls == 2:  # 검증용 장애 주입 (작업에 지정한 경우만)
+                record_event(ctx.job_id, ctx.run_id, "fault", node, f"[장애 주입] 모델 API {ctx.fault[-3:]}")
+                raise llm_fault(ctx.fault)
+            called = True
+            out = await within(runnable.ainvoke(messages), hard_limit)
     except TimeoutError as e:
+        failed = "시간 초과"
         record_event(ctx.job_id, ctx.run_id, "error", node, f"모델 응답 {hard_limit}초 초과")
         raise TransientError(f"모델 응답 시간 초과 ({hard_limit}초)") from e
     except TRANSIENT_OPENAI as e:
+        failed = "API 일시 오류"
         raise TransientError(f"모델 API 일시 오류: {e}") from e
-    u = usage_record(usage.usage_metadata)
-    hub.tokens += u["input_tokens"] + u["output_tokens"]
-    record_event(ctx.job_id, ctx.run_id, "llm", node, what, u)
+    except Exception:
+        failed = "출력 오류"  # 형식 검증 실패 등. 응답을 받았으면 토큰은 이미 쓴 것이다
+        raise
+    finally:
+        # 실패한 호출도 모델 호출 1회로 기록한다 (H-02). 응답이 없었으면 토큰을 알 수 없다고 표시한다.
+        # 장애 주입은 실제 호출 전에 던지므로 호출로 세지 않는다.
+        if called:
+            u = usage_record(usage.usage_metadata)
+            if not usage.usage_metadata:
+                u["usage_unknown"] = True
+            u["est_input_tokens"] = after  # 하네스가 보내기 전에 센 값 (컨텍스트 예산 판단 근거)
+            hub.tokens += u["input_tokens"] + u["output_tokens"]
+            record_event(ctx.job_id, ctx.run_id, "llm", node, what + (f" (실패: {failed})" if failed else ""), u)
     return out
 
 
 async def _structured(schema, messages, config, node, attempts: int = 3):
     """구조화 출력. OpenAI strict json_schema로 형식을 강제하고, 그래도 검증에 실패하면 오류를 알려 주고 다시 요청한다."""
     model = _llm().with_structured_output(schema, method="json_schema", strict=True)
+    overhead = B.count_text(json.dumps(schema.model_json_schema(), ensure_ascii=False))
     msgs = list(messages)
     for i in range(attempts):
         try:
-            return await _ainvoke(model, msgs, config, node, f"{schema.__name__} 생성")
+            return await _ainvoke(model, msgs, config, node, f"{schema.__name__} 생성", overhead)
         except (ValidationError, OutputParserException) as e:
             ctx = _ctx(config)
-            record_event(ctx.job_id, ctx.run_id, "llm", node, f"{schema.__name__} 형식 오류로 재요청 ({i + 1}회)")
+            record_event(ctx.job_id, ctx.run_id, "status", node, f"{schema.__name__} 형식 오류로 재요청 ({i + 1}회)")
             if i == attempts - 1:
                 raise InputError(f"모델 출력이 형식에 맞지 않습니다: {e}") from e
             msgs = list(messages) + [HumanMessage(f"직전 출력이 스키마 검증에 실패했습니다. 허용된 값만 써서 다시 출력하세요.\n오류: {str(e)[:800]}")]
@@ -363,23 +375,28 @@ async def investigate(state, config):
                 HumanMessage(P.INVESTIGATE_USER.format(key=p["key"], title=p["title"], text=p["text"],
                                                        claims=_j(p["claims"]), dataset_id=state["dataset_id"],
                                                        months=_j(state["profile"]["months"])))]
-    model = _llm().bind_tools(hub.openai_tools("business", ANALYSIS_TOOLS))
+    tools = hub.openai_tools("business", ANALYSIS_TOOLS)
+    model = _llm().bind_tools(tools)
     n_results = sum(isinstance(m, ToolMessage) for m in msgs)
-    stop = None
+    stop, elapsed = None, time.monotonic() - _ctx(config).started
     if hub.tokens >= cfg.run_token_budget:
         stop = f"시도당 토큰 예산({cfg.run_token_budget:,})을 다 써서 조사를 건너뜀 (사용 {hub.tokens:,})"
+    elif elapsed >= cfg.run_soft_seconds:
+        stop = f"시도당 조사 시간 한도({cfg.run_soft_seconds}초)를 넘겨 조사를 건너뜀 (경과 {elapsed:.0f}초)"
     else:
         try:
             ai = await _ainvoke(model, msgs, config, "investigate",
-                                f"{p['key']} 조사: " + (f"도구 결과 {n_results}개 검토" if n_results else "가설 수립·도구 선택"))
+                                f"{p['key']} 조사: " + (f"도구 결과 {n_results}개 검토" if n_results else "가설 수립·도구 선택"),
+                                B.count_text(json.dumps(tools, ensure_ascii=False)))
         except B.ContextBudgetExceeded as e:
             stop = str(e)
     if stop:
         # 멈추지 않고, 지금까지 모은 결과로 판정·저장까지 간다. 결과물의 '미해결'에 남긴다.
         ctx = _ctx(config)
+        why = "실행시간 한도" if "시간 한도" in stop else "컨텍스트 예산"
         record_event(ctx.job_id, ctx.run_id, "budget", "investigate", f"{p['key']} 조사 중단: {stop}", {"kind": "stop"})
-        return {"messages": msgs + [AIMessage(content="(컨텍스트 예산으로 조사를 마칩니다. 지금까지의 결과로 판정합니다.)")],
-                "unresolved": state["unresolved"] + [f"조사 중단(컨텍스트 예산): {p['key']} {p['title']} — 결과 {n_results}개로 판정"],
+        return {"messages": msgs + [AIMessage(content=f"({why}으로 조사를 마칩니다. 지금까지의 결과로 판정합니다.)")],
+                "unresolved": state["unresolved"] + [f"조사 중단({why}): {p['key']} {p['title']} — 결과 {n_results}개로 판정"],
                 "stage": "investigate"}
     return {"messages": msgs + [ai], "stage": "investigate"}
 

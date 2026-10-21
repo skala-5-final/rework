@@ -6,10 +6,11 @@
 """
 
 import json
+import logging
 import sys
 import time
 from contextlib import AsyncExitStack
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import httpx2
 import langsmith as ls
@@ -26,6 +27,7 @@ from rework.config import get_settings
 from rework.db.session import record_event
 from rework.observability import tracing_enabled
 
+log = logging.getLogger("rework.mcp_client")
 SERVERS = {"business": "rework.business_mcp.server", "rag": "rework.rag_mcp.server"}
 
 
@@ -38,6 +40,8 @@ class RunContext:
     attempt: int = 1
     inject_failure: bool = False
     trace_id: str = ""  # Worker 시도 하나. 이벤트·MCP 로그·LangSmith를 잇는다
+    fault: str = ""  # 검증용 장애 주입: 이 시도에 넣을 장애 종류 (limits.FAULT_KINDS)
+    started: float = field(default_factory=time.monotonic)  # 시도 시작 (실행시간 한도)
 
 
 class ToolHub:
@@ -46,6 +50,7 @@ class ToolHub:
         self.clients: dict[str, Client] = {}
         self.calls = 0
         self.tokens = 0  # 이 시도에서 쓴 모델 토큰 (컨텍스트 예산)
+        self.llm_calls = 0
         self._stack = AsyncExitStack()
         self._schemas: dict[str, list] = {}
         self._templates: dict[str, list] = {}
@@ -80,8 +85,15 @@ class ToolHub:
             for n in SERVERS))
         return self
 
-    async def __aexit__(self, *exc):
-        await self._stack.aclose()
+    async def __aexit__(self, exc_type, exc, tb):
+        try:
+            await self._stack.aclose()
+        except Exception as e:  # noqa: BLE001 - 서버가 사라진 뒤에는 연결 정리도 실패한다 (ExceptionGroup)
+            if exc is not None:
+                # 원래 오류(예: 도구 호출 실패 → TransientError)를 덮어쓰면 재시도 분류가 사라진다. 원래 오류를 그대로 올린다.
+                log.warning("MCP 연결 정리 실패 (원래 오류 유지): %s", _cause(e))
+                return False
+            raise TransientError(f"MCP 연결 정리 실패: {_cause(e)}") from e
 
     def openai_tools(self, server: str, names: list[str]) -> list[dict]:
         """MCP 도구 설명을 그대로 모델용 함수 정의로 바꾼다 (도구 발견)."""
@@ -139,6 +151,9 @@ class ToolHub:
             raise TransientError(f"[장애 시연] {server}.{tool} 일시적 연결 실패")
         started = time.monotonic()
         try:
+            if self.ctx.fault == "mcp_error" and self.calls == 3:  # 검증용 장애 주입 (작업에 지정한 경우만)
+                record_event(self.ctx.job_id, self.ctx.run_id, "fault", node, f"[장애 주입] {server}.{tool} 연결 끊김")
+                raise ConnectionError("[장애 주입] MCP 연결 끊김")
             res = await self.clients[server].call_tool(tool, args)
         except Exception as e:  # 프로세스 종료·시간 초과 등 연결 문제
             record_event(self.ctx.job_id, self.ctx.run_id, "error", node, f"{server}.{tool} 연결 실패: {e}")

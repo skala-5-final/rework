@@ -1,0 +1,17 @@
+{
+  "metric": "H-01",
+  "measured_at": "2026-10-21T04:33:15+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "시도 86개 중 세 곳 연결 86개 (100.0%), trace_id 없는 Worker 이벤트 0개",
+  "target": "100%",
+  "attempts": 86,
+  "connected": 86,
+  "rate_pct": 100.0,
+  "untraced_worker_events": 0,
+  "queue_only_traces": 8,
+  "failures": [],
+  "langsmith_checked": true,
+  "pool": "fault_runs.json",
+  "jobs": 22
+}

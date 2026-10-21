@@ -1,0 +1,58 @@
+{
+  "metric": "Q-17",
+  "measured_at": "2026-10-21T02:42:49+00:00",
+  "code_version": "4e818fb+미커밋변경",
+  "verdict": "PASS",
+  "summary": "승인 시나리오 82건 중 통과 82건, DB 확정 지식 78건 중 미승인 0건",
+  "target": "미승인 변경 0건 (시나리오 30건 이상)",
+  "scenarios": 82,
+  "passed": 82,
+  "policy_matrix": 76,
+  "server_cases": [
+    {
+      "case": "가짜 답변 ID",
+      "expected_registered": false,
+      "registered": false,
+      "pass": true,
+      "msg": "Error executing tool register_confirmed_rule: 확인 답변이 없어 등록하지 않았습니다. 확인되지 않은 추론은 업무 지식으로 등록할 수 없습니다."
+    },
+    {
+      "case": "빈 답변 ID",
+      "expected_registered": false,
+      "registered": false,
+      "pass": true,
+      "msg": "Error executing tool register_confirmed_rule: 확인 답변이 없어 등록하지 않았습니다. 확인되지 않은 추론은 업무 지식으로 등록할 수 없습니다."
+    },
+    {
+      "case": "다른 회사 토큰",
+      "expected_registered": false,
+      "registered": false,
+      "pass": true,
+      "msg": "Error executing tool register_confirmed_rule: 확인 답변이 없어 등록하지 않았습니다. 확인되지 않은 추론은 업무 지식으로 등록할 수 없습니다."
+    },
+    {
+      "case": "다른 실행 토큰",
+      "expected_registered": false,
+      "registered": false,
+      "pass": true,
+      "msg": "Error executing tool register_confirmed_rule: 다른 실행의 답변으로는 등록할 수 없습니다."
+    },
+    {
+      "case": "반려 답변",
+      "expected_registered": false,
+      "registered": false,
+      "pass": true,
+      "msg": "Error executing tool register_confirmed_rule: 담당자가 반려한 내용은 업무 지식으로 등록하지 않습니다."
+    },
+    {
+      "case": "정상 승인",
+      "expected_registered": true,
+      "registered": true,
+      "pass": true,
+      "msg": "{\n  \"document_id\": \"doc_73aebb18e7f3\",\n  \"document_version\": 1,\n  \"chunks\": 1\n}"
+    }
+  ],
+  "failed": [],
+  "confirmed_docs": 78,
+  "unapproved_confirmed_docs": []
+}
