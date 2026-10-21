@@ -21,9 +21,12 @@
 </section>
 
 <section class="card hidden" id="question-card">
-  <h2>담당자 확인이 필요합니다</h2>
-  <p class="muted small">데이터로 찾은 근거가 맞는지, 데이터로 설명되지 않는 결정은 어떤 기준이었는지 알려 주세요. 답하지 않은 질문은 매뉴얼에 '미확인'으로 남습니다.</p>
-  <form id="answer-form"><div id="questions"></div><button class="primary" type="submit">답변 제출하고 이어서 진행</button></form>
+  <h2 id="q-title">확인이 필요한 결정</h2>
+  <p class="muted small" id="q-help"></p>
+  <form id="answer-form"><div id="questions"></div>
+    <div class="row"><button class="primary" type="submit">답변 제출</button>
+      <button type="button" class="link" id="answer-later">나중에 답하기</button></div>
+  </form>
 </section>
 
 <div class="tabs" id="tabs">
@@ -31,7 +34,7 @@
   <button data-tab="rules">계산 규칙</button>
   <button data-tab="rationale">판단 근거</button>
   <button data-tab="manual">매뉴얼</button>
-  <button data-tab="files">결과물 · 다음 기간</button>
+  <button data-tab="files">결과물 · 다음 기간<span class="tab-dot hidden" id="files-dot" aria-hidden="true"></span></button>
 </div>
 
 <section class="card tab" id="tab-progress">
@@ -42,14 +45,33 @@
 <section class="card tab hidden" id="tab-rationale"><div id="rationales"><p class="muted">분석이 끝나면 표시됩니다.</p></div></section>
 <section class="card tab hidden" id="tab-manual"><div id="manual" class="markdown"><p class="muted">분석이 끝나면 표시됩니다.</p></div></section>
 <section class="card tab hidden" id="tab-files">
-  <h3>결과물</h3>
-  <ul id="artifacts" class="doc-list"></ul>
-  <h3>다음 기간 보고서 초안 만들기</h3>
+  <div class="art-head">
+    <h3>결과물</h3>
+    <span class="art-state" id="art-state" role="status" aria-live="polite"></span>
+  </div>
+  <ul id="artifacts" class="art-grid"></ul>
+  <h3 class="next-period">다음 기간 보고서 초안 만들기</h3>
   <p class="muted small">확인된 규칙 버전을 새 데이터에 적용합니다. 열 이름이나 요일 값이 달라졌으면 임의로 처리하지 않고 멈춥니다.</p>
-  <form id="rerun-form" class="row">
-    <input name="source" type="file" accept=".csv" required>
-    <input name="month" placeholder="YYYY-MM" value="2026-07" pattern="\d{4}-\d{2}" required>
-    <button type="submit">초안 생성</button>
+  <form id="rerun-form" class="stack">
+    <div class="upload" data-upload>
+      <input type="file" class="upload-pick" accept=".csv" aria-label="새 기간 원천 데이터 CSV 선택">
+      <div class="upload-head">
+        <span class="upload-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M6 10l6-6 6 6M4 20h16"/></svg></span>
+        <span><b>파일을 이곳에 드래그해서 넣어주세요</b><span class="upload-hint">또는 이 영역을 클릭해 파일 선택<br>새 기간 원천 데이터 CSV</span></span>
+      </div>
+      <ul class="upload-slots">
+        <li class="upload-slot" data-slot>
+          <input type="file" name="source" accept=".csv" hidden>
+          <span class="slot-tag">CSV</span><span class="slot-label">새 기간 원천 데이터</span>
+          <span class="slot-file">선택 안 됨</span><button type="button" class="slot-clear" title="선택 취소">×</button>
+        </li>
+      </ul>
+      <p class="upload-msg" role="status" aria-live="polite"></p>
+    </div>
+    <div class="row nowrap">
+      <input name="month" placeholder="YYYY-MM" value="2026-07" pattern="\d{4}-\d{2}" required>
+      <button type="submit" class="primary">초안 생성</button>
+    </div>
   </form>
   <p class="error" id="rerun-error"></p>
 </section>

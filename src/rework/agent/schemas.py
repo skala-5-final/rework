@@ -43,9 +43,9 @@ class Hypothesis(BaseModel):
 
 
 class QuestionSpec(BaseModel):
-    text: str = Field(description="담당자에게 물을 질문")
-    reason: str = Field(description="왜 묻는지")
-    options: list[str] = Field(default_factory=list, description="선택지 (없으면 자유 입력)")
+    text: str = Field(description="담당자에게 물을 질문 한 문장 (40자 이내)")
+    reason: str = Field(description="왜 묻는지 (20자 이내)")
+    options: list[str] = Field(default_factory=list, description="담당자가 고를 이유 후보 2~3개 (각 25자 이내)")
 
 
 class ClaimJudgement(BaseModel):
@@ -68,8 +68,8 @@ class AnswerInterpretation(BaseModel):
 
 
 class ManualSpec(BaseModel):
-    purpose: str = Field(description="업무 목적과 보고서 범위 (2~3문장)")
-    preparation: str = Field(description="자료 준비 방법")
-    steps: list[str] = Field(description="보고서 작성 단계 (5~8단계)")
-    validation: str = Field(description="검증 방법")
-    exceptions: list[str] = Field(description="예외 처리 (2~4개)")
+    purpose: str = Field(description="이 보고서가 무엇이고 누구에게 언제 보내는지 (2문장 이내)")
+    preparation: str = Field(description="자료 준비 방법 (1문장)")
+    steps: list[str] = Field(description="매달 만드는 순서 (4~6단계, 단계마다 40자 이내)")
+    validation: str = Field(description="검증 방법 (1문장)")
+    exceptions: list[str] = Field(description="예외 처리 (2~3개, 각 1문장)")

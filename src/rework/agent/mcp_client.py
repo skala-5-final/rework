@@ -68,7 +68,7 @@ class ToolHub:
                 self._templates[name] = (await self.clients[name].list_resource_templates()).resource_templates
         except Exception as e:
             await self._stack.aclose()
-            raise TransientError(f"MCP 서버 연결 실패: {e}") from e
+            raise TransientError(f"MCP 서버 연결 실패 ({name}): {_cause(e)}") from e
         record_event(self.ctx.job_id, self.ctx.run_id, "status", "mcp", "MCP 서버 연결: " + ", ".join(
             f"{n}({len(self._schemas[n])}개 도구" + (f", 리소스 {len(self._templates[n])}종" if self._templates[n] else "") + ")"
             for n in SERVERS))
@@ -119,7 +119,7 @@ class ToolHub:
             res = await self.clients[server].call_tool(tool, args)
         except Exception as e:  # 프로세스 종료·시간 초과 등 연결 문제
             record_event(self.ctx.job_id, self.ctx.run_id, "error", node, f"{server}.{tool} 연결 실패: {e}")
-            raise TransientError(f"{server}.{tool} 호출 실패: {e}") from e
+            raise TransientError(f"{server}.{tool} 호출 실패: {_cause(e)}") from e
         text = "".join(getattr(c, "text", "") for c in res.content)
         ms = int((time.monotonic() - started) * 1000)
         record_event(self.ctx.job_id, self.ctx.run_id, "tool_call", node, f"{server}.{tool}",
@@ -131,6 +131,13 @@ class ToolHub:
             data = res.structured_content
             return data.get("result", data) if isinstance(data, dict) and set(data) == {"result"} else data
         return json.loads(text) if text else {}
+
+
+def _cause(e: BaseException) -> str:
+    """TaskGroup이 감싼 예외에서 실제 원인을 꺼낸다 (예: 'unhandled errors in a TaskGroup' 대신 이름 해석 실패)."""
+    while isinstance(e, BaseExceptionGroup) and e.exceptions:
+        e = e.exceptions[0]
+    return f"{type(e).__name__}: {e}"
 
 
 def _short(args: dict) -> dict:

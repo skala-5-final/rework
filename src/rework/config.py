@@ -42,6 +42,8 @@ class Settings(BaseSettings):
     llm_max_retries: int = 2
     # 안전망: 그래프 전체 단계 수
     graph_recursion_limit: int = 200
+    # 담당자에게 한 번에 묻는 질문 수. 나머지는 '나중에 확인'으로 남긴다.
+    max_questions: int = 3
 
     # 큐 재시도
     retry_delays_seconds: tuple[int, ...] = (10, 30, 60)

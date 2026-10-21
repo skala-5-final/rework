@@ -22,6 +22,7 @@ from rework.db.models import (Answer, Artifact, Document, Event, File as FileRow
 from rework.db.session import get_db, init_db
 from rework.queue.rabbit import outbox_relay
 from rework.rag_mcp.services import index as rag_index
+from rework.contracts import explain as X
 from rework.storage import resolve, save_bytes
 
 WEB = Path(__file__).resolve().parents[1] / "web"
@@ -152,7 +153,7 @@ def _job_view(db: Session, job: Job) -> dict:
     src, rep = db.get(FileRow, job.source_file_id), db.get(FileRow, job.report_file_id)
     return {"job_id": job.id, "name": job.name, "status": job.status, "error": job.error, "attempts": job.attempts,
             "created_at": job.created_at.isoformat(), "updated_at": job.updated_at.isoformat(),
-            "run": {"run_id": run.id, "version": run.version, "status": run.status} if run else None,
+            "run": {"run_id": run.id, "version": run.version, "status": run.status, "kind": run.kind} if run else None,
             "source_file": src.original_name, "report_file": rep.original_name, "inject_failure": job.inject_failure}
 
 
@@ -203,30 +204,37 @@ class AnswersBody(BaseModel):
 @app.post("/jobs/{job_id}/answers")
 def submit_answers(job_id: str, body: AnswersBody, db: Session = Depends(get_db),
                    user: CurrentUser = Depends(current_user)):
+    """실행 중 질문에 답하거나(답 없이 '나중에 답하기'도 가능), 완료 후 남은 질문에 언제든 답한다."""
     job = _owned(db, Job, job_id, user)
     run = db.get(Run, body.run_id)
     # 오래된 실행이나 중복 제출로 재개 작업이 여러 번 생기지 않게 막는다.
     if run is None or run.id != job.current_run_id or run.version != body.run_version:
         raise HTTPException(409, "이미 처리됐거나 오래된 실행에 대한 답변입니다. 화면을 새로고침하세요.")
-    if run.status != "WAITING_FOR_INPUT":
+    if run.status == "WAITING_FOR_INPUT":
+        action, open_status = "resume", ("pending",)
+    elif run.status == "COMPLETED" and run.kind == "analyze":
+        action, open_status = "refresh", ("pending", "later")
+        if not body.answers:
+            raise HTTPException(400, "답변이 없습니다.")
+    else:
         raise HTTPException(409, f"지금은 답변을 받을 수 없는 상태입니다 ({run.status}).")
-    pending = {q.id: q for q in db.scalars(select(Question).where(Question.run_id == run.id, Question.status == "pending"))}
-    if not body.answers:
-        raise HTTPException(400, "답변이 없습니다.")
+    pending = {q.id: q for q in db.scalars(select(Question).where(Question.run_id == run.id,
+                                                                  Question.status.in_(open_status)))}
     for a in body.answers:
         q = pending.get(a.question_id)
         if q is None:
             raise HTTPException(409, f"이미 답변했거나 없는 질문입니다: {a.question_id}")
-        if not a.choice and not a.text.strip():
+        if a.choice in ("", "other") and not a.text.strip():
             raise HTTPException(400, f"답변이 비어 있습니다: {q.text[:30]}")
         db.add(Answer(question_id=q.id, run_id=run.id, user_id=user.id, choice=a.choice, text=a.text.strip()))
         q.status = "answered"
-    # 답하지 않은 질문은 미확인으로 남긴다.
+    # 답하지 않은 질문은 매뉴얼에 '확인 필요'로 남고, 완료 후에도 답할 수 있다.
     run.version += 1
     run.status = job.status = "QUEUED"
-    _enqueue(db, job, run, "resume")
+    _enqueue(db, job, run, action)
     db.add(Event(job_id=job.id, run_id=run.id, type="status", stage="answers",
-                 message=f"{user.display_name}님이 답변 {len(body.answers)}개 제출 → 재개 대기"))
+                 message=f"{user.display_name}님이 답변 {len(body.answers)}개 제출 → "
+                         + ("재개 대기" if action == "resume" else "매뉴얼 갱신 대기")))
     return {"ok": True, "run_version": run.version}
 
 
@@ -235,8 +243,22 @@ def job_result(job_id: str, db: Session = Depends(get_db), user: CurrentUser = D
     job = _owned(db, Job, job_id, user)
     rv = db.scalar(select(RuleVersion).where(RuleVersion.run_id == job.current_run_id))
     rats = db.scalars(select(Rationale).where(Rationale.run_id == job.current_run_id).order_by(Rationale.proposal_key))
-    return {"rule_version": {"id": rv.id, "version": rv.version, "spec": rv.spec} if rv else None,
-            "rationales": [r.data | {"proposal_key": r.proposal_key} for r in rats]}
+    rationales = [r.data | {"proposal_key": r.proposal_key} for r in rats]
+    for p in rationales:
+        for c in p.get("claims", []):
+            c["label"], c["rule"] = X.claim_label(c), X.claim_rule(c)
+    view = None
+    if rv:
+        rules = rv.spec["calc_rules"]
+        common = X.common_format([r["rule"] for r in rules])
+        view = {"common": X.format_text(common) if common else None,
+                "rules": [{"metric": f"{r['slot']['table_title']} · {r['slot']['metric_label']}",
+                           "plain": X.rule_plain(r["rule"]) + ("" if X.display_format(r["rule"]) == common
+                                                               else f" ({X.format_text(X.display_format(r['rule']))})"),
+                           "excel": X.rule_excel(r["rule"], r["slot"]), "label": X.calc_label(r["validation_status"])}
+                          for r in rules]}
+    return {"rule_version": {"id": rv.id, "version": rv.version, "spec": rv.spec, "view": view} if rv else None,
+            "rationales": rationales}
 
 
 @app.get("/jobs/{job_id}/artifacts")
@@ -258,7 +280,7 @@ def preview(artifact_id: str, db: Session = Depends(get_db), user: CurrentUser =
     a = _owned(db, Artifact, artifact_id, user)
     text = resolve(a.path).read_text(encoding="utf-8")
     if a.filename.endswith(".md"):
-        return markdown.markdown(text, extensions=["tables", "fenced_code"])
+        return markdown.markdown(text, extensions=["tables", "fenced_code", "md_in_html"])
     return f"<pre>{text[:20000]}</pre>"
 
 

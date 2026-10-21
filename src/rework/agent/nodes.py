@@ -219,15 +219,6 @@ async def verify_calc_rules(state, config):
         missing = [s for s in state["slots"] if status.get(s["slot_id"], {}).get("status") != "matched"]
         out["unresolved"] = state["unresolved"] + [
             f"계산 규칙 미확정: {s['table_title']} · {s['metric_label']} ({iteration}회 시도 후 불일치)" for s in missing]
-        matched = [s for s in state["slots"] if s not in missing]
-        out["questions"] = state["questions"] + [{
-            "key": "calc_rules", "kind": "confirm",
-            "text": f"보고서 수치를 재현한 계산 규칙 {len(matched)}개가 실제 작성 방식과 같습니까?",
-            "reason": "숫자가 일치해도 실제 작성 방법을 유일하게 복원했다고 볼 수 없어 확인이 필요합니다.",
-            "options": [{"value": "confirm", "label": "맞습니다"}, {"value": "reject", "label": "아닙니다"}],
-            "context": {"rules": [{"metric": f"{s['table_title']} · {s['metric_label']}",
-                                   "rule": state["calc_rules"][s["slot_id"]]} for s in matched]},
-        }]
     return out
 
 
@@ -468,32 +459,32 @@ async def _self_consistency(c: dict, state, config) -> None:
         c["check_notes"].append("기준 재적용 검사 통과: 대상만 선택됨")
 
 
-def _confirm_question(p: dict, claims: list[dict]) -> dict:
-    """데이터로 설명된 결정들을 제안당 질문 하나로 확인받는다."""
-    lines = [f"{c['statement']} → {c['criterion']['description'] if c['criterion'] else '; '.join(c['evidence'])}"
-             for c in claims]
-    return {"key": f"{p['key']}-confirm", "kind": "confirm",
-            "text": f"[{p['title']}] 아래 판단 기준이 실제로 보신 근거와 같습니까?",
-            "reason": "데이터로는 설명되지만, 담당자 확인 전까지는 추정입니다.",
-            "options": [{"value": "confirm", "label": "맞습니다"}, {"value": "reject", "label": "아닙니다"}],
-            "context": {"proposal_key": p["key"], "claims": [c["claim_id"] for c in claims], "criteria": lines,
-                        "evidence": [e for c in claims for e in c["evidence"]],
-                        "rejected": [h for c in claims for h in c["rejected_hypotheses"]]}}
+OTHER = {"value": "other", "label": "기타 (직접 입력)"}
+UNEXPLAINED_OPTIONS = ["현장 상황 (진열·재고·날씨 등)", "본사·거래처 지시", "경험에 따른 판단"]
 
 
 def _question_for(p: dict, c: dict) -> dict:
-    ctx = {"proposal_key": p["key"], "proposal_title": p["title"], "claim": c["statement"],
-           "evidence": c["evidence"], "criterion": c["criterion"], "check_notes": c["check_notes"],
-           "rejected": c["rejected_hypotheses"]}
+    """데이터로 결정하지 못한 결정마다 객관식 질문 하나. 데이터로 설명된 결정은 묻지 않고 '추정'으로 남긴다."""
     q = c.get("question") or {}
     if c["status"] == "ambiguous":
-        return {"key": c["claim_id"], "kind": "choose" if q.get("options") else "free", "context": ctx,
-                "text": q.get("text") or f"[{p['title']}] '{c['statement']}'는 어떤 기준으로 정하셨나요?",
-                "reason": q.get("reason") or "여러 근거가 같은 결정을 설명하거나 기준값이 불명확합니다.",
-                "options": [{"value": o, "label": o} for o in q.get("options", [])]}
-    return {"key": c["claim_id"], "kind": "free", "context": ctx,
-            "text": q.get("text") or f"[{p['title']}] '{c['statement']}'는 데이터로 설명되지 않았습니다. 어떤 근거로 결정하셨나요?",
-            "reason": q.get("reason") or "원천 데이터에서 이 결정을 설명하는 신호를 찾지 못했습니다.", "options": []}
+        # 여러 가설이 똑같이 설명하면, 그 가설들이 곧 선택지다.
+        cands = q.get("options") or [h["statement"] for h in c["hypotheses"] if h["verdict"] == "supported"]
+        text = q.get("text") or f"'{c['statement']}'의 기준은 무엇이었나요?"
+    else:
+        cands = q.get("options") or UNEXPLAINED_OPTIONS
+        text = q.get("text") or f"'{c['statement']}'는 왜 결정하셨나요?"
+    if len(cands) < 2:
+        cands = UNEXPLAINED_OPTIONS
+    return {"key": c["claim_id"], "kind": "choose", "text": text,
+            "reason": q.get("reason") or ("근거 후보가 여러 개입니다." if c["status"] == "ambiguous" else "데이터로 설명되지 않습니다."),
+            "options": [{"value": o, "label": o} for o in cands[:3]] + [OTHER],
+            "context": {"proposal_key": p["key"], "proposal_title": p["title"], "claim": c["statement"],
+                        "status": c["status"], "evidence": c["evidence"][:3]}}
+
+
+def _rank(questions: list[dict]) -> list[dict]:
+    """데이터로 전혀 설명되지 않는 결정을 먼저 묻는다 (사람만 아는 내용)."""
+    return sorted(questions, key=lambda q: q["context"].get("status") != "unexplained")
 
 
 @tracked
@@ -524,9 +515,7 @@ async def judge_rationale(state, config):
 
 
 def _questions(p: dict, claims: list[dict]) -> list[dict]:
-    explained = [c for c in claims if c["status"] == "explained"]
-    qs = [_confirm_question(p, explained)] if explained else []
-    return qs + [_question_for(p, c) for c in claims if c["status"] != "explained"]
+    return [_question_for(p, c) for c in claims if c["status"] != "explained"]
 
 
 def route_rationale(state) -> str:
@@ -539,20 +528,27 @@ def route_rationale(state) -> str:
 
 @tracked
 async def ask_user(state, config):
-    """🟦 질문을 DB에 저장하고 실행을 중단한다. 답변이 오면 같은 run_id로 여기서 재개한다."""
+    """🟦 질문을 DB에 저장하고 실행을 중단한다. 답변이 오면 같은 run_id로 여기서 재개한다.
+
+    지금 묻는 것은 중요한 순서로 최대 max_questions개. 나머지는 '나중에 확인'으로 저장해 완료 후에도 답할 수 있다.
+    """
     ctx = _ctx(config)
     ids = {}
+    ranked = _rank(state["questions"])
     with session_scope() as s:
-        for q in state["questions"]:
+        for i, q in enumerate(ranked):
             row = s.scalar(select(Question).where(Question.run_id == ctx.run_id, Question.key == q["key"]))
             if row is None:
                 row = Question(run_id=ctx.run_id, job_id=ctx.job_id, tenant_id=ctx.tenant_id, key=q["key"],
                                kind=q["kind"], text=q["text"], reason=q["reason"], options=q["options"],
-                               context=q["context"])
+                               context=q["context"],
+                               status="pending" if i < get_settings().max_questions else "later")
                 s.add(row)
                 s.flush()
             ids[q["key"]] = row.id
-    answers = interrupt({"question_ids": list(ids.values())})
+    # 재개 값은 {"answers": {...}}로 감싼다. 빈 dict로 재개하면 LangGraph가 재개로 보지 않는다 ('나중에 답하기').
+    resumed = interrupt({"question_ids": list(ids.values())})
+    answers = resumed.get("answers", resumed) if isinstance(resumed, dict) else {}
     return {"question_ids": ids, "answers": answers, "stage": "ask_user"}
 
 
@@ -568,9 +564,10 @@ async def apply_answers(state, config):
                 continue
             c["confirmation_ref"] = a["question_id"]
             c["answer"] = {"choice": a["choice"], "text": a["text"]}
-            if a["choice"] == "reject" or (a["choice"] == "confirm" and not a["text"].strip()):
+            text, choice = a["text"].strip(), a["choice"]
+            if choice == "reject" or (choice in ("confirm", "other") and not text):
                 continue
-            said = a["text"].strip() or a["choice"]
+            said = text if choice in ("confirm", "other", "") else (f"{choice}. {text}" if text else choice)
             interp: AnswerInterpretation = await _structured(AnswerInterpretation, [
                 SystemMessage(P.ANSWER_SYSTEM),
                 HumanMessage(f"[결정] {c['statement']}\n[보고서 근거 표현] {c['stated_reason']}\n"
@@ -592,7 +589,6 @@ async def save_results(state, config):
     """🟦 규칙 버전과 근거를 저장하고, 확인된 지식만 rag-mcp에 등록한다."""
     hub, ctx = _hub(config), _ctx(config)
     answers = state.get("answers") or {}
-    calc_ref = answers.get("calc_rules", {}).get("question_id")
     calc_rules, cols = [], {"business_date", "item_name", "category_l1", "category_l2", "day_of_week", "weekend_yn"}
     for s in state["slots"]:
         rule = state["calc_rules"].get(s["slot_id"])
@@ -601,8 +597,7 @@ async def save_results(state, config):
         st = state["calc_status"].get(s["slot_id"], {}).get("status", "untested")
         cols |= {rule["column"]} | ({rule["denominator_column"]} if rule.get("denominator_column") else set())
         calc_rules.append({"slot": {k: s[k] for k in ("slot_id", "table_id", "table_title", "metric_label", "unit", "group_by", "cells")},
-                           "rule": rule, "validation_status": st,
-                           "confirmation_ref": calc_ref if st == "matched" else None})
+                           "rule": rule, "validation_status": st, "confirmation_ref": None})
     rep, prof = state["report"], state["profile"]
     rv = await hub.call("business", "save_rule_version", {
         "calc_rules": calc_rules, "dataset_columns": sorted(cols), "unresolved": state["unresolved"],
@@ -614,15 +609,10 @@ async def save_results(state, config):
 
     # 확인된 지식만 다음 실행에서 검색되도록 등록한다.
     registered = 0
-    calc_ans = answers.get("calc_rules")
-    if calc_ans and calc_ans["choice"] == "confirm":
-        lines = [f"- {r['slot']['table_title']} · {r['slot']['metric_label']}: {r['rule']['op']}({r['rule']['column']}), "
-                 f"scale={r['rule']['scale']}, 소수 {r['rule']['decimals']}자리" for r in calc_rules if r["validation_status"] == "matched"]
-        registered += await _register(hub, ctx, "월간 판매 실적 보고서 계산 규칙", "\n".join(lines), calc_ans["answer_id"])
     for rat in state["rationales"]:
         for c in rat["claims"]:
             a = answers.get(c["claim_id"]) or (answers.get(f"{rat['key']}-confirm") if c["status"] == "explained" else None)
-            if not a or a["choice"] == "reject":
+            if not a or a["choice"] == "reject" or (a["choice"] in ("confirm", "other") and not a["text"].strip()):
                 continue
             desc = c.get("criterion_user") or (c["criterion"] or {}).get("description") or ""
             body = (f"제안: {rat['title']} — {c['statement']}\n판단 기준: {desc}\n근거 데이터: {'; '.join(c['evidence'])}\n"

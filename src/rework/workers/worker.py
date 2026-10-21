@@ -17,7 +17,7 @@ from sqlalchemy import or_, update
 
 from rework.agent.errors import InputError, TransientError
 from rework.agent.mcp_client import RunContext
-from rework.agent.runtime import run_analysis, run_rerun
+from rework.agent.runtime import run_analysis, run_refresh, run_rerun
 from rework.config import get_settings
 from rework.db.models import Job, ProcessedMessage, Run, now
 from rework.db.session import init_db, record_event, session_scope
@@ -75,6 +75,8 @@ async def handle(message: aio_pika.abc.AbstractIncomingMessage, ex) -> None:
     try:
         if payload["action"] == "rerun":
             status = await run_rerun(ctx)
+        elif payload["action"] == "refresh":
+            status = await run_refresh(ctx)
         else:
             status = await run_analysis(ctx, payload["action"])
         _finish(payload, status=status)

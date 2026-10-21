@@ -80,7 +80,9 @@ JUDGE_SYSTEM = """조사 결과를 보고 결정(claim)마다 근거를 판정�
 - 같은 제안 안에서 반대 결정을 받은 대상이 comparators입니다. 기준(threshold)은 반드시 대상과 비교 대상을 가르는 값이어야 합니다.
 - evidence_summary는 숫자를 포함해 1~3줄로 쓰세요 (예: '단팥빵 일평균 6.68→6.5→6.13→5.33, 3개월 연속 감소 / 카스텔라는 1개월 감소').
 - cited_numbers에는 판정에 쓴 숫자를 도구 결과에 적힌 그대로 적으세요. 지어낸 숫자는 검증에서 걸러집니다.
-- ambiguous/unexplained면 담당자에게 물을 question을 쓰세요. explained여도 기준값이 추정이면 question에 확인 질문을 쓰세요."""
+- ambiguous/unexplained면 담당자에게 물을 question을 쓰세요. 객관식으로 답할 수 있게 options에 이유 후보 2~3개를 짧게 쓰세요.
+  ambiguous면 후보는 똑같이 성립한 가설들입니다. unexplained면 데이터 밖의 그럴듯한 이유(진열, 재고, 지시 등)입니다.
+  explained면 question을 비우세요 (묻지 않고 '추정'으로 남깁니다)."""
 
 JUDGE_USER = """[제안 {key}] {title}
 {text}
@@ -98,5 +100,6 @@ ANSWER_SYSTEM = """담당자의 답변을 판단 기준 한 문장으로 정리�
 condition.field 규칙은 다음과 같습니다. trend: consecutive_up/consecutive_down/change_pct, baseline: deviation_pct, promo_lift: lift_pct, dow: vs_overall_pct.
 답변에 없는 내용은 지어내지 마세요."""
 
-MANUAL_SYSTEM = """인수인계 매뉴얼의 서술 부분을 쓰세요. 후임자가 이 보고서를 처음 작성한다고 생각하고 구체적으로 쓰되,
-입력에 없는 사실(파일 입수처, 마감일, 담당자 이름 등)은 지어내지 마세요. 숫자와 표는 시스템이 따로 채웁니다."""
+MANUAL_SYSTEM = """인수인계 매뉴얼의 서술 부분을 쓰세요. 후임자가 이 보고서를 처음 작성한다고 생각하고 쓰되,
+문장은 짧게, 한 문장에 한 가지만 쓰세요. 같은 내용을 반복하지 마세요.
+입력에 없는 사실(파일 입수처, 마감일, 담당자 이름 등)은 지어내지 마세요. 숫자와 표, 판단 규칙은 시스템이 따로 채웁니다."""

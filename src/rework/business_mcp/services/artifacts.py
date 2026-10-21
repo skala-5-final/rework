@@ -10,6 +10,7 @@ from sqlalchemy import func, select
 
 from rework.business_mcp.services import analysis as A
 from rework.business_mcp.services.calc import execute, missing_groups
+from rework.contracts import explain as X
 from rework.contracts.rules import CalcRule, DecisionCriterion
 from rework.db.models import Answer, Artifact, Question, Rationale, RuleVersion, Run
 from rework.storage import artifact_dir, to_ref
@@ -98,75 +99,60 @@ def _put_artifact(s, *, tenant_id, run, kind, filename, content: str) -> str:
     return art.id
 
 
-STATUS_KO = {"matched": "일치", "mismatched": "불일치", "untested": "미검증",
-             "confirmed": "확인됨", "rejected": "반려", "unconfirmed": "미확인"}
 RAT_KO = {"explained": "데이터로 설명됨", "ambiguous": "판단 보류", "unexplained": "데이터로 설명 안 됨",
           "user_explained": "담당자 설명으로 확정"}
+LABEL_MARK = {"confirmed": "✅ 확인됨", "estimated": "🟡 추정", "unknown": "❓ 모름", "rejected": "⛔ 반려"}
 
 
-def _rule_text(rule: dict) -> str:
-    col = rule["column"]
-    base = {"sum": f"`{col}` 합계", "count_distinct": f"`{col}` 고유값 수",
-            "daily_mean": f"`{col}` 합계 ÷ 영업일수",
-            "ratio": f"`{col}` 합계 ÷ `{rule.get('denominator_column')}` 합계"}[rule["op"]]
-    if rule.get("as_percent"):
-        base += " × 100(%)"
-    if rule["scale"] == 1000:
-        base += ", 천원 단위"
-    return base + f", 소수 {rule['decimals']}자리 {'반올림' if rule['rounding'] == 'half_up' else rule['rounding']}"
-
-
-def build_manual(rv: RuleVersion, rationales: list[Rationale], manual_spec: dict) -> str:
+def build_manual(rv: RuleVersion, rationales: list[Rationale], manual_spec: dict, open_questions: list[str]) -> str:
+    """인수자용 매뉴얼. 규칙을 먼저 한 줄로 쓰고, 근거는 접어 둔다."""
     spec = rv.spec
     rep = spec.get("report", {})
+    rules = spec["calc_rules"]
     L = [f"# 인수인계 매뉴얼: {rep.get('title', '월간 판매 실적 보고서')}", "",
-         f"> 규칙 버전 v{rv.version} · 생성 {datetime.now(timezone.utc):%Y-%m-%d %H:%M} UTC · Re:Work 자동 생성", ""]
-    L += ["## 1. 업무 목적과 보고서 범위", manual_spec.get("purpose", "-"), ""]
-    L += ["## 2. 필요한 입력 파일과 필수 열",
-          "- 원천 데이터: POS 일별 판매 CSV (영업일 × 매장 × 상품)",
-          "- 필수 열: " + ", ".join(f"`{c}`" for c in spec.get("dataset_columns", [])), ""]
-    L += ["## 3. 자료 준비 방법", manual_spec.get("preparation", "-"), ""]
-    L += ["## 4. 집계 기간과 날짜 기준",
-          f"- 당월: {rep.get('period', '-')}, 비교월: {rep.get('prev_period', '-')}",
-          "- 날짜 기준: `business_date`(영업일)의 연·월", ""]
-    L += ["## 5. 계산 규칙", "", "| 지표 | 계산 방법 | 수치 검증 | 담당자 확인 |", "|---|---|---|---|"]
-    for r in spec["calc_rules"]:
-        L.append(f"| {r['slot']['table_title']} · {r['slot']['metric_label']} | {_rule_text(r['rule'])} | "
-                 f"{STATUS_KO[r['validation_status']]} | {STATUS_KO[r['confirmation']['status']]} |")
-    L += ["", "## 6. 판단 기준 (제안별 근거)", "",
-          "보고서에는 결론만 적혀 있습니다. 아래는 담당자가 그 제안을 하기까지 본 데이터를 원천 데이터에서 되찾은 결과입니다.", ""]
+         f"> 규칙 버전 v{rv.version} · {datetime.now(timezone.utc):%Y-%m-%d} 생성 · 당월 {rep.get('period', '-')}, "
+         f"비교월 {rep.get('prev_period', '-')}", "",
+         "라벨: ✅ 확인됨(숫자 재현 또는 담당자 확인) · 🟡 추정(데이터 근거 있음) · ❓ 모름 · ⛔ 반려", ""]
+
+    L += ["## 1. 이 보고서는", manual_spec.get("purpose", "-"), ""]
+    L += ["## 2. 매달 만드는 순서", f"- 준비: {manual_spec.get('preparation', '-')}"]
+    L += [f"{i}. {step}" for i, step in enumerate(manual_spec.get("steps", []), 1)]
+    L += [f"- 검증: {manual_spec.get('validation', '계산 규칙을 다시 실행해 보고서 수치와 비교합니다.')}"]
+    L += [f"- 예외: {x}" for x in manual_spec.get("exceptions", [])] + [""]
+
+    L += ["## 3. 판단 규칙", "다음 달에도 같은 조건이면 같은 결정을 합니다.", ""]
     for rat in sorted(rationales, key=lambda r: r.proposal_key):
         d = rat.data
-        L += [f"### {rat.proposal_key}. {d.get('title', '')}", f"> {d.get('proposal_text', '')}", ""]
+        L.append(f"### {d.get('title', rat.proposal_key)}")
         for c in d.get("claims", []):
-            L.append(f"**{c['statement']}** — {RAT_KO.get(c['status'], c['status'])} · 담당자 확인: "
-                     f"{STATUS_KO[c['confirmation']['status']]}")
-            L.append(f"- 보고서에 적힌 근거: “{c.get('stated_reason', '')}”")
-            if c.get("criterion"):
-                k = c["criterion"]
-                L.append(f"- **판단 기준:** {k['description']} "
-                         f"(`{k['type']}` · `{k['condition']['field']} {k['condition']['operator']} {k['condition']['threshold']}`"
-                         f" · 최근 {k['window_months']}개월)")
-            if c.get("criterion_user"):
-                L.append(f"- **담당자 설명 기준:** {c['criterion_user']}")
-            for e in c.get("evidence", []):
-                L.append(f"- 근거 데이터: {e}")
-            if c.get("rejected_hypotheses"):
-                L.append("- 기각한 가설: " + "; ".join(c["rejected_hypotheses"]))
-            if c.get("check_notes"):
-                L.append("- 검사 메모: " + "; ".join(c["check_notes"]))
+            rule = X.claim_rule(c)
+            L.append(f"- {LABEL_MARK[X.claim_label(c)]} **{c['statement']}**" + (f" — {rule}" if rule else ""))
+            detail = [f"보고서 표현: “{c.get('stated_reason', '')}”"] + [f"데이터: {e}" for e in c.get("evidence", [])]
             if c["confirmation"].get("answer_text"):
-                L.append(f"- 담당자 답변: “{c['confirmation']['answer_text']}”")
-            L.append("")
-    L += ["## 7. 단계별 작업 순서"] + [f"{i}. {step}" for i, step in enumerate(manual_spec.get("steps", []), 1)] + [""]
-    L += ["## 8. 검증 방법", manual_spec.get("validation", "계산 규칙을 다시 실행해 보고서 수치와 비교합니다."), ""]
-    L += ["## 9. 예외 처리"] + [f"- {x}" for x in manual_spec.get("exceptions", [])] + [""]
-    L += ["## 10. 미확인 사항"]
-    unresolved = list(spec.get("unresolved", []))
-    unresolved += [f"{r.proposal_key} {c['statement']} ({RAT_KO.get(c['status'], c['status'])}, 담당자 미확인)"
-                   for r in rationales for c in r.data.get("claims", [])
-                   if c["confirmation"]["status"] != "confirmed" and c["status"] != "explained"]
-    L += [f"- {u}" for u in unresolved] or ["- 없음"]
+                detail.append(f"담당자 답변: “{c['confirmation']['answer_text']}”")
+            if c.get("rejected_hypotheses"):
+                detail.append("아니었던 이유: " + "; ".join(c["rejected_hypotheses"]))
+            L += ["", '<details markdown="1"><summary>근거</summary>', ""] + [f"- {x}" for x in detail] + ["", "</details>", ""]
+        L.append("")
+
+    common = X.common_format([r["rule"] for r in rules])
+    L += ["## 4. 계산 규칙"]
+    if common:
+        L.append(f"공통: {X.format_text(common)}. 다른 경우만 표에 따로 적었습니다.")
+    L += ["", "| 지표 | 계산 | 엑셀 수식 | 상태 |", "|---|---|---|---|"]
+    for r in rules:
+        fmt = X.display_format(r["rule"])
+        plain = X.rule_plain(r["rule"]) + ("" if fmt == common else f" ({X.format_text(fmt)})")
+        L.append(f"| {r['slot']['table_title']} · {r['slot']['metric_label']} | {plain} | "
+                 f"`{X.rule_excel(r['rule'], r['slot'])}` | {LABEL_MARK[X.calc_label(r['validation_status'])]} |")
+    L += ["", "엑셀 수식의 열 이름은 원천 CSV 머리글입니다. `month`는 `business_date`의 연-월이고, `\"당월\"`·`\"품목\"` 같은 값은 해당 칸으로 바꿉니다.", ""]
+
+    L += ["## 5. 원천 데이터 열", ", ".join(f"`{c}`" + (f"({X.ko(c)})" if X.ko(c) != c else "")
+                                      for c in spec.get("dataset_columns", [])), ""]
+
+    L += ["## 6. 확인 필요"]
+    todo = list(spec.get("unresolved", [])) + open_questions
+    L += [f"- {u}" for u in todo] or ["- 없음"]
     L += ["", "※ 파일 입수처·마감일·담당자 연락처는 입력 자료에 없어 기록하지 않았습니다."]
     return "\n".join(L)
 
@@ -191,8 +177,12 @@ def generate_artifacts(s, *, tenant_id: str, run: Run, rule_version_id: str, man
         raise PermissionError("규칙 버전에 접근할 수 없습니다.")
     rationales = list(s.scalars(select(Rationale).where(Rationale.run_id == run.id)))
     ids = {}
+    answered = select(Answer.question_id)
+    open_questions = [q.text for q in s.scalars(select(Question).where(Question.run_id == run.id,
+                                                                     Question.id.not_in(answered))
+                                                 .order_by(Question.created_at))]
     ids["manual"] = _put_artifact(s, tenant_id=tenant_id, run=run, kind="manual", filename="인수인계_매뉴얼.md",
-                                  content=build_manual(rv, rationales, manual_spec))
+                                  content=build_manual(rv, rationales, manual_spec, open_questions))
     rules_json = {
         "schema_version": 1, "rule_version": rv.version, "rule_version_id": rv.id,
         "calc_rules": rv.spec["calc_rules"],
